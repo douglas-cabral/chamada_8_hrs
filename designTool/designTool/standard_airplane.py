@@ -232,7 +232,7 @@ def standard_airplane(name):
                     'winglet' : False, # Add winglet
                     
                     'altitude_takeoff' : 0.0, # Altitude for takeoff computation [m] - From Obert's paper
-                    'distance_takeoff' : 2600, # Required takeoff distance [m] - From Obert's paper
+                    'distance_takeoff' : 2900, # Required takeoff distance [m] - From Obert's paper
                     'deltaISA_takeoff' : 0.0, # Variation from ISA standard temperature [ºC] - From Obert's paper
                     
                     'altitude_landing' : 0.0, # Altitude for landing computation [m]
@@ -245,19 +245,19 @@ def standard_airplane(name):
                     'range_cruise' : 8000*nm2m, # Cruise range [m]
 
                     'altitude_maxcruise' : 43100*ft2m, # Altitude for high-speed cruise [m]
-                    'Mach_maxcruise' : 0.89, # Mach for high-speed cruise [m]
+                    'Mach_maxcruise' : 0.9, # Mach for high-speed cruise [m]
                     
                     'time_loiter' : 45*60, # Loiter time [s]
                     'altitude_loiter' : 1500*ft2m, # Loiter time [s] - DOI: 10.2514/6.2025-3572
                     
                     'altitude_altcruise' : 4572, # Alternative cruise altitude [m]
-                    'Mach_altcruise' : 0.4, # Alternative cruise Mach number
+                    'Mach_altcruise' : 0.8, # Alternative cruise Mach number
                     'range_altcruise' : 200*nm2m, # Alternative cruise range [m]
                     
-                    'W_payload' : 30875*gravity, # Payload weight [N]
+                    'W_payload' : 32000*gravity, # Payload weight [N]
                     'xcg_payload' : 14.4, # Longitudinal position of the Payload center of gravity [m]
                     
-                    'W_crew' : 800*gravity, # Crew weight [N]
+                    'W_crew' : 900*gravity, # Crew weight [N]
                     'xcg_crew' : 2.5, # Longitudinal position of the Crew center of gravity [m]
 
                     'block_range' : 400*nm2m, # Block range [m]
