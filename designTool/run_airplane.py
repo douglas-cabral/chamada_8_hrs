@@ -13,6 +13,9 @@ from designTool.standard_airplane import standard_airplane
 from designTool.geometry import geometry, change_sweep
 from designTool.plots import plot_geometry
 from designTool.aerodynamics import aerodynamics
+from designTool.weight import weight
+from designTool.auxiliary import atmosphere
+from designTool.constants import gravity
 import pprint
 
 # =========================================
@@ -23,7 +26,6 @@ import pprint
 ft2m = 0.3048
 kt2ms = 0.514444
 lb2N = 4.44822
-gravity = 9.81
 
 # Select airplane name from the standard_airplane function in designTool
 # airplane_name = "fokker100"
@@ -213,7 +215,7 @@ def plot_clmax_vs_sweep_w(
     sweep_deg_min=0.0,
     sweep_deg_max=60.0,
     n_sweep=61,
-    sweep_project_deg=31.91,
+    sweep_project_deg=34.0,
 ):
     """
     CL_max total (retorno de aerodynamics) e CLmax_clean (dragDict) versus enflechamento.
@@ -312,7 +314,7 @@ def plot_clmax_vs_sweep_w(
     ax2.set_xlabel("Enflechamento da asa $\\Lambda$ [°]")
     ax2.set_ylabel(r"CL$_{max,clean}$")
     ax2.set_title(
-        r"$C_{L,\max,\mathrm{clean}}$ em funcao do enflechamento da asa (asa limpa)"
+        r"$C_{L,\max,\mathrm{clean}}$ em funcao do enflechamento da asa"
     )
     ax2.grid(True, alpha=0.3)
     ax2.legend()
@@ -336,13 +338,23 @@ plot_geometry(airplane, figname="3dview.png", az1=45, az2=-135)
 
 print(pprint.pformat(airplane))
 
+# ---- Weight estimation (converged) ----
+W0_guess = airplane['inputs']['W0_guess']
+T0_guess = 850000.0
+W0, W_empty, W_fuel, W_cruise = weight(W0_guess, T0_guess, airplane)
+print(f"\n--- Peso convergido ---")
+print(f"W0 (MTOW)  = {W0:.2f} N ({W0/gravity:.0f} kg)")
+print(f"W_empty    = {W_empty:.2f} N ({W_empty/gravity:.0f} kg)")
+print(f"W_fuel     = {W_fuel:.2f} N ({W_fuel/gravity:.0f} kg)")
+print(f"W_cruise   = {W_cruise:.2f} N ({W_cruise/gravity:.0f} kg)")
+
 # ---- Cruise CD vs Mach sweep ----
-W0 = 280000 * gravity
-W_cruise = 0.96 * W0
-altitude_cruise = 12192.0  # 40000 ft in meters
-rho_cruise = 0.30267       # kg/m^3
-a_cruise = 295.0695        # m/s
-Mach_cruise = 0.85
+altitude_cruise = airplane['inputs']['altitude_cruise']
+Mach_cruise = airplane['inputs']['Mach_cruise']
+
+atm_cruise = atmosphere(altitude_cruise)
+rho_cruise = atm_cruise['density']
+a_cruise = atm_cruise['speed_of_sound']
 
 S_w = airplane['inputs']['S_w']
 V_cruise = Mach_cruise * a_cruise
@@ -479,10 +491,10 @@ fig2.tight_layout()
 
 # ---- CLmax takeoff vs wing sweep ----
 Mach_to = 0.3
-altitude_to = 0.0
+altitude_to = airplane['inputs']['altitude_takeoff']
 n_engines_failed_to = 1
-T0 = 748840.0       # N
-d_to = 2900.0        # m
+T0 = T0_guess
+d_to = airplane['inputs']['distance_takeoff']
 
 CLmax_to_req = 0.2387 / ((T0 / W0) * d_to) * (W0 / S_w)
 print(f"\n  CLmax_to necessario = {CLmax_to_req:.4f}")

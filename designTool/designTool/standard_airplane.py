@@ -150,29 +150,29 @@ def standard_airplane(name):
 
         inputs = {'type': 'transport', # Can be 'transport', 'fighter', or 'general'
                     
-                    'S_w' : 452.89, # Wing area [m2]
+                    'S_w' : 450, # Wing area [m2]
                     'AR_w' : 9.26,  # Wing aspect ratio
                     'taper_w' : 0.2, # Wing taper ratio
                     'sweep_w' : 34*np.pi/180, # Wing sweep [rad]
                     'dihedral_w' : 4.57*np.pi/180, # Wing dihedral [rad]
                     'xr_w' : 20.23, # (29.09) Longitudinal position of the wing (with respect to the fuselage nose) [m]
                     'zr_w' : -1.04, # Vertical position of the wing (with respect to the fuselage nose) [m]
-                    'tcr_w' : 0.123, # t/c of the root section of the wing
-                    'tct_w' : 0.08, # t/c of the tip section of the wing
+                    'tcr_w' : 0.14, # t/c of the root section of the wing
+                    'tct_w' : 0.07, # t/c of the tip section of the wing
                     
-                    'Cht' : 0.775, # Horizontal tail volume coefficient
-                    'Lc_h' : 4.08, # Non-dimensional lever of the horizontal tail (lever/wing_mac)
+                    'Cht' : 0.55, # Horizontal tail volume coefficient
+                    'Lc_h' : 3.9, # Non-dimensional lever of the horizontal tail (lever/wing_mac)
                     'AR_h' : 4.55, # HT aspect ratio
                     'taper_h' : 0.40, # HT taper ratio
                     'sweep_h' : 33.92*np.pi/180, # HT sweep [rad]
                     'dihedral_h' : 6.56*np.pi/180, # HT dihedral [rad]
                     'zr_h' : 2.22, # Vertical position of the HT [m]
                     'tcr_h' : 0.119, # t/c of the root section of the HT
-                    'tct_h' : 0.120, # t/c of the tip section of the HT
+                    'tct_h' : 0.09, # t/c of the tip section of the HT
                     'eta_h' : 1.0, # NSEI Dynamic pressure factor of the HT
                     
                     'Cvt' : 0.053, # Vertical tail volume coefficient
-                    'Lb_v' : 0.51, # Non-dimensional lever of the vertical tail (lever/wing_span)
+                    'Lb_v' : 0.48, # Non-dimensional lever of the vertical tail (lever/wing_span)
                     'AR_v' : 1.74, # VT aspect ratio
                     'taper_v' : 0.39, # VT taper ratio
                     'sweep_v' : 39.73*np.pi/180, # VT sweep [rad]
@@ -204,7 +204,7 @@ def standard_airplane(name):
                     'x_mlg' : 33.29, # Longitudinal position of the main landing gear [m]
                     'y_mlg' : 5.3, # Lateral position of the main landing gear [m]
                     'z_lg' : -5.5, # Vertical position of the landing gear [m]
-                    'x_tailstrike' : 52, # NSEI Longitudinal position of critical tailstrike point [m]
+                    'x_tailstrike' : 55, # NSEI Longitudinal position of critical tailstrike point [m]
                     'z_tailstrike' : -1.54, # NSEI Vertical position of critical tailstrike point [m]
                     
                     'c_tank_c_w' : 0.4, # NSEI Fraction of the wing chord occupied by the fuel tank
@@ -213,15 +213,15 @@ def standard_airplane(name):
                     'b_tank_b_w_end' : 0.95, # NSEI Fraction of the wing semi-span where fuel tank ends
                     
                     'clmax_w' : 1.8, # NSEI Maximum lift coefficient of wing airfoil
-                    'k_korn' : 0.95, # NSEI Airfoil technology factor for Korn equation (wave drag)
+                    'k_korn' : 0.94, # NSEI Airfoil technology factor for Korn equation (wave drag)
         
                     'flap_type' : 'double slotted',  # NSEI Flap type
                     'c_flap_c_wing' : 0.30, # NSEI Fraction of the wing chord occupied by flaps
-                    'b_flap_b_wing' : 0.60, # NSEI Fraction of the wing span occupied by flaps (including fuselage portion)
+                    'b_flap_b_wing' : 0.70, # NSEI Fraction of the wing span occupied by flaps (including fuselage portion)
                     
-                    'slat_type' : None, # NSEI Slat type
-                    'c_slat_c_wing' : 0.00, # NSEI Fraction of the wing chord occupied by slats
-                    'b_slat_b_wing' : 0.00, # NSEI Fraction of the wing span occupied by slats
+                    'slat_type' : 'slat', # NSEI Slat type
+                    'c_slat_c_wing' : 0.12, # NSEI Fraction of the wing chord occupied by slats
+                    'b_slat_b_wing' : 0.90, # NSEI Fraction of the wing span occupied by slats
 
                     'c_ail_c_wing' : 0.27, # NSEI Fraction of the wing chord occupied by aileron
                     'b_ail_b_wing' : 0.34, # NSEI Fraction of the wing span occupied by aileron
@@ -229,7 +229,7 @@ def standard_airplane(name):
                     'h_ground' : 35.0*ft2m, # NSEI Distance to the ground for ground effect computation [m]
                     'k_exc_drag' : 0.03, # NSEI Excrescence drag factor
 
-                    'winglet' : False, # Add winglet
+                    'winglet' : True, # Add winglet
                     
                     'altitude_takeoff' : 0.0, # Altitude for takeoff computation [m] - From Obert's paper
                     'distance_takeoff' : 2900, # Required takeoff distance [m] - From Obert's paper

@@ -15,7 +15,7 @@ geometry(airplane)
 
 # Guess values for initial iteration
 W0_guess = 2746800.00000000000000
-T0_guess = 748840.00000000000000
+T0_guess = 770000.00000000000000
 
 # Execute the weight estimation
 W0, W_empty, W_fuel, W_cruise = weight(W0_guess, T0_guess, airplane)
