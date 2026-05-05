@@ -153,7 +153,7 @@ def standard_airplane(name):
                     'S_w' : 452.89, # Wing area [m2]
                     'AR_w' : 9.26,  # Wing aspect ratio
                     'taper_w' : 0.2, # Wing taper ratio
-                    'sweep_w' : 31.91*np.pi/180, # Wing sweep [rad]
+                    'sweep_w' : 34*np.pi/180, # Wing sweep [rad]
                     'dihedral_w' : 4.57*np.pi/180, # Wing dihedral [rad]
                     'xr_w' : 20.23, # (29.09) Longitudinal position of the wing (with respect to the fuselage nose) [m]
                     'zr_w' : -1.04, # Vertical position of the wing (with respect to the fuselage nose) [m]
@@ -213,7 +213,7 @@ def standard_airplane(name):
                     'b_tank_b_w_end' : 0.95, # NSEI Fraction of the wing semi-span where fuel tank ends
                     
                     'clmax_w' : 1.8, # NSEI Maximum lift coefficient of wing airfoil
-                    'k_korn' : 0.93, # NSEI Airfoil technology factor for Korn equation (wave drag)
+                    'k_korn' : 0.95, # NSEI Airfoil technology factor for Korn equation (wave drag)
         
                     'flap_type' : 'double slotted',  # NSEI Flap type
                     'c_flap_c_wing' : 0.30, # NSEI Fraction of the wing chord occupied by flaps
@@ -250,8 +250,8 @@ def standard_airplane(name):
                     'time_loiter' : 45*60, # Loiter time [s]
                     'altitude_loiter' : 1500*ft2m, # Loiter time [s] - DOI: 10.2514/6.2025-3572
                     
-                    'altitude_altcruise' : 4572, # Alternative cruise altitude [m]
-                    'Mach_altcruise' : 0.8, # Alternative cruise Mach number
+                    'altitude_altcruise' : 7620, # Alternative cruise altitude [m]
+                    'Mach_altcruise' : 0.78, # Alternative cruise Mach number
                     'range_altcruise' : 200*nm2m, # Alternative cruise range [m]
                     
                     'W_payload' : 32000*gravity, # Payload weight [N]
