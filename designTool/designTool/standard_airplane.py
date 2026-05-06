@@ -150,18 +150,18 @@ def standard_airplane(name):
 
         inputs = {'type': 'transport', # Can be 'transport', 'fighter', or 'general'
                     
-                    'S_w' : 450, # Wing area [m2]
-                    'AR_w' : 9.26,  # Wing aspect ratio
+                    'S_w' : 445, # Wing area [m2]
+                    'AR_w' : 10.5,  # Wing aspect ratio
                     'taper_w' : 0.2, # Wing taper ratio
                     'sweep_w' : 34*np.pi/180, # Wing sweep [rad]
                     'dihedral_w' : 4.57*np.pi/180, # Wing dihedral [rad]
                     'xr_w' : 20.23, # (29.09) Longitudinal position of the wing (with respect to the fuselage nose) [m]
                     'zr_w' : -1.04, # Vertical position of the wing (with respect to the fuselage nose) [m]
                     'tcr_w' : 0.14, # t/c of the root section of the wing
-                    'tct_w' : 0.07, # t/c of the tip section of the wing
+                    'tct_w' : 0.08, # t/c of the tip section of the wing
                     
-                    'Cht' : 0.55, # Horizontal tail volume coefficient
-                    'Lc_h' : 3.9, # Non-dimensional lever of the horizontal tail (lever/wing_mac)
+                    'Cht' : 0.53, # Horizontal tail volume coefficient
+                    'Lc_h' : 4.15, # Non-dimensional lever of the horizontal tail (lever/wing_mac)
                     'AR_h' : 4.55, # HT aspect ratio
                     'taper_h' : 0.40, # HT taper ratio
                     'sweep_h' : 33.92*np.pi/180, # HT sweep [rad]
@@ -172,7 +172,7 @@ def standard_airplane(name):
                     'eta_h' : 1.0, # NSEI Dynamic pressure factor of the HT
                     
                     'Cvt' : 0.053, # Vertical tail volume coefficient
-                    'Lb_v' : 0.48, # Non-dimensional lever of the vertical tail (lever/wing_span)
+                    'Lb_v' : 0.435, # Non-dimensional lever of the vertical tail (lever/wing_span)
                     'AR_v' : 1.74, # VT aspect ratio
                     'taper_v' : 0.39, # VT taper ratio
                     'sweep_v' : 39.73*np.pi/180, # VT sweep [rad]
@@ -187,7 +187,7 @@ def standard_airplane(name):
                     'y_n' : 11.69, # Lateral position of the nacelle centerline [m]
                     'z_n' : -2.22, # Vertical position of the nacelle centerline [m]
                     'L_n' : 6.09, # Nacelle length [m]
-                    'D_n' : 4.59, # Nacelle diameter [m]
+                    'D_n' : 3.0, # Nacelle diameter [m]
                     
                     'n_engines' : 2, # Number of engines
                   'n_engines_under_wing' : 2, # Number of engines installed under the wing
