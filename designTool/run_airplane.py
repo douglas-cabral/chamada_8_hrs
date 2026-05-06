@@ -177,7 +177,8 @@ def plot_cl_vs_cd(
     reset_accumulator=False,
     accumulator_path=None,
 ):
-    path = Path(accumulator_path) if accumulator_path else _POLAR_ACCUMULATOR_PATH
+    default_path = Path(__file__).resolve().parent / "polar_curves_accumulator.json"
+    path = Path(accumulator_path) if accumulator_path else default_path
 
     if reset_accumulator and path.is_file():
         path.unlink()
@@ -557,5 +558,144 @@ ax3.set_title(
 ax3.grid(True, alpha=0.3)
 ax3.legend()
 fig3.tight_layout()
+
+# ---- Polar CD x CL (cruzeiro e pouso) ----
+# (Sem accumulator/JSON: varre CL e chama aerodynamics() ponto a ponto.)
+polar_cruise = compute_polar_curve(
+    airplane,
+    Mach_cruise,
+    altitude_cruise,
+    highlift_config="clean",
+    n_engines_failed=0,
+    lg_down=0,
+    h_ground=0,
+    cl_min=-0.5,
+    n_points=120,
+)
+cl_cruise = np.asarray(polar_cruise["cl"], dtype=float)
+cd_cruise = np.asarray(polar_cruise["cd"], dtype=float)
+
+Mach_landing = 0.22
+altitude_landing = airplane["inputs"]["altitude_landing"]
+h_ground_landing = 0.3 * airplane["geometry"]["b_w"]
+polar_landing = compute_polar_curve(
+    airplane,
+    Mach_landing,
+    altitude_landing,
+    highlift_config="landing",
+    n_engines_failed=0,
+    lg_down=1,
+    h_ground=h_ground_landing,
+    cl_min=-0.5,
+    n_points=120,
+)
+cl_landing = np.asarray(polar_landing["cl"], dtype=float)
+cd_landing = np.asarray(polar_landing["cd"], dtype=float)
+
+Mach_second_segment = 0.25
+polar_second_segment = compute_polar_curve(
+    airplane,
+    Mach_to,
+    altitude_to,
+    highlift_config="takeoff",
+    n_engines_failed=1,
+    lg_down=0,
+    h_ground=0,
+    cl_min=-0.5,
+    n_points=120,
+)
+cl_second_segment = np.asarray(polar_second_segment["cl"], dtype=float)
+cd_second_segment = np.asarray(polar_second_segment["cd"], dtype=float)
+
+plt.figure(figsize=(10, 7))
+plt.plot(cd_cruise, cl_cruise, linewidth=2, color="C0", label=polar_cruise["legend_label"])
+plt.plot(
+    cd_landing,
+    cl_landing,
+    linewidth=2,
+    color="C1",
+    label=f"Pouso (M={Mach_landing:.2f}, h_ground=0.3b)",
+)
+plt.plot(
+    cd_second_segment,
+    cl_second_segment,
+    linewidth=2,
+    color="C2",
+    label=f"2o segmento (takeoff, M={Mach_to:.2f}, 1 motor inop.)",
+)
+k_cruise = int(polar_cruise["idx_cd_min"])
+k_landing = int(polar_landing["idx_cd_min"])
+k_second_segment = int(polar_second_segment["idx_cd_min"])
+plt.scatter(
+    cd_cruise[k_cruise],
+    cl_cruise[k_cruise],
+    s=70,
+    color="C0",
+    zorder=3,
+)
+plt.scatter(
+    cd_landing[k_landing],
+    cl_landing[k_landing],
+    s=70,
+    color="C1",
+    zorder=3,
+)
+plt.scatter(
+    cd_second_segment[k_second_segment],
+    cl_second_segment[k_second_segment],
+    s=70,
+    color="C2",
+    zorder=3,
+)
+plt.scatter(
+    cd_cruise[-1],
+    cl_cruise[-1],
+    s=90,
+    marker="^",
+    color="C0",
+    zorder=4,
+)
+plt.scatter(
+    cd_landing[-1],
+    cl_landing[-1],
+    s=90,
+    marker="^",
+    color="C1",
+    zorder=4,
+)
+plt.scatter(
+    cd_second_segment[-1],
+    cl_second_segment[-1],
+    s=90,
+    marker="^",
+    color="C2",
+    zorder=4,
+)
+plt.annotate(f"CD={cd_cruise[k_cruise]:.4f}", (cd_cruise[k_cruise], cl_cruise[k_cruise]),
+             textcoords="offset points", xytext=(6, -12), fontsize=7, color="C0")
+plt.annotate(f"CD={cd_landing[k_landing]:.4f}", (cd_landing[k_landing], cl_landing[k_landing]),
+             textcoords="offset points", xytext=(6, 8), fontsize=7, color="C1")
+plt.annotate(
+    f"CD={cd_second_segment[k_second_segment]:.4f}",
+    (cd_second_segment[k_second_segment], cl_second_segment[k_second_segment]),
+    textcoords="offset points",
+    xytext=(6, -12),
+    fontsize=7,
+    color="C2",
+)
+plt.annotate(f"CL={cl_cruise[-1]:.2f}", (cd_cruise[-1], cl_cruise[-1]),
+             textcoords="offset points", xytext=(6, 6), fontsize=7, color="C0")
+plt.annotate(f"CL={cl_landing[-1]:.2f}", (cd_landing[-1], cl_landing[-1]),
+             textcoords="offset points", xytext=(6, 6), fontsize=7, color="C1")
+plt.annotate(f"CL={cl_second_segment[-1]:.2f}", (cd_second_segment[-1], cl_second_segment[-1]),
+             textcoords="offset points", xytext=(6, 6), fontsize=7, color="C2")
+plt.axhline(-0.5, color="k", linestyle="--", linewidth=1, alpha=0.7)
+plt.text(plt.xlim()[0], -0.47, "CL = -0.5", fontsize=7, color="k")
+plt.xlabel("CD")
+plt.ylabel("CL")
+plt.title("Polar de arrasto — CL x CD")
+plt.grid(True, alpha=0.3)
+plt.legend(fontsize=9)
+plt.tight_layout()
 
 plt.show()
