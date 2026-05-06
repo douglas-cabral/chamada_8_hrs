@@ -491,7 +491,7 @@ ax2.legend()
 fig2.tight_layout()
 
 # ---- CLmax takeoff vs wing sweep ----
-Mach_to = 0.3
+Mach_to = 0.25
 altitude_to = airplane['inputs']['altitude_takeoff']
 n_engines_failed_to = 1
 T0 = T0_guess
@@ -570,7 +570,7 @@ polar_cruise = compute_polar_curve(
     lg_down=0,
     h_ground=0,
     cl_min=-0.5,
-    n_points=120,
+    n_points=400,
 )
 cl_cruise = np.asarray(polar_cruise["cl"], dtype=float)
 cd_cruise = np.asarray(polar_cruise["cd"], dtype=float)
@@ -587,41 +587,95 @@ polar_landing = compute_polar_curve(
     lg_down=1,
     h_ground=h_ground_landing,
     cl_min=-0.5,
-    n_points=120,
+    n_points=400,
 )
 cl_landing = np.asarray(polar_landing["cl"], dtype=float)
 cd_landing = np.asarray(polar_landing["cd"], dtype=float)
 
-Mach_second_segment = 0.25
+Mach_second_segment = Mach_to
 polar_second_segment = compute_polar_curve(
     airplane,
-    Mach_to,
+    Mach_second_segment,
     altitude_to,
     highlift_config="takeoff",
     n_engines_failed=1,
     lg_down=0,
     h_ground=0,
     cl_min=-0.5,
-    n_points=120,
+    n_points=400,
 )
 cl_second_segment = np.asarray(polar_second_segment["cl"], dtype=float)
 cd_second_segment = np.asarray(polar_second_segment["cd"], dtype=float)
 
+def max_aerodynamic_efficiency(cl_values, cd_values):
+    valid = (cl_values > 0.0) & (cd_values > 0.0)
+    ld_values = np.full_like(cl_values, -np.inf, dtype=float)
+    ld_values[valid] = cl_values[valid] / cd_values[valid]
+    idx = int(np.argmax(ld_values))
+    return ld_values[idx], cl_values[idx], cd_values[idx]
+
+
+efficiency_rows = [
+    (
+        "Cruzeiro (limpo)",
+        Mach_cruise,
+        altitude_cruise,
+        *max_aerodynamic_efficiency(cl_cruise, cd_cruise),
+        LD_cruise,
+    ),
+    (
+        "Pouso",
+        Mach_landing,
+        altitude_landing,
+        *max_aerodynamic_efficiency(cl_landing, cd_landing),
+        None,
+    ),
+    (
+        "2o segmento",
+        Mach_second_segment,
+        altitude_to,
+        *max_aerodynamic_efficiency(cl_second_segment, cd_second_segment),
+        None,
+    ),
+]
+
+print("\n" + "=" * 104)
+print("  EFICIENCIAS AERODINAMICAS")
+print("=" * 104)
+print(
+    f"  {'Etapa':<22s} {'M':>6s} {'h [m]':>10s} {'(L/D)_max':>12s} "
+    f"{'CL@max':>10s} {'CD@max':>10s} {'L/D cruzeiro':>14s}"
+)
+print("-" * 104)
+for stage, mach, altitude, ld_max, cl_at_max, cd_at_max, ld_cr in efficiency_rows:
+    ld_cr_text = f"{ld_cr:14.4f}" if ld_cr is not None else f"{'-':>14s}"
+    print(
+        f"  {stage:<22s} {mach:6.3f} {altitude:10.1f} {ld_max:12.4f} "
+        f"{cl_at_max:10.4f} {cd_at_max:10.5f} {ld_cr_text}"
+    )
+print("=" * 104)
+
 plt.figure(figsize=(10, 7))
-plt.plot(cd_cruise, cl_cruise, linewidth=2, color="C0", label=polar_cruise["legend_label"])
+plt.plot(
+    cd_cruise,
+    cl_cruise,
+    linewidth=2,
+    color="C0",
+    label=f"Cruzeiro (M={Mach_cruise:.2f})",
+)
 plt.plot(
     cd_landing,
     cl_landing,
     linewidth=2,
     color="C1",
-    label=f"Pouso (M={Mach_landing:.2f}, h_ground=0.3b)",
+    label=f"Pouso (M={Mach_landing:.2f})",
 )
 plt.plot(
     cd_second_segment,
     cl_second_segment,
     linewidth=2,
     color="C2",
-    label=f"2o segmento (takeoff, M={Mach_to:.2f}, 1 motor inop.)",
+    label=f"2o segmento (M={Mach_second_segment:.2f})",
 )
 k_cruise = int(polar_cruise["idx_cd_min"])
 k_landing = int(polar_landing["idx_cd_min"])
@@ -671,24 +725,25 @@ plt.scatter(
     color="C2",
     zorder=4,
 )
+annotation_fontsize = 9
 plt.annotate(f"CD={cd_cruise[k_cruise]:.4f}", (cd_cruise[k_cruise], cl_cruise[k_cruise]),
-             textcoords="offset points", xytext=(6, -12), fontsize=7, color="C0")
+             textcoords="offset points", xytext=(8, -22), fontsize=annotation_fontsize, color="C0")
 plt.annotate(f"CD={cd_landing[k_landing]:.4f}", (cd_landing[k_landing], cl_landing[k_landing]),
-             textcoords="offset points", xytext=(6, 8), fontsize=7, color="C1")
+             textcoords="offset points", xytext=(8, 10), fontsize=annotation_fontsize, color="C1")
 plt.annotate(
     f"CD={cd_second_segment[k_second_segment]:.4f}",
     (cd_second_segment[k_second_segment], cl_second_segment[k_second_segment]),
     textcoords="offset points",
-    xytext=(6, -12),
-    fontsize=7,
+    xytext=(8, 14),
+    fontsize=annotation_fontsize,
     color="C2",
 )
 plt.annotate(f"CL={cl_cruise[-1]:.2f}", (cd_cruise[-1], cl_cruise[-1]),
-             textcoords="offset points", xytext=(6, 6), fontsize=7, color="C0")
+             textcoords="offset points", xytext=(8, 8), fontsize=annotation_fontsize, color="C0")
 plt.annotate(f"CL={cl_landing[-1]:.2f}", (cd_landing[-1], cl_landing[-1]),
-             textcoords="offset points", xytext=(6, 6), fontsize=7, color="C1")
+             textcoords="offset points", xytext=(8, 8), fontsize=annotation_fontsize, color="C1")
 plt.annotate(f"CL={cl_second_segment[-1]:.2f}", (cd_second_segment[-1], cl_second_segment[-1]),
-             textcoords="offset points", xytext=(6, 6), fontsize=7, color="C2")
+             textcoords="offset points", xytext=(8, 8), fontsize=annotation_fontsize, color="C2")
 plt.axhline(-0.5, color="k", linestyle="--", linewidth=1, alpha=0.7)
 plt.text(plt.xlim()[0], -0.47, "CL = -0.5", fontsize=7, color="k")
 plt.xlabel("CD")
@@ -697,5 +752,50 @@ plt.title("Polar de arrasto — CL x CD")
 plt.grid(True, alpha=0.3)
 plt.legend(fontsize=9)
 plt.tight_layout()
+
+_, CLmax_takeoff_hl, dd_takeoff_hl = aerodynamics(
+    airplane,
+    Mach_to,
+    altitude_to,
+    0.0,
+    n_engines_failed=n_engines_failed_to,
+    highlift_config="takeoff",
+    lg_down=0,
+    h_ground=0,
+)
+_, CLmax_landing_hl, dd_landing_hl = aerodynamics(
+    airplane,
+    Mach_landing,
+    altitude_landing,
+    0.0,
+    n_engines_failed=0,
+    highlift_config="landing",
+    lg_down=1,
+    h_ground=h_ground_landing,
+)
+
+print("\n" + "=" * 96)
+print("  HIPERSUSTENTADORES E INCREMENTO DE CLmax")
+print("=" * 96)
+print(f"  Flap escolhido: {airplane['inputs']['flap_type']}")
+print(f"  Slat escolhido: {airplane['inputs']['slat_type']}")
+print("-" * 96)
+print(
+    f"  {'Etapa':<12s} {'CLmax clean':>12s} {'Delta flap':>12s} "
+    f"{'Delta slat':>12s} {'Delta total':>13s} {'CLmax total':>13s}"
+)
+print("-" * 96)
+for stage, dd_hl, CLmax_hl in [
+    ("Decolagem", dd_takeoff_hl, CLmax_takeoff_hl),
+    ("Pouso", dd_landing_hl, CLmax_landing_hl),
+]:
+    delta_flap = dd_hl["deltaCLmax_flap"]
+    delta_slat = dd_hl["deltaCLmax_slat"]
+    delta_total = delta_flap + delta_slat
+    print(
+        f"  {stage:<12s} {dd_hl['CLmax_clean']:12.4f} {delta_flap:12.4f} "
+        f"{delta_slat:12.4f} {delta_total:13.4f} {CLmax_hl:13.4f}"
+    )
+print("=" * 96)
 
 plt.show()
