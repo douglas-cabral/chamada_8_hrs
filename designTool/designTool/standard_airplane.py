@@ -150,10 +150,10 @@ def standard_airplane(name):
 
         inputs = {'type': 'transport', # Can be 'transport', 'fighter', or 'general'
                     
-                    'S_w' : 445, # Wing area [m2]
-                    'AR_w' : 10.5,  # Wing aspect ratio
+                    'S_w' : 452.89, # Wing area [m2]
+                    'AR_w' : 9.26,  # Wing aspect ratio
                     'taper_w' : 0.2, # Wing taper ratio
-                    'sweep_w' : 34*np.pi/180, # Wing sweep [rad]
+                    'sweep_w' : 35*np.pi/180, # Wing sweep [rad]
                     'dihedral_w' : 4.57*np.pi/180, # Wing dihedral [rad]
                     'xr_w' : 20.23, # (29.09) Longitudinal position of the wing (with respect to the fuselage nose) [m]
                     'zr_w' : -1.04, # Vertical position of the wing (with respect to the fuselage nose) [m]
@@ -161,7 +161,7 @@ def standard_airplane(name):
                     'tct_w' : 0.08, # t/c of the tip section of the wing
                     
                     'Cht' : 0.53, # Horizontal tail volume coefficient
-                    'Lc_h' : 4.15, # Non-dimensional lever of the horizontal tail (lever/wing_mac)
+                    'Lc_h' : 4.08, # Non-dimensional lever of the horizontal tail (lever/wing_mac)
                     'AR_h' : 4.55, # HT aspect ratio
                     'taper_h' : 0.40, # HT taper ratio
                     'sweep_h' : 33.92*np.pi/180, # HT sweep [rad]
@@ -172,7 +172,7 @@ def standard_airplane(name):
                     'eta_h' : 1.0, # NSEI Dynamic pressure factor of the HT
                     
                     'Cvt' : 0.053, # Vertical tail volume coefficient
-                    'Lb_v' : 0.435, # Non-dimensional lever of the vertical tail (lever/wing_span)
+                    'Lb_v' : 0.51, # Non-dimensional lever of the vertical tail (lever/wing_span)
                     'AR_v' : 1.74, # VT aspect ratio
                     'taper_v' : 0.39, # VT taper ratio
                     'sweep_v' : 39.73*np.pi/180, # VT sweep [rad]
@@ -267,7 +267,7 @@ def standard_airplane(name):
                     
                     'rho_fuel' : 804, # Fuel density kg/m3 (This is Jet A-1)
 
-                    'W0_guess' : 280000*gravity # Guess for MTOW
+                    'W0_guess' : 300000*gravity # Guess for MTOW
                     }
 
     airplane = {'inputs':inputs}
