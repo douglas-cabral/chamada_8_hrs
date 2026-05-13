@@ -240,11 +240,11 @@ def standard_airplane(name):
                     'deltaISA_landing' : 0.0, # Variation from ISA standard temperature [ºC]
                     'MLW_frac' : 207000/280000, # Max Landing Weight / Max Takeoff Weight - From Obert's paper
                     
-                    'altitude_cruise' : 40000*ft2m, # Cruise altitude [m]
+                    'altitude_cruise' : 35000*ft2m, # Cruise altitude [m]
                     'Mach_cruise' : 0.85, # Cruise Mach number
                     'range_cruise' : 8000*nm2m, # Cruise range [m]
 
-                    'altitude_maxcruise' : 43100*ft2m, # Altitude for high-speed cruise [m]
+                    'altitude_maxcruise' : 30000*ft2m, # Altitude for high-speed cruise [m]
                     'Mach_maxcruise' : 0.9, # Mach for high-speed cruise [m]
                     
                     'time_loiter' : 45*60, # Loiter time [s]
