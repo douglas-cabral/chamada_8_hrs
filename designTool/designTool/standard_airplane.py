@@ -5,7 +5,7 @@ which can be used as starting point for new designs.
 
 # GENERAL IMPORTS
 import numpy as np
-from .constants import ft2m, gravity, nm2m
+from .constants import ft2m, gravity, nm2m, lb2N
 
 #=================================================
 
@@ -150,7 +150,7 @@ def standard_airplane(name):
 
         inputs = {'type': 'transport', # Can be 'transport', 'fighter', or 'general'
                     
-                    'S_w' : 452.89, # Wing area [m2]
+                    'S_w' : 395.24, # Wing area [m2]
                     'AR_w' : 9.26,  # Wing aspect ratio
                     'taper_w' : 0.2, # Wing taper ratio
                     'sweep_w' : 35*np.pi/180, # Wing sweep [rad]
@@ -194,9 +194,10 @@ def standard_airplane(name):
                   'engine' : {'model' : 'Howe turbofan', # Check engineTSFC function for options
                               #'model' : 'Raymer turbofan', # Check engineTSFC function for options
                               'BPR' : 9.6, # Engine bypass ratio
-                              #'weight' : 1500*gravity, # Single engine weight [N] (Can also be omitted to let designTool estimate it)
-                              'C_ref' : 0.50/3600, # Reference thrust-specific fuel consumption [1/s] (Can also be omitted to let designTool estimate it)
-                              'altitude_ref': 40000*ft2m, # Altitude that corresponds to the given TSFC [m]
+                              'weight' : 7550*gravity, # Single engine weight [N] (Can also be omitted to let designTool estimate it)
+                              'Tmax' : 97000*lb2N,
+                              'C_ref' : 0.5/3600, # Reference thrust-specific fuel consumption [1/s] (Can also be omitted to let designTool estimate it)
+                              'altitude_ref': 35000*ft2m, # Altitude that corresponds to the given TSFC [m]
                               'Mach_ref': 0.85, # Mach that corresponds to the given TSFC
                               },
                     
@@ -267,7 +268,7 @@ def standard_airplane(name):
                     
                     'rho_fuel' : 804, # Fuel density kg/m3 (This is Jet A-1)
 
-                    'W0_guess' : 300000*gravity # Guess for MTOW
+                    'W0_guess' : 3000000 # Guess for MTOW
                     }
 
     airplane = {'inputs':inputs}

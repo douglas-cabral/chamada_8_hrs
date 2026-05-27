@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 #========================================
 
-def plot_geometry(airplane, figname='3dview.png', az1=45, az2=-135):
+def plot_geometry(airplane, figname='3dview.png', az1=45, az2=-135, show=True):
     '''
     az1 and az2: degrees of azimuth and elevation for the 3d plot view
     '''
@@ -635,7 +635,10 @@ def plot_geometry(airplane, figname='3dview.png', az1=45, az2=-135):
 
     fig.savefig(figname,dpi=300)
 
-    plt.show()
+    if show:
+        plt.show()
+
+    return fig, ax
 
    
 #----------------------------------------

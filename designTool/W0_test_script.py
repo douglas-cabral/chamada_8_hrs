@@ -15,7 +15,7 @@ geometry(airplane)
 
 # Guess values for initial iteration
 W0_guess = airplane['inputs']['W0_guess']
-T0_guess = 850000.0
+T0_guess = 862000.0
 
 # Execute the weight estimation
 W0, W_empty, W_fuel, W_cruise = weight(W0_guess, T0_guess, airplane)
@@ -153,4 +153,39 @@ for phase in ['cruise', 'altcruise', 'loiter']:
     print("  %-32s  %10.4f  %16.10f" % (phase_names[phase], ld[phase], tsfc[phase]))
 print()
 print("  W_cruise (peso no inicio do cruzeiro): %.1f N (%.1f kg)" % (W_cruise, W_cruise / gravity))
+print()
+
+# ============================================================
+# 4. TRACAO
+# ============================================================
+from designTool.auxiliary import atmosphere
+from designTool.propulsion import engineTSFC
+
+altitude_cruise = inp['altitude_cruise']
+Mach_cruise = inp['Mach_cruise']
+S_w = inp['S_w']
+
+atm_cr = atmosphere(altitude_cruise)
+rho_cr = atm_cr['density']
+a_cr = atm_cr['speed_of_sound']
+V_cr = Mach_cruise * a_cr
+
+CL_cr = 2.0 * W_cruise / (rho_cr * S_w * V_cr**2)
+CD_cr = CL_cr / ld['cruise']
+T_cruise = 0.5 * rho_cr * V_cr**2 * S_w * CD_cr
+
+_, kT = engineTSFC(Mach_cruise, altitude_cruise, airplane)
+T0_available = T0_guess
+T_cruise_available = kT * T0_available
+
+print("=" * 70)
+print("  4. TRACAO")
+print("=" * 70)
+print()
+print("  T0 (tracao inicial, SL estatico) : %.1f N (%.1f kN)" % (T0_guess, T0_guess / 1000))
+print("  T_cruise (tracao requerida)      : %.1f N (%.1f kN)" % (T_cruise, T_cruise / 1000))
+print("  kT (fator de correcao)           : %.4f" % kT)
+print("  T_cruise_disponivel (kT * T0)    : %.1f N (%.1f kN)" % (T_cruise_available, T_cruise_available / 1000))
+print("  T_cruise / T0                    : %.4f" % (T_cruise / T0_guess))
+print("  Margem de empuxo em cruzeiro     : %.1f %%" % ((T_cruise_available / T_cruise - 1) * 100))
 print()

@@ -269,7 +269,7 @@ def aerodynamics(airplane, Mach, altitude, CL,
         Mach_dd = k_korn/np.cos(sweep_50) - tcm_w/np.cos(sweep_50)**2 - CL/10/np.cos(sweep_50)**3
         Mach_crit = Mach_dd - (0.1/80)**(1/3)
 
-        CDwave = 20*max(0, Mach - Mach_crit)**4
+        CDwave = 20*np.maximum(0, Mach - Mach_crit)**4
         
     else:
         CDwave = 0.0
@@ -528,7 +528,7 @@ def Cf_calc(Mach, altitude, length, rugosity, k_lam, deltaISA=0):
         Re_rug = 38.21*(k_lam*length/rugosity)**1.053 # Raymer Eq. 12.28
     else:
         Re_rug = 44.62*(k_lam*length/rugosity)**1.053*Mach**1.16 # Raymer Eq. 12.29
-    Re_trans = min(Re_conv, Re_rug)
+    Re_trans = np.minimum(Re_conv, Re_rug)
 
     # Reynolds no fim
     Re_conv = rho*v*length/mi
@@ -536,7 +536,7 @@ def Cf_calc(Mach, altitude, length, rugosity, k_lam, deltaISA=0):
         Re_rug = 38.21*(length/rugosity)**1.053 # Raymer Eq. 12.28
     else:
         Re_rug = 44.62*(length/rugosity)**1.053*Mach**1.16 # Raymer Eq. 12.29
-    Re_fim = min(Re_conv, Re_rug)
+    Re_fim = np.minimum(Re_conv, Re_rug)
 
     # Coeficientes de fricção
     # Laminar na transição
