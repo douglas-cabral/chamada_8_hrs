@@ -52,13 +52,20 @@ S_w_design = airplane['inputs']['S_w']
 # Execute the geometry function
 geometry(airplane)
 
-# Chutes iniciais (reutilizados em cada S_w se SHOW_DESIGN_POINT for False)
+# Chutes iniciais (reiniciados a cada S_w para evitar propagar NaN)
 W0_init = airplane['inputs']['W0_guess']
-T0_init = 862000
-W0_guess = W0_init
-T0_guess = T0_init
+_engine = airplane['inputs']['engine']
+n_engines = airplane['inputs']['n_engines']
 
-# 3
+_tmax_sl = None
+_weight_sl = None
+if SHOW_DESIGN_POINT:
+    _tmax_sl = _engine.get('Tmax')
+    T0_init = n_engines * _tmax_sl if _tmax_sl is not None else 862000.0
+else:
+    _tmax_sl = _engine.pop('Tmax', None)
+    _weight_sl = _engine.pop('weight', None)
+    T0_init = 862000.0
 
 S_min = 0.65 * airplane['inputs']['S_w']
 S_max = 1.3 * airplane['inputs']['S_w']
@@ -81,29 +88,15 @@ T0req_arrays = {
     'FAR 25.121d': []
 }
 
-# Com 'Tmax' no engine, thrust_matching fixa T0 = n_engines*Tmax (constante).
-# Na varredura remove-se Tmax para obter T0 = 1,05*max(T0req) em cada S_w.
-_engine = airplane['inputs']['engine']
-_tmax_sl = _engine.pop('Tmax', None)
-_weight_sl = None
-if not SHOW_DESIGN_POINT:
-    _weight_sl = _engine.pop('weight', None)
-
 for S_w in S_array:
     airplane['inputs']['S_w'] = S_w
     geometry(airplane)
 
-    if SHOW_DESIGN_POINT:
-        w0_try, t0_try = W0_guess, T0_guess
-    else:
-        w0_try, t0_try = W0_init, T0_init
+    # Reinicia chutes a cada S_w (evita propagar NaN de áreas muito pequenas)
+    w0_try, t0_try = W0_init, T0_init
 
     thrust_matching(w0_try, t0_try, airplane)
     tm = airplane['thrust_matching']
-
-    if SHOW_DESIGN_POINT:
-        W0_guess = tm['W0']
-        T0_guess = tm['T0']
 
     w0_pt = float(tm['W0'])
     t0req_vals = list(tm['T0req'].values())
@@ -124,10 +117,11 @@ for S_w in S_array:
     for key in T0req_arrays.keys():
         T0req_arrays[key].append(t0req_pt[key])
 
-if _tmax_sl is not None:
-    _engine['Tmax'] = _tmax_sl
-if _weight_sl is not None:
-    _engine['weight'] = _weight_sl
+if not SHOW_DESIGN_POINT:
+    if _tmax_sl is not None:
+        _engine['Tmax'] = _tmax_sl
+    if _weight_sl is not None:
+        _engine['weight'] = _weight_sl
 
 _delta = np.asarray(delta_lan_array, dtype=float)
 _mask = np.isfinite(_delta)
@@ -141,12 +135,18 @@ MTOW_array = np.asarray(MTOW_array, dtype=float)
 T0_array = np.asarray(T0_array, dtype=float)
 
 # Empuxo máximo instalado (Tmax por motor × nº de motores)
-n_engines = airplane['inputs']['n_engines']
 T0_motor = n_engines * _tmax_sl if _tmax_sl is not None else None
+
+n_finite = int(np.sum(np.isfinite(MTOW_array)))
+if n_finite == 0:
+    print("AVISO: nenhum ponto convergiu na varredura — gráficos ficarão vazios.")
+else:
+    print(f"Varredura: {n_finite}/{len(S_array)} pontos convergiram.")
 
 # Ponto de projeto: S_w fixo no dicionário; MTOW por thrust_matching nessa área
 S_design = None
 W0_design = None
+T0_req_design = None
 if SHOW_DESIGN_POINT and T0_motor is not None:
     S_design = float(S_w_design)
     airplane['inputs']['S_w'] = S_design
@@ -156,23 +156,27 @@ if SHOW_DESIGN_POINT and T0_motor is not None:
         T0_motor,
         airplane,
     )
-    W0_design = float(airplane['thrust_matching']['W0'])
+    tm_design = airplane['thrust_matching']
+    W0_design = float(tm_design['W0'])
+    T0_req_design = 1.05 * max(tm_design['T0req'].values())
     print(
         f"Ponto de projeto: S_w = {S_design:.2f} m² (standard_airplane), "
         f"T0 = {T0_motor/1000:.1f} kN (Tmax motor), "
+        f"T0 req. (+5%) = {T0_req_design/1000:.1f} kN, "
         f"MTOW = {W0_design/gravity:.0f} kg"
     )
 
 # Plot MTOW vs S_W
-plt.plot(S_array, MTOW_array, label="MTOW convergido")
+fig_mtow, ax_mtow = plt.subplots(figsize=(10, 6))
+ax_mtow.plot(S_array, MTOW_array, label="MTOW convergido")
 if sw_landing is not None:
-    plt.axvline(sw_landing, color="C3", linestyle="--", lw=2, label=_vline_label)
+    ax_mtow.axvline(sw_landing, color="C3", linestyle="--", lw=2, label=_vline_label)
 if SHOW_DESIGN_POINT and S_design is not None:
-    plt.scatter(
+    ax_mtow.scatter(
         [S_design], [W0_design], s=160, marker="*", color="C2", edgecolors="k",
         linewidths=0.8, zorder=6, label="Ponto de projeto",
     )
-    plt.annotate(
+    ax_mtow.annotate(
         f"$S_w$ = {S_design:.1f} m²\nMTOW = {W0_design/gravity:.0f} kg",
         (S_design, W0_design),
         textcoords="offset points",
@@ -180,23 +184,33 @@ if SHOW_DESIGN_POINT and S_design is not None:
         fontsize=9,
         bbox=dict(boxstyle="round,pad=0.3", fc="white", alpha=0.85),
     )
-plt.xlabel('S_w')
-plt.ylabel('MTOW')
-plt.title('MTOW vs S_w')
-plt.legend(loc="best")
-plt.show()
+ax_mtow.set_xlabel('S_w [m²]')
+ax_mtow.set_ylabel('MTOW [N]')
+ax_mtow.set_title('MTOW vs S_w')
+ax_mtow.grid(True, alpha=0.3)
+ax_mtow.legend(loc="best")
+fig_mtow.tight_layout()
+fig_mtow.savefig("S_w_sweep_MTOW.png", dpi=150)
+print("Gráfico salvo: S_w_sweep_MTOW.png")
 
 # Plot T_i vs S_w
 fig_t0, ax_t0 = plt.subplots(figsize=(12, 7))
 for key in T0req_arrays.keys():
     ax_t0.plot(S_array, T0req_arrays[key], label=key, zorder=2)
 
+label_t0_black = r"$T_0 = 1{,}05 \times \max(T_{0,\mathrm{req}})$"
+if T0_req_design is not None and S_design is not None:
+    label_t0_black = (
+        rf"$T_0 = 1{{,}}05 \times \max(T_{{0,\mathrm{{req}}}})$ "
+        rf"@ $S_w$ = {S_design:.2f} m²: {T0_req_design/1000:.1f} kN"
+    )
+
 ax_t0.plot(
     S_array,
     T0_array,
     "k-",
     lw=2.5,
-    label=r"$T_0 = 1{,}05 \times \max(T_{0,\mathrm{req}})$",
+    label=label_t0_black,
     zorder=3,
 )
 
@@ -236,4 +250,7 @@ if SHOW_DESIGN_POINT and S_design is not None and T0_motor is not None:
     ann_t0.set_zorder(25)
 
 fig_t0.tight_layout()
-plt.show()
+fig_t0.savefig("S_w_sweep_thrust.png", dpi=150)
+print("Gráfico salvo: S_w_sweep_thrust.png")
+
+plt.show(block=True)

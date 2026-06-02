@@ -7,6 +7,12 @@ from designTool.weight import weight
 from designTool.constants import gravity, nm2m, ft2m
 import numpy as np
 
+def _v(x):
+    """Representacao numerica sem arredondamento de exibicao."""
+    if isinstance(x, (np.floating, float)):
+        return repr(float(x))
+    return repr(x)
+
 # Load airplane
 airplane = standard_airplane('my_airplane')
 
@@ -32,30 +38,30 @@ print()
 print("  Tipo de aeronave       : Transporte de passageiros")
 print("  Configuracao           : 320 assentos em 3 classes")
 print("  Peso por passageiro    : 100 kg (incluindo bagagem)")
-print("  Numero de motores      : %d" % inp['n_engines'])
+print("  Numero de motores      : %s" % _v(inp['n_engines']))
 print()
 print("  --- Missao de Projeto ---")
-print("  Alcance de cruzeiro    : %.0f nmi" % (inp['range_cruise'] / nm2m))
-print("  Mach de cruzeiro       : %.2f" % inp['Mach_cruise'])
-print("  Altitude de cruzeiro   : %.0f ft (%.0f m)" % (inp['altitude_cruise'] / ft2m, inp['altitude_cruise']))
-print("  Mach maximo operacional: %.2f" % inp['Mach_maxcruise'])
-print("  Altitude max cruzeiro  : %.0f ft (%.0f m)" % (inp['altitude_maxcruise'] / ft2m, inp['altitude_maxcruise']))
+print("  Alcance de cruzeiro    : %s nmi" % _v(inp['range_cruise'] / nm2m))
+print("  Mach de cruzeiro       : %s" % _v(inp['Mach_cruise']))
+print("  Altitude de cruzeiro   : %s ft (%s m)" % (_v(inp['altitude_cruise'] / ft2m), _v(inp['altitude_cruise'])))
+print("  Mach maximo operacional: %s" % _v(inp['Mach_maxcruise']))
+print("  Altitude max cruzeiro  : %s ft (%s m)" % (_v(inp['altitude_maxcruise'] / ft2m), _v(inp['altitude_maxcruise'])))
 print()
 print("  --- Decolagem ---")
-print("  Comprimento de pista   : %.0f m" % inp['distance_takeoff'])
-print("  Altitude               : %.0f m (nivel do mar)" % inp['altitude_takeoff'])
-print("  Delta ISA              : %.1f C (condicoes ISA)" % inp['deltaISA_takeoff'])
+print("  Comprimento de pista   : %s m" % _v(inp['distance_takeoff']))
+print("  Altitude               : %s m (nivel do mar)" % _v(inp['altitude_takeoff']))
+print("  Delta ISA              : %s C (condicoes ISA)" % _v(inp['deltaISA_takeoff']))
 print()
 print("  --- Reservas ---")
-print("  Tempo de espera (loiter): %.0f min" % (inp['time_loiter'] / 60))
-print("  Altitude de loiter      : %.0f ft (%.0f m)" % (inp['altitude_loiter'] / ft2m, inp['altitude_loiter']))
-print("  Cruzeiro alternativo    : %.0f nmi" % (inp['range_altcruise'] / nm2m))
-print("  Mach alternativo        : %.2f" % inp['Mach_altcruise'])
-print("  Altitude alternativa    : %.0f m (%.0f ft)" % (inp['altitude_altcruise'], inp['altitude_altcruise'] / ft2m))
+print("  Tempo de espera (loiter): %s min" % _v(inp['time_loiter'] / 60))
+print("  Altitude de loiter      : %s ft (%s m)" % (_v(inp['altitude_loiter'] / ft2m), _v(inp['altitude_loiter'])))
+print("  Cruzeiro alternativo    : %s nmi" % _v(inp['range_altcruise'] / nm2m))
+print("  Mach alternativo        : %s" % _v(inp['Mach_altcruise']))
+print("  Altitude alternativa    : %s m (%s ft)" % (_v(inp['altitude_altcruise']), _v(inp['altitude_altcruise'] / ft2m)))
 print()
 print("  --- Pesos de Entrada ---")
-print("  W_payload (320x100 kg) : %.0f N (%.0f kg)" % (inp['W_payload'], inp['W_payload'] / gravity))
-print("  W_crew                 : %.0f N (%.0f kg)" % (inp['W_crew'], inp['W_crew'] / gravity))
+print("  W_payload (320x100 kg) : %s N (%s kg)" % (_v(inp['W_payload']), _v(inp['W_payload'] / gravity)))
+print("  W_crew                 : %s N (%s kg)" % (_v(inp['W_crew']), _v(inp['W_crew'] / gravity)))
 print()
 
 # ============================================================
@@ -67,8 +73,6 @@ print("=" * 70)
 print("  2. BREAKDOWN DE PESO DA AERONAVE")
 print("=" * 70)
 print()
-print("  %-28s  %12s  %12s  %8s" % ("Componente", "Peso [N]", "Peso [kg]", "% MTOW"))
-print("  " + "-" * 64)
 
 components = [
     ("Asa (W_w)", ew['W_w']),
@@ -82,15 +86,36 @@ components = [
 ]
 
 for name, val in components:
-    print("  %-28s  %12.1f  %12.1f  %7.2f%%" % (name, val, val / gravity, val / W0 * 100))
+    print("  %s" % name)
+    print("    Peso [N]   : %s" % _v(val))
+    print("    Peso [kg]  : %s" % _v(val / gravity))
+    print("    %% MTOW    : %s" % _v(val / W0 * 100))
+    print()
 
-print("  " + "-" * 64)
-print("  %-28s  %12.1f  %12.1f  %7.2f%%" % ("PESO VAZIO (W_empty)", W_empty, W_empty / gravity, W_empty / W0 * 100))
-print("  %-28s  %12.1f  %12.1f  %7.2f%%" % ("COMBUSTIVEL (W_fuel)", W_fuel, W_fuel / gravity, W_fuel / W0 * 100))
-print("  %-28s  %12.1f  %12.1f  %7.2f%%" % ("PAYLOAD (W_payload)", inp['W_payload'], inp['W_payload'] / gravity, inp['W_payload'] / W0 * 100))
-print("  %-28s  %12.1f  %12.1f  %7.2f%%" % ("TRIPULACAO (W_crew)", inp['W_crew'], inp['W_crew'] / gravity, inp['W_crew'] / W0 * 100))
-print("  " + "-" * 64)
-print("  %-28s  %12.1f  %12.1f  %7.2f%%" % ("MTOW (W0)", W0, W0 / gravity, 100.0))
+print("  PESO VAZIO (W_empty)")
+print("    Peso [N]   : %s" % _v(W_empty))
+print("    Peso [kg]  : %s" % _v(W_empty / gravity))
+print("    %% MTOW    : %s" % _v(W_empty / W0 * 100))
+print()
+print("  COMBUSTIVEL (W_fuel)")
+print("    Peso [N]   : %s" % _v(W_fuel))
+print("    Peso [kg]  : %s" % _v(W_fuel / gravity))
+print("    %% MTOW    : %s" % _v(W_fuel / W0 * 100))
+print()
+print("  PAYLOAD (W_payload)")
+print("    Peso [N]   : %s" % _v(inp['W_payload']))
+print("    Peso [kg]  : %s" % _v(inp['W_payload'] / gravity))
+print("    %% MTOW    : %s" % _v(inp['W_payload'] / W0 * 100))
+print()
+print("  TRIPULACAO (W_crew)")
+print("    Peso [N]   : %s" % _v(inp['W_crew']))
+print("    Peso [kg]  : %s" % _v(inp['W_crew'] / gravity))
+print("    %% MTOW    : %s" % _v(inp['W_crew'] / W0 * 100))
+print()
+print("  MTOW (W0)")
+print("    Peso [N]   : %s" % _v(W0))
+print("    Peso [kg]  : %s" % _v(W0 / gravity))
+print("    %% MTOW    : %s" % _v(100.0))
 print()
 
 # ============================================================
@@ -122,8 +147,6 @@ print("  Perfil da missao:")
 print("  partida -> taxi -> decolagem -> subida -> cruzeiro -> descida")
 print("          -> cruzeiro alternativo -> loiter -> pouso")
 print()
-print("  %-32s  %10s  %12s  %12s" % ("Etapa", "Mf", "W_inicio [kg]", "Comb. [kg]"))
-print("  " + "-" * 70)
 
 W_start = W0
 Mf_total = 1.0
@@ -133,26 +156,27 @@ for phase in phases:
     W_end = W_start * frac
     fuel_burned = (W_start - W_end) / gravity
     Mf_total *= frac
-    print("  %-32s  %10.6f  %12.1f  %12.1f" % (
-        phase_names[phase], frac, W_start / gravity, fuel_burned))
+    print("  %s" % phase_names[phase])
+    print("    Mf           : %s" % _v(frac))
+    print("    W_inicio [kg]: %s" % _v(W_start / gravity))
+    print("    Comb. [kg]   : %s" % _v(fuel_burned))
+    print()
     W_start = W_end
 
-print("  " + "-" * 70)
 fuel_mission = (1 - Mf_total) * W0 / gravity
 fuel_trapped = (trapped - 1) * (1 - Mf_total) * W0 / gravity
-print()
-print("  Fracao de massa total (Mf)          : %.6f" % Mf_total)
-print("  Combustivel da missao               : %.1f kg" % fuel_mission)
-print("  Combustivel preso (fator %.2f)      : %.1f kg" % (trapped, fuel_trapped))
-print("  Combustivel total (W_fuel)          : %.1f kg" % (W_fuel / gravity))
+print("  Fracao de massa total (Mf)          : %s" % _v(Mf_total))
+print("  Combustivel da missao               : %s kg" % _v(fuel_mission))
+print("  Combustivel preso (fator %s)        : %s kg" % (_v(trapped), _v(fuel_trapped)))
+print("  Combustivel total (W_fuel)          : %s kg" % _v(W_fuel / gravity))
 print()
 print("  --- Eficiencia aerodinamica e TSFC por fase ---")
-print("  %-32s  %10s  %16s" % ("Etapa", "L/D", "TSFC [1/s]"))
-print("  " + "-" * 60)
 for phase in ['cruise', 'altcruise', 'loiter']:
-    print("  %-32s  %10.4f  %16.10f" % (phase_names[phase], ld[phase], tsfc[phase]))
-print()
-print("  W_cruise (peso no inicio do cruzeiro): %.1f N (%.1f kg)" % (W_cruise, W_cruise / gravity))
+    print("  %s" % phase_names[phase])
+    print("    L/D        : %s" % _v(ld[phase]))
+    print("    TSFC [1/s] : %s" % _v(tsfc[phase]))
+    print()
+print("  W_cruise (peso no inicio do cruzeiro): %s N (%s kg)" % (_v(W_cruise), _v(W_cruise / gravity)))
 print()
 
 # ============================================================
@@ -182,10 +206,10 @@ print("=" * 70)
 print("  4. TRACAO")
 print("=" * 70)
 print()
-print("  T0 (tracao inicial, SL estatico) : %.1f N (%.1f kN)" % (T0_guess, T0_guess / 1000))
-print("  T_cruise (tracao requerida)      : %.1f N (%.1f kN)" % (T_cruise, T_cruise / 1000))
-print("  kT (fator de correcao)           : %.4f" % kT)
-print("  T_cruise_disponivel (kT * T0)    : %.1f N (%.1f kN)" % (T_cruise_available, T_cruise_available / 1000))
-print("  T_cruise / T0                    : %.4f" % (T_cruise / T0_guess))
-print("  Margem de empuxo em cruzeiro     : %.1f %%" % ((T_cruise_available / T_cruise - 1) * 100))
+print("  T0 (tracao inicial, SL estatico) : %s N (%s kN)" % (_v(T0_guess), _v(T0_guess / 1000)))
+print("  T_cruise (tracao requerida)      : %s N (%s kN)" % (_v(T_cruise), _v(T_cruise / 1000)))
+print("  kT (fator de correcao)           : %s" % _v(kT))
+print("  T_cruise_disponivel (kT * T0)    : %s N (%s kN)" % (_v(T_cruise_available), _v(T_cruise_available / 1000)))
+print("  T_cruise / T0                    : %s" % _v(T_cruise / T0_guess))
+print("  Margem de empuxo em cruzeiro     : %s %%" % _v((T_cruise_available / T_cruise - 1) * 100))
 print()

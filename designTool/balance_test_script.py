@@ -25,5 +25,18 @@ thrust_matching(W0_guess, T0_guess, airplane)
 # Execute the balance analysis
 balance(airplane)
 
+bal = airplane['balance']
+geo = airplane['geometry']
+xm_w = geo['xm_w']
+cm_w = geo['cm_w']
+
+xcg_fwd = bal['xcg_fwd']
+xcg_aft = bal['xcg_aft']
+xcg_fwd_pct_mac = (xcg_fwd - xm_w) / cm_w * 100
+xcg_aft_pct_mac = (xcg_aft - xm_w) / cm_w * 100
+
 # Print results
-print("airplane['balance'] = " + pprint.pformat(airplane['balance']))
+print("airplane['balance'] = " + pprint.pformat(bal))
+print()
+print(f"xcg_fwd: {xcg_fwd:.4f} m  ({xcg_fwd_pct_mac:.2f} % MAC)")
+print(f"xcg_aft: {xcg_aft:.4f} m  ({xcg_aft_pct_mac:.2f} % MAC)")
