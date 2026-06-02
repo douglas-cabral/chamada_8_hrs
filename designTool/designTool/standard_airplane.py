@@ -128,7 +128,7 @@ def standard_airplane(name):
                   'range_altcruise' : 200*nm2m, # Alternative cruise range [m]
                     
                   'W_payload' : 107*91*gravity, # Payload weight for design mission [N]
-                  'xcg_payload' : 14.4, # Longitudinal position of the Payload center of gravity [m]
+                  'xcg_payload' : 21.60, # Longitudinal position of the Payload center of gravity [m]
                   'W_maxpayload' : 11242*gravity, # Maximum payload weight [N]
                     
                   'W_crew' : 5*91*gravity, # Crew weight [N]
@@ -155,7 +155,7 @@ def standard_airplane(name):
                     'taper_w' : 0.2, # Wing taper ratio
                     'sweep_w' : 35*np.pi/180, # Wing sweep [rad]
                     'dihedral_w' : 4.57*np.pi/180, # Wing dihedral [rad]
-                    'xr_w' : 20.23, # (29.09) Longitudinal position of the wing (with respect to the fuselage nose) [m]
+                    'xr_w' : 18, # (29.09) Longitudinal position of the wing (with respect to the fuselage nose) [m]
                     'zr_w' : -1.04, # Vertical position of the wing (with respect to the fuselage nose) [m]
                     'tcr_w' : 0.14, # t/c of the root section of the wing
                     'tct_w' : 0.08, # t/c of the tip section of the wing
@@ -171,7 +171,7 @@ def standard_airplane(name):
                     'tct_h' : 0.09, # t/c of the tip section of the HT
                     'eta_h' : 1.0, # NSEI Dynamic pressure factor of the HT
                     
-                    'Cvt' : 0.053, # Vertical tail volume coefficient
+                    'Cvt' : 0.073, # Vertical tail volume coefficient
                     'Lb_v' : 0.51, # Non-dimensional lever of the vertical tail (lever/wing_span)
                     'AR_v' : 1.74, # VT aspect ratio
                     'taper_v' : 0.39, # VT taper ratio
@@ -208,10 +208,10 @@ def standard_airplane(name):
                     'x_tailstrike' : 55, # NSEI Longitudinal position of critical tailstrike point [m]
                     'z_tailstrike' : -1.54, # NSEI Vertical position of critical tailstrike point [m]
                     
-                    'c_tank_c_w' : 0.4, # NSEI Fraction of the wing chord occupied by the fuel tank
+                    'c_tank_c_w' : 0.5, # NSEI Fraction of the wing chord occupied by the fuel tank
                     'x_tank_c_w' : 0.2, # NSEIFraction of the wing chord where fuel tank starts
                     'b_tank_b_w_start' : 0.0, # NSEI Fraction of the wing semi-span where fuel tank starts
-                    'b_tank_b_w_end' : 0.95, # NSEI Fraction of the wing semi-span where fuel tank ends
+                    'b_tank_b_w_end' : 0.98, # NSEI Fraction of the wing semi-span where fuel tank ends
                     
                     'clmax_w' : 1.8, # NSEI Maximum lift coefficient of wing airfoil
                     'k_korn' : 0.94, # NSEI Airfoil technology factor for Korn equation (wave drag)
@@ -256,7 +256,7 @@ def standard_airplane(name):
                     'range_altcruise' : 200*nm2m, # Alternative cruise range [m]
                     
                     'W_payload' : 32000*gravity, # Payload weight [N]
-                    'xcg_payload' : 14.4, # Longitudinal position of the Payload center of gravity [m]
+                    'xcg_payload' : 27.05, # Longitudinal position of the Payload center of gravity [m]
                     
                     'W_crew' : 900*gravity, # Crew weight [N]
                     'xcg_crew' : 2.5, # Longitudinal position of the Crew center of gravity [m]
