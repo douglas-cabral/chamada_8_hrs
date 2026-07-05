@@ -276,7 +276,7 @@ def empty_weight(W0_guess, T0_guess, airplane):
 
     # All else weight
     W_allelse = W_allelse_fact*W0_guess
-    xcg_allelse = 0.45*L_f
+    xcg_allelse = 0.47*L_f
 
     # Empty weight
     W_empty = W_w + W_h + W_v + W_f + W_nlg + W_mlg + W_eng_installed + W_allelse
@@ -447,7 +447,7 @@ def fuel_weight(W0_guess, airplane, range_cruise, update_Mf_hist=False):
     Mf = Mf_start*Mf_taxi*Mf_takeoff*Mf_climb*Mf_cruise*Mf_descent*Mf_altcruise*Mf_loiter*Mf_landing
 
     ### Fuel weight (Raymer Eq 3.13)
-    trapped_fuel_factor = 1.06
+    trapped_fuel_factor = 1
     W_fuel = trapped_fuel_factor*(1-Mf)*W0_guess
 
     # @REMOVE

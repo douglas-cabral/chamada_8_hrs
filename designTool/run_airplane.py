@@ -355,7 +355,7 @@ print(pprint.pformat(airplane))
 
 # ---- Weight estimation (converged) ----
 W0_guess = airplane['inputs']['W0_guess']
-T0_guess = 850000.0
+T0_guess = airplane['inputs']['n_engines'] * airplane['inputs']['engine']['Tmax']
 W0, W_empty, W_fuel, W_cruise = weight(W0_guess, T0_guess, airplane)
 print(f"\n--- Peso convergido ---")
 print(f"W0 (MTOW)  = {W0:.2f} N ({W0/gravity:.0f} kg)")
@@ -388,7 +388,7 @@ CD_cr, CLmax_cr, dd_cr = aerodynamics(
 )
 
 print("\n" + "=" * 60)
-print("  DRAG BREAKDOWN — Cruzeiro (M = {:.2f}, h = 40 000 ft)".format(Mach_cruise))
+print("  DRAG BREAKDOWN — Cruzeiro (M = {:.2f}, h = {:.0f} ft)".format(Mach_cruise, altitude_cruise / ft2m))
 print("=" * 60)
 components = [
     ("CD0_w   (asa)",        dd_cr['CD0_w']),
@@ -486,7 +486,7 @@ ax1.axvline(Mach_dd, color='green', linestyle='-.', alpha=0.8, label=f'$M_{{dd}}
 ax1.axvline(Mach_crit, color='orange', linestyle=':', alpha=0.8, label=f'$M_{{crit}}$ = {Mach_crit:.4f}')
 ax1.set_xlabel('Mach')
 ax1.set_ylabel('$C_D$')
-ax1.set_title(f'$C_D$ vs Mach (cruzeiro: $C_L$ = {CL_cruise:.4f}, h = 40 000 ft)')
+ax1.set_title(f'$C_D$ vs Mach (cruzeiro: $C_L$ = {CL_cruise:.4f}, h = {altitude_cruise / ft2m:.0f} ft)')
 ax1.grid(True, alpha=0.3)
 ax1.legend()
 fig1.tight_layout()
@@ -499,7 +499,7 @@ ax2.axvline(Mach_dd, color='green', linestyle='-.', alpha=0.8, label=f'$M_{{dd}}
 ax2.axvline(Mach_crit, color='orange', linestyle=':', alpha=0.8, label=f'$M_{{crit}}$ = {Mach_crit:.4f}')
 ax2.set_xlabel('Mach')
 ax2.set_ylabel('$C_{D,wave}$')
-ax2.set_title(f'$C_{{D,wave}}$ vs Mach (cruzeiro: $C_L$ = {CL_cruise:.4f}, h = 40 000 ft)')
+ax2.set_title(f'$C_{{D,wave}}$ vs Mach (cruzeiro: $C_L$ = {CL_cruise:.4f}, h = {altitude_cruise / ft2m:.0f} ft)')
 ax2.grid(True, alpha=0.3)
 ax2.legend()
 fig2.tight_layout()
@@ -589,9 +589,9 @@ polar_cruise = compute_polar_curve(
 cl_cruise = np.asarray(polar_cruise["cl"], dtype=float)
 cd_cruise = np.asarray(polar_cruise["cd"], dtype=float)
 
-Mach_landing = 0.22
+Mach_landing = 0.2
 altitude_landing = airplane["inputs"]["altitude_landing"]
-h_ground_landing = 0.3 * airplane["geometry"]["b_w"]
+h_ground_landing = airplane["inputs"]["h_ground"]
 polar_landing = compute_polar_curve(
     airplane,
     Mach_landing,

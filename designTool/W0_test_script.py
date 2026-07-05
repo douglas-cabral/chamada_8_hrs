@@ -21,7 +21,7 @@ geometry(airplane)
 
 # Guess values for initial iteration
 W0_guess = airplane['inputs']['W0_guess']
-T0_guess = 862000.0
+T0_guess = airplane['inputs']['n_engines'] * airplane['inputs']['engine']['Tmax']
 
 # Execute the weight estimation
 W0, W_empty, W_fuel, W_cruise = weight(W0_guess, T0_guess, airplane)

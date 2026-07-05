@@ -155,12 +155,12 @@ def standard_airplane(name):
                     'taper_w' : 0.2, # Wing taper ratio
                     'sweep_w' : 35*np.pi/180, # Wing sweep [rad]
                     'dihedral_w' : 4.57*np.pi/180, # Wing dihedral [rad]
-                    'xr_w' : 18, # Longitudinal position of the wing (with respect to the fuselage nose) [m]
+                    'xr_w' : 20.5, # Longitudinal position of the wing (with respect to the fuselage nose) [m]
                     'zr_w' : -1.04, # Vertical position of the wing (with respect to the fuselage nose) [m]
                     'tcr_w' : 0.16, # t/c of the root section of the wing
                     'tct_w' : 0.08, # t/c of the tip section of the wing
                     
-                    'Cht' : 0.8, # Horizontal tail volume coefficient
+                    'Cht' : 0.7, # Horizontal tail volume coefficient
                     'Lc_h' : 4.5, # Non-dimensional lever of the horizontal tail (lever/wing_mac)
                     'AR_h' : 4.55, # HT aspect ratio
                     'taper_h' : 0.40, # HT taper ratio
@@ -169,9 +169,9 @@ def standard_airplane(name):
                     'zr_h' : 2.22, # Vertical position of the HT [m]
                     'tcr_h' : 0.119, # t/c of the root section of the HT
                     'tct_h' : 0.09, # t/c of the tip section of the HT
-                    'eta_h' : 1.0, # NSEI Dynamic pressure factor of the HT
+                    'eta_h' : 0.9, # NSEI Dynamic pressure factor of the HT
                     
-                    'Cvt' : 0.072, # Vertical tail volume coefficient
+                    'Cvt' : 0.075, # Vertical tail volume coefficient
                     'Lb_v' : 0.53, # Non-dimensional lever of the vertical tail (lever/wing_span)
                     'AR_v' : 1.74, # VT aspect ratio
                     'taper_v' : 0.39, # VT taper ratio
@@ -183,32 +183,32 @@ def standard_airplane(name):
                     'L_f' : 66.8, # Fuselage length [m]
                     'D_f' : 5.96, # Fuselage diameter [m]
                     
-                    'x_n' : 20.3, # Longitudinal position of the nacelle frontal face [m]
-                    'y_n' : 11.25, # Lateral position of the nacelle centerline [m]
+                    'x_n' : 24.3, # Longitudinal position of the nacelle frontal face [m]
+                    'y_n' : 12.3, # Lateral position of the nacelle centerline [m]
                     'z_n' : -2.22, # Vertical position of the nacelle centerline [m]
-                    'L_n' : 6.09, # Nacelle length [m]
-                    'D_n' : 3.0, # Nacelle diameter [m]
+                    'L_n' : 6.06, # Nacelle length [m]
+                    'D_n' : 3.94, # Nacelle diameter [m]
                     
                     'n_engines' : 2, # Number of engines
                   'n_engines_under_wing' : 2, # Number of engines installed under the wing
                   'engine' : {'model' : 'Howe turbofan', # Check engineTSFC function for options
                               #'model' : 'Raymer turbofan', # Check engineTSFC function for options
                               'BPR' : 9.6, # Engine bypass ratio
-                              'weight' : 7550*gravity, # Single engine weight [N] (Can also be omitted to let designTool estimate it)
-                              'Tmax' : 97000*lb2N,
-                              'C_ref' : 0.5/3600, # Reference thrust-specific fuel consumption [1/s] (Can also be omitted to let designTool estimate it)
+                              'weight' : 7277*gravity, # Single engine weight [N] (Can also be omitted to let designTool estimate it)
+                              'Tmax' : 84000*lb2N,
+                              'C_ref' : 0.478/3600, # Reference thrust-specific fuel consumption [1/s] (Can also be omitted to let designTool estimate it)
                               'altitude_ref': 35000*ft2m, # Altitude that corresponds to the given TSFC [m]
                               'Mach_ref': 0.85, # Mach that corresponds to the given TSFC
                               },
                     
-                    'x_nlg' : 4.63, # Longitudinal position of the nose landing gear [m]
-                    'x_mlg' : 33.29, # Longitudinal position of the main landing gear [m]
-                    'y_mlg' : 5.3, # Lateral position of the main landing gear [m]
-                    'z_lg' : -5.5, # Vertical position of the landing gear [m]
-                    'x_tailstrike' : 55, # NSEI Longitudinal position of critical tailstrike point [m]
-                    'z_tailstrike' : -1.54, # NSEI Vertical position of critical tailstrike point [m]
+                    'x_nlg' : 4.6, # Longitudinal position of the nose landing gear [m]
+                    'x_mlg' : 33.1, # Longitudinal position of the main landing gear [m]
+                    'y_mlg' : 5.6, # Lateral position of the main landing gear [m]
+                    'z_lg' : -5.7, # Vertical position of the landing gear [m]
+                    'x_tailstrike' : 48, # NSEI Longitudinal position of critical tailstrike point [m]
+                    'z_tailstrike' : -2.98, # NSEI Vertical position of critical tailstrike point [m]
                     
-                    'c_tank_c_w' : 0.45, # NSEI Fraction of the wing chord occupied by the fuel tank
+                    'c_tank_c_w' : 0.4, # NSEI Fraction of the wing chord occupied by the fuel tank
                     'x_tank_c_w' : 0.2, # NSEIFraction of the wing chord where fuel tank starts
                     'b_tank_b_w_start' : 0.0, # NSEI Fraction of the wing semi-span where fuel tank starts
                     'b_tank_b_w_end' : 0.98, # NSEI Fraction of the wing semi-span where fuel tank ends
@@ -230,7 +230,7 @@ def standard_airplane(name):
                     'h_ground' : 35.0*ft2m, # NSEI Distance to the ground for ground effect computation [m]
                     'k_exc_drag' : 0.03, # NSEI Excrescence drag factor
 
-                    'winglet' : True, # Add winglet
+                    'winglet' : False, # Add winglet
                     
                     'altitude_takeoff' : 0.0, # Altitude for takeoff computation [m] - From Obert's paper
                     'distance_takeoff' : 2900, # Required takeoff distance [m] - From Obert's paper
@@ -256,9 +256,9 @@ def standard_airplane(name):
                     'range_altcruise' : 200*nm2m, # Alternative cruise range [m]
                     
                     'W_payload' : 32000*gravity, # Payload weight [N]
-                    'xcg_payload' : 32.1724, # Longitudinal position of the Payload center of gravity [m]
+                    'xcg_payload' : 32.5474, # Longitudinal position of the Payload center of gravity [m]
                     
-                    'W_crew' : 900*gravity, # Crew weight [N]
+                    'W_crew' : 1700*gravity, # Crew weight [N]
                     'xcg_crew' : 33.4, # Longitudinal position of the Crew center of gravity [m]
 
                     'block_range' : 400*nm2m, # Block range [m]

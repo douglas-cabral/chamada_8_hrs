@@ -14,52 +14,137 @@ from __future__ import annotations
 import numpy as np
 import matplotlib.pyplot as plt
 
+from designTool.standard_airplane import standard_airplane
+from designTool.geometry import geometry
+from designTool.performance import thrust_matching
+from designTool.weight import weight
+from designTool.aerodynamics import aerodynamics
+from designTool.auxiliary import atmosphere
+from designTool.propulsion import engineTSFC
+from designTool.constants import gravity
+
 
 # ============================================================================
-# ENTRADAS (PREENCHER)
+# ENTRADAS — calculadas automaticamente a partir do designTool
 # ============================================================================
-INPUTS = {
-    # Faixa de W/S para varrer no grafico [N/m^2]
+# Avaliado no mesmo avião (standard_airplane) e nas mesmas condições de
+# performance.py / weight() para evitar valores desatualizados.
+AIRPLANE_NAME = "my_airplane"
+
+# Constantes de plotagem e do modelo de pouso (Torenbeek), independentes do avião.
+PLOT_AND_LANDING_CONSTANTS = {
     "ws_min": 1500,
     "ws_max": 14200,
     "n_points": 400,
-    # Ponto de projeto
-    "ws_project": 7144.5,    # [N/m^2]
-    "tw_project": 0.266,      # [-]
-    "w0": 3235671.2,          # [N] peso de decolagem para converter margem em tracao
-    "t0_fixed": 862000.0,     # [N] tracao fixa para margens horizontais (area de asa)
-    # Decolagem
-    "rho_to": 1.225,          # [kg/m^3] densidade no aeroporto de decolagem
-    "clmax_to": 2.3293,        # [-] CLmax na configuracao de decolagem
-    "d_to": 2900,            # [m] distancia de decolagem requerida
-    # Subida (2o segmento / OEI, conforme seu criterio)
-    "ks": 1.20,              # [-] fator velocidade de estol
-    "gamma_cl": 0.024,       # [-] gradiente de subida
-    "n_eng": 2,              # [-] numero total de motores
-    "n_eng_failed": 1,       # [-] motores inoperantes
-    "cd0_cl": 0.031446,          # [-] CD0 em subida
-    "k_cl": 0.0363,            # [-] fator K (polar parabolica) em subida
-    "clmax_cl": 2.3293,        # [-] CLmax usado na subida
-    "wcl_w0": 0.975,          # [-] razao W_CL/W0 (mudanca de peso)
-    "tcl_t0": 1,          # [-] razao T_CL/T0 (mudanca de tracao)
-    # Cruzeiro
-    "rho_cruise": 0.303,      # [kg/m^3] densidade no cruzeiro
-    "v_cruise": 250.8,   # [m/s] Mach 0.85 a 40.000 ft (ISA)
-    "cd0_cr": 0.012373,          # [-] CD0 no cruzeiro
-    "k_cr": 0.0357,            # [-] fator K no cruzeiro
-    "wcr_w0": 0.99**2*0.95*0.98,          # [-] razao W_CR/W0
-    "tcr_t0": 0.165,         # [-] razao T_CR/T0
-    # Pouso
-    "rho_landing": 1.125,     # [kg/m^3] densidade no pouso
-    "clmax_landing": 2.66,   # [-] CLmax na configuracao de pouso
-    "d_landing": 2900,       # [m] distancia de pouso requerida
-    "wld_w0": 0.7393,          # [-] razao W_LD/W0 (correcao para W0/S)
-    # Parametros fisicos/regulatorios do pouso
-    "g": 9.80665,            # [m/s^2] gravidade
-    "a_g": 0.5,              # [-] desaceleracao media (normalizada por g)
-    "f_ld": 5.0 / 3.0,       # [-] fator de seguranca FAR
-    "h_ld": 15.3,            # [m] altura de obstaculo no pouso
+    "g": gravity,           # [m/s^2] gravidade (constante do designTool)
+    "a_g": 0.5,             # [-] desaceleracao media (Torenbeek, performance.py)
+    "f_ld": 5.0 / 3.0,      # [-] fator de seguranca FAR (performance.py)
+    "h_ld": 15.3,           # [m] altura de obstaculo no pouso (performance.py)
 }
+
+
+def build_inputs_from_designtool(name: str = AIRPLANE_NAME) -> dict:
+    """Monta o dicionario INPUTS lendo o avião do designTool.
+
+    Todos os valores derivam de standard_airplane(name) + geometry() +
+    thrust_matching() + weight(), avaliados nas mesmas condicoes usadas em
+    performance.py (decolagem, FAR 25.121b, cruzeiro e pouso).
+    """
+    airplane = standard_airplane(name)
+    geometry(airplane)
+    inp = airplane["inputs"]
+
+    n_eng = inp["n_engines"]
+    S_w = inp["S_w"]
+    W0_guess = inp["W0_guess"]
+    T0_inst = n_eng * inp["engine"]["Tmax"]  # tracao instalada (2 x Tmax)
+
+    # Peso convergido + desempenho (mesmo fluxo do designTool)
+    thrust_matching(W0_guess, T0_inst, airplane)
+    tm = airplane["thrust_matching"]
+    W0 = tm["W0"]
+    T0 = tm["T0"]
+    CLmaxTO = tm["CLmaxTO"]
+    _, _, _, W_cruise = weight(W0_guess, T0_inst, airplane)
+
+    # --- Decolagem ---
+    atm_to = atmosphere(inp["altitude_takeoff"], inp["deltaISA_takeoff"])
+    rho_to = atm_to["density"]
+
+    # --- Subida FAR 25.121b (2o segmento, OEI) ---
+    ks = 1.2
+    if n_eng <= 2:
+        gamma_cl = 0.024
+    elif n_eng == 3:
+        gamma_cl = 0.027
+    else:
+        gamma_cl = 0.030
+    CL_cl = CLmaxTO / ks**2
+    V_cl = np.sqrt(2 * W0 / rho_to / S_w / CL_cl)
+    Mach_cl = V_cl / atm_to["speed_of_sound"]
+    _, _, dd_cl = aerodynamics(
+        airplane, Mach=Mach_cl, altitude=inp["altitude_takeoff"], CL=CL_cl,
+        n_engines_failed=1, highlift_config="takeoff", lg_down=0, h_ground=0,
+    )
+
+    # --- Cruzeiro ---
+    atm_cr = atmosphere(inp["altitude_cruise"])
+    rho_cr = atm_cr["density"]
+    V_cr = inp["Mach_cruise"] * atm_cr["speed_of_sound"]
+    CL_cr = 2.0 * W_cruise / rho_cr / S_w / V_cr**2
+    _, _, dd_cr = aerodynamics(
+        airplane, Mach=inp["Mach_cruise"], altitude=inp["altitude_cruise"], CL=CL_cr,
+        n_engines_failed=0, highlift_config="clean", lg_down=0, h_ground=0,
+    )
+    _, kT_cr = engineTSFC(inp["Mach_cruise"], inp["altitude_cruise"], airplane)
+
+    # --- Pouso ---
+    atm_ld = atmosphere(inp["altitude_landing"], inp["deltaISA_landing"])
+    rho_ld = atm_ld["density"]
+    _, CLmaxLD, _ = aerodynamics(
+        airplane, Mach=0.2, altitude=inp["altitude_landing"], CL=0.5,
+        n_engines_failed=0, highlift_config="landing", lg_down=1,
+        h_ground=inp["h_ground"],
+    )
+
+    data = dict(PLOT_AND_LANDING_CONSTANTS)
+    data.update({
+        # Ponto de projeto
+        "ws_project": W0 / S_w,
+        "tw_project": T0 / W0,
+        "w0": W0,
+        "t0_fixed": T0,
+        # Decolagem
+        "rho_to": rho_to,
+        "clmax_to": CLmaxTO,
+        "d_to": inp["distance_takeoff"],
+        # Subida (FAR 25.121b)
+        "ks": ks,
+        "gamma_cl": gamma_cl,
+        "n_eng": n_eng,
+        "n_eng_failed": 1,
+        "cd0_cl": dd_cl["CD0"],
+        "k_cl": dd_cl["K"],
+        "clmax_cl": CLmaxTO,
+        "wcl_w0": 1.0,
+        "tcl_t0": 1.0,
+        # Cruzeiro
+        "rho_cruise": rho_cr,
+        "v_cruise": V_cr,
+        "cd0_cr": dd_cr["CD0"],
+        "k_cr": dd_cr["K"],
+        "wcr_w0": W_cruise / W0,
+        "tcr_t0": kT_cr,
+        # Pouso
+        "rho_landing": rho_ld,
+        "clmax_landing": CLmaxLD,
+        "d_landing": inp["distance_landing"],
+        "wld_w0": inp["MLW_frac"],
+    })
+    return data
+
+
+INPUTS = build_inputs_from_designtool()
 
 
 def _require(data: dict, keys: list[str]) -> None:
@@ -190,6 +275,22 @@ def main() -> None:
         zorder=6,
         label="Ponto de projeto",
     )
+    w0 = INPUTS["w0"]
+    s_project = w0 / ws_project
+    t0_project = tw_project * w0
+    ax.annotate(
+        f"$W_0/S$ = {ws_project:.2f} N/m²\n"
+        f"$T_0/W_0$ = {tw_project:.4f}\n"
+        f"$S$ = {s_project:.2f} m²\n"
+        f"$T_0$ = {t0_project/1000:.1f} kN",
+        (ws_project, tw_project),
+        textcoords="offset points",
+        xytext=(12, 12),
+        fontsize=9,
+        clip_on=False,
+        zorder=7,
+        bbox=dict(boxstyle="round,pad=0.35", fc="white", ec="gray", alpha=0.9),
+    )
 
     # Pouso entra como limite em W/S (linha vertical).
     ax.axvline(ws_landing_limit, color="red", ls="-", lw=2.4, zorder=5, label="Limite de pouso")
@@ -212,7 +313,6 @@ def main() -> None:
     margin_climb = tw_project - tw_climb_proj
     margin_cruise = tw_project - tw_cruise_proj
     margin_landing = ws_landing_limit - ws_project
-    w0 = INPUTS["w0"]
     t0_fixed = INPUTS["t0_fixed"]
 
     thrust_margin_takeoff = margin_takeoff * w0
@@ -226,7 +326,6 @@ def main() -> None:
     ws_takeoff_limit_fixed_t0 = tw_fixed / coef_takeoff
     margin_ws_takeoff_fixed_t0 = ws_takeoff_limit_fixed_t0 - ws_project
     margin_ws_landing = ws_landing_limit - ws_project
-    s_project = w0 / ws_project
     s_takeoff_limit_fixed_t0 = w0 / ws_takeoff_limit_fixed_t0
     s_landing_limit = w0 / ws_landing_limit
     delta_s_takeoff = s_takeoff_limit_fixed_t0 - s_project
