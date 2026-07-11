@@ -153,16 +153,16 @@ def standard_airplane(name):
                     'S_w' : 395.24, # Wing area [m2]
                     'AR_w' : 9.26,  # Wing aspect ratio
                     'taper_w' : 0.2, # Wing taper ratio
-                    'sweep_w' : 35*np.pi/180, # Wing sweep [rad]
-                    'dihedral_w' : 4.57*np.pi/180, # Wing dihedral [rad]
-                    'xr_w' : 20.5, # Longitudinal position of the wing (with respect to the fuselage nose) [m]
+                    'sweep_w' : 33*np.pi/180, # Wing sweep [rad]
+                    'dihedral_w' : 4.5*np.pi/180, # Wing dihedral [rad]
+                    'xr_w' : 19.8, # Longitudinal position of the wing (with respect to the fuselage nose) [m]
                     'zr_w' : -1.04, # Vertical position of the wing (with respect to the fuselage nose) [m]
                     'tcr_w' : 0.16, # t/c of the root section of the wing
                     'tct_w' : 0.08, # t/c of the tip section of the wing
                     
                     'Cht' : 0.7, # Horizontal tail volume coefficient
                     'Lc_h' : 4.5, # Non-dimensional lever of the horizontal tail (lever/wing_mac)
-                    'AR_h' : 4.55, # HT aspect ratio
+                    'AR_h' : 4.5, # HT aspect ratio
                     'taper_h' : 0.40, # HT taper ratio
                     'sweep_h' : 33.92*np.pi/180, # HT sweep [rad]
                     'dihedral_h' : 6.56*np.pi/180, # HT dihedral [rad]
@@ -180,11 +180,11 @@ def standard_airplane(name):
                     'tcr_v' : 0.114, # t/c of the root section of the VT
                     'tct_v' : 0.097, # t/c of the tip section of the VT
                     
-                    'L_f' : 66.8, # Fuselage length [m]
+                    'L_f' : 65.09, # Fuselage length [m]
                     'D_f' : 5.96, # Fuselage diameter [m]
                     
                     'x_n' : 24.3, # Longitudinal position of the nacelle frontal face [m]
-                    'y_n' : 12.3, # Lateral position of the nacelle centerline [m]
+                    'y_n' : 11, # Lateral position of the nacelle centerline [m]
                     'z_n' : -2.22, # Vertical position of the nacelle centerline [m]
                     'L_n' : 6.06, # Nacelle length [m]
                     'D_n' : 3.94, # Nacelle diameter [m]
@@ -195,17 +195,17 @@ def standard_airplane(name):
                               #'model' : 'Raymer turbofan', # Check engineTSFC function for options
                               'BPR' : 9.6, # Engine bypass ratio
                               'weight' : 7277*gravity, # Single engine weight [N] (Can also be omitted to let designTool estimate it)
-                              'Tmax' : 84000*lb2N,
+                              'Tmax' : 1.04*84000*lb2N,
                               'C_ref' : 0.478/3600, # Reference thrust-specific fuel consumption [1/s] (Can also be omitted to let designTool estimate it)
                               'altitude_ref': 35000*ft2m, # Altitude that corresponds to the given TSFC [m]
                               'Mach_ref': 0.85, # Mach that corresponds to the given TSFC
                               },
                     
                     'x_nlg' : 4.6, # Longitudinal position of the nose landing gear [m]
-                    'x_mlg' : 33.1, # Longitudinal position of the main landing gear [m]
+                    'x_mlg' : 32.2, # Longitudinal position of the main landing gear [m]
                     'y_mlg' : 5.6, # Lateral position of the main landing gear [m]
                     'z_lg' : -5.7, # Vertical position of the landing gear [m]
-                    'x_tailstrike' : 48, # NSEI Longitudinal position of critical tailstrike point [m]
+                    'x_tailstrike' : 47.5, # NSEI Longitudinal position of critical tailstrike point [m]
                     'z_tailstrike' : -2.98, # NSEI Vertical position of critical tailstrike point [m]
                     
                     'c_tank_c_w' : 0.4, # NSEI Fraction of the wing chord occupied by the fuel tank
@@ -256,15 +256,15 @@ def standard_airplane(name):
                     'range_altcruise' : 200*nm2m, # Alternative cruise range [m]
                     
                     'W_payload' : 32000*gravity, # Payload weight [N]
-                    'xcg_payload' : 32.5474, # Longitudinal position of the Payload center of gravity [m]
+                    'xcg_payload' : 30.89026, # Longitudinal position of the Payload center of gravity [m]
                     
                     'W_crew' : 1700*gravity, # Crew weight [N]
-                    'xcg_crew' : 33.4, # Longitudinal position of the Crew center of gravity [m]
+                    'xcg_crew' : 32.55, # Longitudinal position of the Crew center of gravity [m]
 
                     'block_range' : 400*nm2m, # Block range [m]
                     'block_time' : (1.0 + 2*40/60)*3600, # Block time [s]
                     'n_captains' : 1, # Number of captains in flight
-                    'n_copilots' : 1, # Number of copilots in flight
+                    'n_copilots' : 2, # Number of copilots in flight
                     
                     'rho_fuel' : 804, # Fuel density kg/m3 (This is Jet A-1)
 
