@@ -1,0 +1,77 @@
+
+====================================================================================================
+  TRIAGEM DE VARIAVEIS - aeronave do grupo NJ-0502
+  diferencas centradas, passo relativo +-2%
+====================================================================================================
+  Saidas de referencia:
+    W0                 =  286564.9728
+    W_f                =  109311.9032
+    deltaS_wlan        =     112.8417
+    SM_fwd             =       0.2142
+    SM_aft             =       0.0983
+    CLv                =       0.6833
+    frac_nlg_fwd       =       0.0811
+    frac_nlg_aft       =       0.0496
+    alpha_tipback      =      13.4972
+    alpha_tailstrike   =      10.0806
+    phi_overturn       =      48.4979
+    V_maxfuel          =  136644.4391
+----------------------------------------------------------------------------------------------------
+  RANKING (por maior |S| entre as saidas):
+                    S_max    saida_dominante  n_saidas_relevantes    S_medio
+$x_{mlg}$         21.2752     $\alpha_{tip}$                    7     5.0835
+$x_{r,w}$         19.5860         $SM_{aft}$                    6     2.9604
+$L_f$             16.3679         $SM_{aft}$                   10     3.8466
+$\Lambda_w$       12.0255         $SM_{aft}$                   10     1.8718
+$S_w$              5.8003         $SM_{aft}$                    9     1.5057
+$k_{korn}$         5.5793  $\Delta S_{wlan}$                    9     1.3465
+$x_{cg,pay}$       5.3385         $SM_{aft}$                    3     0.9162
+$x_n$              3.5178         $SM_{aft}$                    5     0.7678
+$x_{ts}$           3.0518    $\alpha_{tail}$                    1     0.2543
+$d_{LDG}$          2.8719  $\Delta S_{wlan}$                    1     0.2393
+$\eta_h$           2.8230         $SM_{aft}$                    2     0.3432
+$M_{cr}$           2.7283  $\Delta S_{wlan}$                    9     0.7203
+$MLW/MTOW$         2.5026  $\Delta S_{wlan}$                    1     0.2086
+$C_{ht}$           2.4063         $SM_{aft}$                    5     0.3692
+$AR_w$             2.3205         $SM_{aft}$                   10     0.5334
+$C_{ref}$          2.1394  $\Delta S_{wlan}$                    7     0.5206
+$z_{lg}$           2.0526    $\alpha_{tail}$                    3     0.3002
+$R$                2.0002  $\Delta S_{wlan}$                    7     0.4868
+$D_f$              1.7613         $SM_{aft}$                    8     0.4634
+$AR_h$             1.2349         $SM_{aft}$                    2     0.1519
+$\Lambda_h$        1.2247         $SM_{aft}$                    2     0.1511
+$c_{l,max,w}$      1.2221  $\Delta S_{wlan}$                    2     0.1485
+$c_{flap}/c_w$     1.2045  $\Delta S_{wlan}$                    2     0.1402
+$z_{ts}$           1.0731    $\alpha_{tail}$                    1     0.0894
+$C_{vt}$           1.0443           $C_{Lv}$                    6     0.1859
+$y_n$              1.0000           $C_{Lv}$                    1     0.0833
+$T_{max}$          1.0000           $C_{Lv}$                    1     0.0833
+$c_{tank}/c_w$     1.0000         $V_{tank}$                    3     0.1489
+$(t/c)_{r,w}$      0.9177         $V_{tank}$                    4     0.1288
+$W_{pay}$          0.9123  $\Delta S_{wlan}$                    4     0.1809
+$b_{flap}/b_w$     0.7881  $\Delta S_{wlan}$                    2     0.0925
+$L_c/c_h$          0.7559         $SM_{aft}$                    3     0.1181
+$h_{cr}$           0.7545  $\Delta S_{wlan}$                    4     0.1836
+$y_{mlg}$          0.5632       $\phi_{ovt}$                    1     0.0469
+$b_{tank}/b_w$     0.5068         $SM_{fwd}$                    3     0.0988
+$\lambda_w$        0.4975         $SM_{aft}$                    3     0.0945
+$x_{tank}/c_w$     0.4485         $SM_{fwd}$                    2     0.0656
+$L_n$              0.4339         $SM_{aft}$                    4     0.1071
+$(t/c)_{t,w}$      0.3898  $\Delta S_{wlan}$                    4     0.1035
+$c_{slat}/c_w$     0.2347  $\Delta S_{wlan}$                    1     0.0285
+$x_{nlg}$          0.1517      $f_{nlg,fwd}$                    2     0.0346
+$D_n$              0.1118  $\Delta S_{wlan}$                    1     0.0272
+$L_b/b_v$          0.1100  $\Delta S_{wlan}$                    1     0.0233
+$b_{slat}/b_w$     0.1059  $\Delta S_{wlan}$                    1     0.0130
+$z_{r,h}$          0.0756         $SM_{aft}$                    0     0.0092
+$\lambda_h$        0.0744         $SM_{aft}$                    0     0.0094
+$z_{r,w}$          0.0354         $SM_{aft}$                    0     0.0043
+$AR_v$             0.0056         $SM_{aft}$                    0     0.0023
+$BPR$              0.0020  $\Delta S_{wlan}$                    0     0.0005
+$d_{TO}$           0.0000              $W_0$                    0     0.0000
+$\delta_w$         0.0000              $W_0$                    0     0.0000
+----------------------------------------------------------------------------------------------------
+  Variaveis SEM efeito mensuravel em nenhuma saida (S_max < 1e-6):
+    $d_{TO}$, $\delta_w$
+
+Arquivos gravados em resultados/
