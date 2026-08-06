@@ -12,6 +12,7 @@ import numpy as np
 from designTool.standard_airplane import standard_airplane
 from designTool.geometry import geometry, change_sweep
 from designTool.plots import plot_geometry
+from designTool.view_dimensions import add_planview_dimensions, view_key_from_angles
 from designTool.aerodynamics import aerodynamics
 from designTool.weight import weight
 from designTool.auxiliary import atmosphere
@@ -338,18 +339,22 @@ geometry(airplane)
 # view_init(elev, azim) define a camera; set_proj_type('ortho') remove a
 # perspectiva para que sejam vistas de plano verdadeiras (sem distorcao).
 plan_views = [
-    ("Vista superior (plano XY)", "planview_xy.png", 90, -90),
-    ("Vista lateral (plano ZX)",  "planview_zx.png",  0, -90),
-    ("Vista frontal (plano YZ)",  "planview_yz.png",  0,   0),
+    ("Vista superior (plano XY)", "planview_xy.png", "vista_superior.png", 90, -90),
+    ("Vista lateral (plano ZX)",  "planview_zx.png",  "vista_lateral.png",  0, -90),
+    ("Vista frontal (plano YZ)",  "planview_yz.png",  "vista_frontal.png",  0,   0),
 ]
-for _title, _figname, _elev, _azim in plan_views:
+for _title, _figname, _alias, _elev, _azim in plan_views:
     _fig_v, _ax_v = plot_geometry(
         airplane, figname=_figname, az1=_elev, az2=_azim, show=False
     )
     _ax_v.set_proj_type("ortho")   # projecao ortografica (sem perspectiva)
     _ax_v.view_init(_elev, _azim)  # reforca o angulo apos ajustar a projecao
+    _view_key = view_key_from_angles(_elev, _azim)
+    if _view_key is not None:
+        add_planview_dimensions(_ax_v, airplane, _view_key)
     _ax_v.set_title(_title)
     _fig_v.savefig(_figname, dpi=300)
+    _fig_v.savefig(_alias, dpi=300)
 
 print(pprint.pformat(airplane))
 
