@@ -249,6 +249,17 @@ if __name__ == '__main__':
         print(df_steps.to_string(float_format=lambda v: '%8.5f' % v))
 
         df.to_csv(os.path.join(RESULTS_DIR, 'sens_%s.csv' % name))
+
+        # Denominador da tabela do enunciado: o passo RELATIVO de fato
+        # aplicado a cada entrada. Para dihedral_w (+2 deg) e Mach (+0.02) a
+        # perturbacao e absoluta, mas o denominador continua sendo dX/X*.
+        passos = pd.DataFrame({
+            'X_ref': [get_input(get_baseline(name), k)
+                      for k, _l, _p, _t in PERTURBATIONS],
+            'perturbacao': [t for _k, _l, _p, t in PERTURBATIONS],
+            'dX/X*': df_steps.values,
+        }, index=df_steps.index)
+        passos.to_csv(os.path.join(RESULTS_DIR, 'passos_%s.csv' % name))
         save_latex(df,
                    os.path.join(RESULTS_DIR, 'sens_%s.tex' % name),
                    'Sensibilidade relativa --- %s.' % title,

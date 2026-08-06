@@ -104,6 +104,51 @@ def tab_passo():
     ])
 
 
+def tab_passos():
+    '''
+    Denominador da tabela do enunciado: passo relativo dX/X* aplicado a cada
+    entrada, nas duas aeronaves. Torna verificavel que as perturbacoes
+    absolutas (+2 deg em dihedral_w, +0,02 em Mach) foram normalizadas pelo
+    valor de referencia de CADA aeronave, e nao usadas cruas.
+    '''
+    fk = pd.read_csv(os.path.join(RESULTS_DIR, 'passos_fokker100.csv'),
+                     index_col=0)
+    my = pd.read_csv(os.path.join(RESULTS_DIR, 'passos_my_airplane.csv'),
+                     index_col=0)
+
+    # Angulos ficam mais legiveis em graus
+    ang = {r'$\Lambda_w$': rad2deg, r'$\delta_w$': rad2deg}
+    unit = {r'$\Lambda_w$': 'deg', r'$\delta_w$': 'deg',
+            r'$R$': 'nm', r'$S_w$': 'm$^2$', r'$x_{r,w}$': 'm'}
+    conv = {r'$R$': 1.0 / nm2m}
+
+    lines = []
+    for idx in fk.index:
+        f = rad2deg if idx in ang else conv.get(idx, 1.0)
+        lines.append(
+            '%s & %s & %s & %.3f & %.5f & %.3f & %.5f \\\\'
+            % (idx, unit.get(idx, '--'),
+               # '%' e caractere de comentario no LaTeX
+               str(fk.loc[idx, 'perturbacao']).replace('%', r'\%')
+                                              .replace(' deg', r'$^{\circ}$'),
+               fk.loc[idx, 'X_ref'] * f, fk.loc[idx, 'dX/X*'],
+               my.loc[idx, 'X_ref'] * f, my.loc[idx, 'dX/X*']))
+
+    return '\n'.join([
+        r'\begin{tabular}{llcrrrr}',
+        r'\toprule',
+        r' & & & \multicolumn{2}{c}{Fokker 100} & '
+        r'\multicolumn{2}{c}{NJ-0502} \\',
+        r'\cmidrule(lr){4-5}\cmidrule(lr){6-7}',
+        r'Entrada & Un. & $\Delta X$ & $X^*$ & $\Delta X/X^*$ & '
+        r'$X^*$ & $\Delta X/X^*$ \\',
+        r'\midrule',
+        '\n'.join(lines),
+        r'\bottomrule',
+        r'\end{tabular}',
+    ])
+
+
 def tab_baseline():
     '''Saidas convergidas das duas aeronaves de referencia.'''
     rows = [
@@ -354,6 +399,7 @@ if __name__ == '__main__':
 
     fragments = {
         'tab_ranking.tex':          tab_ranking(),
+        'tab_passos.tex':           tab_passos(),
         'tab_corr.tex':             tab_corr(),
         'tab_passo.tex':            tab_passo(),
         'tab_baseline.tex':         tab_baseline(),

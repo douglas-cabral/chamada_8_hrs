@@ -185,12 +185,33 @@ mudan\c{c}a que aumente $W_f$ a viola.
 \section{Atividade 2.1 --- Sensibilidade relativa da aeronave padr\~ao}
 % =====================================================================
 
-A Tabela~\ref{tab:sens_fokker100} apresenta o resultado no \emph{layout} pedido pelo
-enunciado; a Figura~\ref{fig:sens_fk} exibe a mesma informa\c{c}\~ao como mapa
-de calor. Os passos aplicados foram $+2\%$ em $S_w$, $AR_w$, $\Lambda_w$,
-$x_{r,w}$, $C_{h,t}$ e $R$; $+2^\circ$ em $\delta_w$ (equivalente a
-$\Delta X/X^{*} = 2/3$, pois $\delta_w^{*} = 3^\circ$); e $+0{,}02$ em $M$
-($\Delta X/X^{*} = 0{,}0274$).
+A Tabela~\ref{tab:sens_fokker100} apresenta o resultado no \emph{layout} pedido
+pelo enunciado; a Figura~\ref{fig:sens_fk} exibe a mesma informa\c{c}\~ao como
+mapa de calor.
+
+Antes dos n\'umeros, vale explicitar o \textbf{denominador} das colunas. O
+cabe\c{c}alho da tabela do enunciado \'e a raz\~ao
+$\big[\Delta(\cdot)/(\cdot)^{*}\big]_{\text{sa\'ida}}
+ \big/ \big[\Delta(\cdot)/(\cdot)^{*}\big]_{\text{entrada}}$: as duas
+varia\c{c}\~oes s\~ao \emph{relativas}. Seis das oito perturba\c{c}\~oes j\'a
+s\~ao dadas em porcentagem, mas duas s\~ao \textbf{absolutas} --- $+2^\circ$ em
+$\delta_w$ e $+0{,}02$ em $M$ --- e precisam ser normalizadas pelo valor de
+refer\^encia \emph{de cada aeronave} antes de entrar no denominador. Como
+$\delta_w^{*}$ e $M^{*}$ diferem entre o Fokker~100 e a aeronave do grupo, o
+denominador dessas duas linhas tamb\'em difere (Tabela~\ref{tab:passos}).
+Us\'a-lo cru ($2^\circ$ ou $0{,}02$) tornaria as duas linhas incompar\'aveis com
+as demais e entre as duas aeronaves.
+
+\begin{table}[H]
+\centering
+\caption{Perturba\c{c}\~oes aplicadas e o denominador
+$\Delta X/X^{*}$ correspondente em cada aeronave.
+Perturba\c{c}\~oes relativas d\~ao sempre $0{,}02$; as absolutas
+($\delta_w$ e $M$) dependem do valor de refer\^encia.}
+\label{tab:passos}
+\small
+\input{tex/tab_passos.tex}
+\end{table}
 
 \input{resultados/sens_fokker100.tex}
 
@@ -256,6 +277,13 @@ Tabela~\ref{tab:dic} reproduz o dicion\'ario de entrada completo, com
 % =====================================================================
 \section{Atividade 2.2 --- Sensibilidade relativa da aeronave do grupo}
 % =====================================================================
+
+Mesma metodologia e mesmas perturba\c{c}\~oes da Atividade~2.1, agora em torno
+da aeronave do grupo. Os denominadores $\Delta X/X^{*}$ est\~ao na coluna
+direita da Tabela~\ref{tab:passos}: note que as duas perturba\c{c}\~oes
+absolutas mudam de valor em rela\c{c}\~ao ao Fokker~100, porque
+$\delta_w^{*} = 4{,}5^\circ$ (contra $3^\circ$) e $M^{*} = 0{,}85$ (contra
+$0{,}73$) --- logo $\Delta X/X^{*} = 0{,}4444$ e $0{,}02353$, respectivamente.
 
 \input{resultados/sens_my_airplane.tex}
 
