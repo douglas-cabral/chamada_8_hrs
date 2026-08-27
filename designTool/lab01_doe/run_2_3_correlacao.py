@@ -26,7 +26,8 @@ from doe_common import deg2rad, get_baseline, perturb, run_case, set_input
 
 # SETUP
 
-RESULTS_DIR = 'resultados'
+RESULTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                           'resultados')
 BASELINE = 'my_airplane'
 SEED = 123
 SAMPLE_SIZES = [40, 400]

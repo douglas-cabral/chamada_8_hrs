@@ -8,10 +8,19 @@ Modulo auxiliar comum aos tres scripts do laboratorio.
 import _thread
 import contextlib
 import copy
+import os
 import signal
+import sys
 import threading
 
 import numpy as np
+
+# O pacote designTool fica no diretorio pai desta pasta, entao ele precisa
+# entrar no sys.path para que os scripts rodem de qualquer diretorio de
+# trabalho.
+_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, _PROJECT_ROOT)
 
 from designTool.analyze import analyze
 from designTool.standard_airplane import standard_airplane

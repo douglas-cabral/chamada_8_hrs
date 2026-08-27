@@ -20,7 +20,8 @@ from doe_common import (deg2rad, get_baseline, get_input, perturb, run_case,
 
 # SETUP
 
-RESULTS_DIR = 'resultados'
+RESULTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                           'resultados')
 
 # Perturbacoes do enunciado
 PERTURBATIONS = [

@@ -19,7 +19,8 @@ from doe_common import get_baseline, get_input, perturb, run_baseline, run_case
 
 # SETUP
 
-RESULTS_DIR = 'resultados'
+RESULTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                           'resultados')
 BASELINE = 'my_airplane'
 
 # Passo relativo das diferencas centradas

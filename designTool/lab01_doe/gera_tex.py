@@ -19,8 +19,9 @@ from doe_common import get_baseline, run_baseline
 from doe_common import rad2deg
 from designTool.constants import ft2m, nm2m, gravity, lb2N
 
-RESULTS_DIR = 'resultados'
-TEX_DIR = 'tex'
+_HERE = os.path.dirname(os.path.abspath(__file__))
+RESULTS_DIR = os.path.join(_HERE, 'resultados')
+TEX_DIR = os.path.join(_HERE, 'tex')
 
 # =========================================
 
