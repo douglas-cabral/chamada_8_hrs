@@ -1,21 +1,7 @@
 '''
-INSTITUTO TECNOLOGICO DE AERONAUTICA
-PRJ-23 - Aircraft Preliminary Design
 Homework 01 - DOE analysis - Grupo NJ-0502
 
 Atividades 2.1 e 2.2 - Tabela de sensibilidade relativa.
-
-Calcula, por diferencas finitas progressivas, a sensibilidade relativa
-
-        S_ij = (dY_i / Y_i*) / (dX_j / X_j*)
-
-para a aeronave padrao (Fokker 100) e para a aeronave do grupo
-('my_airplane'), com as perturbacoes definidas no enunciado.
-
-Saidas geradas em resultados/:
-  sens_fokker100.csv / sens_my_airplane.csv   - tabelas numericas
-  sens_fokker100.tex / sens_my_airplane.tex   - tabelas em LaTeX
-  sens_fokker100.png / sens_my_airplane.png   - mapa de calor das tabelas
 '''
 
 # IMPORTS
@@ -36,9 +22,7 @@ from doe_common import (deg2rad, get_baseline, get_input, perturb, run_case,
 
 RESULTS_DIR = 'resultados'
 
-# Perturbacoes do enunciado.
-#   ('rel', f) -> X = X* * (1 + f)
-#   ('abs', d) -> X = X* + d          (d ja nas unidades internas do designTool)
+# Perturbacoes do enunciado
 PERTURBATIONS = [
     ('S_w',          r'$S_w$',        ('rel', 0.02),          '+2%'),
     ('AR_w',         r'$AR_w$',       ('rel', 0.02),          '+2%'),
@@ -147,9 +131,7 @@ def save_latex(df, path, caption, label):
 
 def save_heatmap(df, path, title):
     '''
-    Mapa de calor da tabela de sensibilidade (leitura visual rapida do que e
-    relevante). A escala e simetrica e saturada em um valor robusto para que
-    poucas celulas muito grandes nao apaguem o restante da tabela.
+    Mapa de calor da tabela de sensibilidade
     '''
     data = df.values.astype(float)
     finite = np.abs(data[np.isfinite(data)])
@@ -183,37 +165,6 @@ def save_heatmap(df, path, title):
     fig.tight_layout()
     fig.savefig(path, dpi=200)
     plt.close(fig)
-
-
-def step_study(baseline_name, steps=(0.005, 0.01, 0.02, 0.05)):
-    '''
-    Verificacao de consistencia do codigo (Sec. 1 do enunciado): a
-    sensibilidade relativa so tem significado se for aproximadamente
-    independente do tamanho do passo. Aqui repetimos o calculo de
-    dW_0/W_0* / (dS_w/S_w*) e analogos para varios passos.
-
-    Um resultado que oscila com o passo indica ruido numerico dos lacos de
-    ponto fixo (tolerancia de 10 N em `weight` e `thrust_matching`); um
-    resultado que deriva monotonicamente indica nao-linearidade.
-    '''
-    base_out = run_baseline(baseline_name)
-    keys = [k for k, _lb, (mode, _a), _t in PERTURBATIONS if mode == 'rel']
-    labels = [lb for k, lb, (mode, _a), _t in PERTURBATIONS if mode == 'rel']
-
-    rows = {}
-    for key, label in zip(keys, labels):
-        x_ref = get_input(get_baseline(baseline_name), key)
-        row = {}
-        for h in steps:
-            out = run_case(perturb(baseline_name, key, x_ref * (1.0 + h)))
-            if out is None:
-                row['%.1f%%' % (100 * h)] = np.nan
-            else:
-                row['%.1f%%' % (100 * h)] = \
-                    ((out['W0'] - base_out['W0']) / base_out['W0']) / h
-        rows[label] = row
-
-    return pd.DataFrame(rows).T
 
 
 # =========================================
@@ -267,14 +218,5 @@ if __name__ == '__main__':
         save_heatmap(df,
                      os.path.join(RESULTS_DIR, 'sens_%s.png' % name),
                      'Sensibilidade relativa — %s' % title)
-
-    # Verificacao de consistencia: independencia do passo (aeronave do grupo)
-    df_step = step_study('my_airplane')
-    print('\n' + '=' * 78)
-    print('  VERIFICACAO DE CONSISTENCIA - sensibilidade de W_0 vs. passo')
-    print('  (aeronave do grupo; entradas com perturbacao relativa)')
-    print('=' * 78)
-    print(df_step.to_string(float_format=lambda v: '%9.4f' % v))
-    df_step.to_csv(os.path.join(RESULTS_DIR, 'sens_passo_my_airplane.csv'))
 
     print('\nArquivos gravados em %s/' % RESULTS_DIR)

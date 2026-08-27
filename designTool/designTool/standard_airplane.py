@@ -185,7 +185,7 @@ def standard_airplane(name):
                     
                     'x_n' : 24.3, # Longitudinal position of the nacelle frontal face [m]
                     'y_n' : 11, # Lateral position of the nacelle centerline [m]
-                    'z_n' : -2.22, # Vertical position of the nacelle centerline [m]
+                    'z_n' : -2.9, # Vertical position of the nacelle centerline [m]
                     'L_n' : 6.06, # Nacelle length [m]
                     'D_n' : 3.94, # Nacelle diameter [m]
                     

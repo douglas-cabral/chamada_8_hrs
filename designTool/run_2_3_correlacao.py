@@ -1,20 +1,9 @@
 '''
-INSTITUTO TECNOLOGICO DE AERONAUTICA
-PRJ-23 - Aircraft Preliminary Design
 Homework 01 - DOE analysis - Grupo NJ-0502
 
 Atividade 2.3 - Grafico de correlacao da aeronave do grupo.
 
-Amostragem por Latin Hypercube (pymoo) das 5 variaveis de entrada pedidas no
-enunciado; cada amostra e avaliada pela funcao `analyze` do designTool e as 3
-saidas pedidas sao armazenadas. Sao gerados dois graficos: 40 e 400 amostras.
-
-Estrutura baseada no script `doe2.py` apresentado em aula (Maj. Ney Secco).
-
-Saidas geradas em resultados/:
-  correlacao_040.png / correlacao_400.png   - matriz de correlacao completa
-  amostras_040.csv  / amostras_400.csv      - amostras e respostas
-  correlacoes_400.csv                       - matriz de Pearson (400 amostras)
+Estrutura baseada no script `doe2.py`.
 '''
 
 # IMPORTS
@@ -50,8 +39,6 @@ _base_inputs = get_baseline(BASELINE)['inputs']
 
 # Variaveis de entrada: (chave no designTool, rotulo, limite inf, limite sup,
 #                        fator de conversao para o rotulo)
-# sweep_w e dihedral_w sao armazenados em rad no designTool, mas amostrados e
-# exibidos em graus.
 INPUT_VARS = [
     ('S_w',        r'$S_w$ [m$^2$]',       0.90 * _base_inputs['S_w'],
                                            1.10 * _base_inputs['S_w'],   1.0),
@@ -63,8 +50,6 @@ INPUT_VARS = [
 ]
 
 # Variaveis de saida: (chave, rotulo, divisor aplicado ao valor)
-# W_0 e W_f sao divididos por 1000 (10^3 kgf) apenas para deixar os rotulos
-# dos eixos legiveis; isso nao altera correlacao nem tendencia.
 OUTPUT_VARS = [
     ('W0',     r'$W_0$ [$10^3$ kgf]', 1.0e3),
     ('W_f',    r'$W_f$ [$10^3$ kgf]', 1.0e3),
@@ -80,8 +65,7 @@ def sample_and_evaluate(n_samples, seed=SEED):
     '''
     Sorteia n_samples pontos por LHS, roda `analyze` em cada um e devolve
       - DataFrame com entradas e saidas das amostras validas;
-      - DataFrame com TODAS as amostras sorteadas e a flag de convergencia
-        (usado para mapear a fronteira de viabilidade).
+      - DataFrame com TODAS as amostras sorteadas e a flag de convergencia (usado para mapear a fronteira de viabilidade).
     '''
     lb = [v[2] for v in INPUT_VARS]
     ub = [v[3] for v in INPUT_VARS]
@@ -123,18 +107,18 @@ def sample_and_evaluate(n_samples, seed=SEED):
     return df, df_all
 
 
-def correlation_plot(df, path, title, plot_type=PLOT_TYPE):
+def correlation_plot(df, df_all, path, title, plot_type=PLOT_TYPE):
     '''
-    Matriz de correlacao no formato do script `doe2.py` de aula.
+    Matriz de correlacao no formato do script `doe2.py`
+
+    Nos paineis de dispersao entrada x entrada do bloco 5x5 superior esquerdo,
+    as amostras cujo dimensionamento divergiu aparecem como 'x' vermelhos.
     '''
     sns.set(style='white', font_scale=1.15)
 
     if plot_type == 0:
         grid = sns.pairplot(df, corner=True, height=1.9)
     else:
-        # height=1.9 in por celula: com 8 variaveis a figura fica com ~15 in,
-        # de modo que, reduzida para a largura da pagina, as fontes definidas
-        # abaixo permanecem legiveis no papel.
         grid = sns.PairGrid(df, diag_sharey=False, height=1.9)
         grid.map_lower(sns.regplot, lowess=True,
                        scatter_kws={'s': 14, 'alpha': 0.55},
@@ -142,7 +126,24 @@ def correlation_plot(df, path, title, plot_type=PLOT_TYPE):
         grid.map_diag(sns.histplot, color='0.45')
         grid.map_upper(corrdot)
 
-    # Legibilidade: poucos ticks por eixo e fontes dimensionadas para impressao
+    # Sobrepoe as entradas dos casos divergentes somente nos scatter plots do
+    # bloco entrada x entrada (triangulo inferior do quadrado 5x5). Os demais
+    # paineis envolvem saidas inexistentes para esses casos e ficam inalterados.
+    failed = df_all.loc[~df_all['convergiu'].astype(bool)]
+    input_labels = [v[1] for v in INPUT_VARS]
+    for row in range(1, len(input_labels)):
+        for col in range(row):
+            grid.axes[row, col].scatter(
+                failed[input_labels[col]],
+                failed[input_labels[row]],
+                marker='x',
+                s=38,
+                color='#c53030',
+                linewidths=1.4,
+                alpha=0.9,
+                zorder=6,
+            )
+
     for ax in grid.axes.flatten():
         if ax is None:
             continue
@@ -160,12 +161,7 @@ def correlation_plot(df, path, title, plot_type=PLOT_TYPE):
 
 def feasibility_plot(df_all, path, title):
     '''
-    Mapa das amostras que fecharam (ou nao) o laco de ponto fixo de `weight`,
-    projetado no plano (Lambda_w, AR_w). O laco
-        W0 <- W_e(W0) + W_f(W0) + W_payload + W_crew
-    so converge quando d(W_e + W_f)/dW0 < 1; quando o arrasto de onda explode
-    (baixo enflechamento em M = 0.85) ou o arrasto induzido cresce (baixo AR),
-    a "bola de neve" de MTOW diverge e a aeronave nao fecha a missao.
+    Mapa das amostras que fecharam (ou nao) o laco de ponto fixo de `weight`, projetado no plano (Lambda_w, AR_w)
     '''
     sns.set(style='whitegrid', font_scale=1.0)
     lam = df_all[INPUT_VARS[2][1]]
@@ -189,12 +185,7 @@ def feasibility_plot(df_all, path, title):
 
 def sweep_trend_plot(path):
     '''
-    Varredura unidimensional em Lambda_w (demais entradas na referencia) usada
-    para sustentar a discussao da tendencia dominante do DOE. Mostra, no mesmo
-    eixo de enflechamento:
-      - M_crit da equacao de Korn e o CD_wave resultante em M = 0,85;
-      - W_0 e W_f convergidos;
-      - a faixa em que o dimensionamento diverge.
+    Varredura unidimensional em Lambda_w (demais entradas na referencia)
     '''
     from designTool.geometry import change_sweep, geometry
 
@@ -210,7 +201,7 @@ def sweep_trend_plot(path):
 
     for i, deg in enumerate(sweep_deg):
         airplane = perturb(BASELINE, 'sweep_w', deg * deg2rad)
-        geometry(airplane)          # garante 'geometry' mesmo se analyze falhar
+        geometry(airplane)
         out = run_case(airplane)
 
         g = airplane['geometry']
@@ -312,6 +303,7 @@ if __name__ == '__main__':
 
         correlation_plot(
             df,
+            df_all,
             os.path.join(RESULTS_DIR, 'correlacao_%03d.png' % n_samples),
             'Gráfico de correlação — aeronave do grupo NJ-0502 '
             '(%d amostras, LHS)' % n_samples)

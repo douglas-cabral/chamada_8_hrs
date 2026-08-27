@@ -1,22 +1,15 @@
 '''
-INSTITUTO TECNOLOGICO DE AERONAUTICA
-PRJ-23 - Aircraft Preliminary Design
 Homework 01 - DOE analysis - Grupo NJ-0502
 
 Modulo auxiliar comum aos tres scripts do laboratorio.
-
-Concentra:
-  - copia profunda e escrita de inputs (inclusive aninhados, ex.: 'engine.BPR');
-  - execucao protegida da funcao `analyze` do designTool (timeout + guarda de
-    divergencia dos lacos de ponto fixo de `weight`/`thrust_matching`);
-  - extracao padronizada das saidas de interesse do dicionario `airplane`.
-
-Maj. Ney Secco fornece o designTool; este arquivo apenas o instrumenta.
 '''
 
 # IMPORTS
+import _thread
+import contextlib
 import copy
 import signal
+import threading
 
 import numpy as np
 
@@ -31,10 +24,6 @@ rad2deg = 180.0 / np.pi
 deg2rad = np.pi / 180.0
 
 # Tempo maximo (s) permitido para uma unica execucao de `analyze`.
-# Os lacos `while abs(delta) > 10` de weight() e thrust_matching() nao possuem
-# limite de iteracoes: para combinacoes extremas de entrada o ponto fixo pode
-# divergir e nunca retornar. O alarme abaixo transforma esse caso em falha
-# controlada da amostra em vez de travar o DOE.
 TIMEOUT_S = 5.0
 
 
@@ -46,21 +35,53 @@ def _timeout_handler(signum, frame):
     raise _AnalyzeTimeout()
 
 
+@contextlib.contextmanager
+def _time_limit(seconds):
+    '''
+    Interrompe o bloco caso ele exceda `seconds`
+    '''
+    if hasattr(signal, 'SIGALRM'):
+        old_handler = signal.signal(signal.SIGALRM, _timeout_handler)
+        signal.setitimer(signal.ITIMER_REAL, seconds)
+        try:
+            yield
+        finally:
+            signal.setitimer(signal.ITIMER_REAL, 0.0)
+            signal.signal(signal.SIGALRM, old_handler)
+    else:
+        expired = threading.Event()
+
+        def _fire():
+            expired.set()
+            _thread.interrupt_main()
+
+        timer = threading.Timer(seconds, _fire)
+        timer.start()
+        try:
+            yield
+        except KeyboardInterrupt:
+            # Sem o timer disparado, a interrupcao veio do usuario (Ctrl+C)
+            if not expired.is_set():
+                raise
+            raise _AnalyzeTimeout()
+        finally:
+            timer.cancel()
+
+
 # =========================================
 # MANIPULACAO DE INPUTS
 
 
 def get_baseline(name):
     '''
-    Retorna o dicionario de inputs da aeronave de referencia.
-    name: 'fokker100' (aeronave padrao) ou 'my_airplane' (aeronave do grupo).
+    Retorna o dicionario de inputs da aeronave de referencia
     '''
     return standard_airplane(name)
 
 
 def get_input(airplane, key):
     '''
-    Le um input. Aceita chaves aninhadas no formato 'engine.BPR'.
+    Le um input.
     '''
     node = airplane['inputs']
     parts = key.split('.')
@@ -71,7 +92,7 @@ def get_input(airplane, key):
 
 def set_input(airplane, key, value):
     '''
-    Escreve um input. Aceita chaves aninhadas no formato 'engine.BPR'.
+    Escreve um input.
     '''
     node = airplane['inputs']
     parts = key.split('.')
@@ -83,8 +104,6 @@ def set_input(airplane, key, value):
 def perturb(baseline_name, key, value):
     '''
     Devolve uma copia da aeronave de referencia com um unico input alterado.
-    A copia profunda e obrigatoria porque `analyze` escreve no proprio
-    dicionario (chaves 'geometry', 'thrust_matching', 'balance', ...).
     '''
     airplane = copy.deepcopy(get_baseline(baseline_name))
     set_input(airplane, key, value)
@@ -92,11 +111,9 @@ def perturb(baseline_name, key, value):
 
 
 # =========================================
-# EXECUCAO PROTEGIDA
+# EXECUCAO
 
 
-# Saidas extraidas de cada execucao. A chave e o nome usado nas tabelas e
-# graficos; o valor e (caminho no dicionario, fator de conversao).
 OUTPUT_MAP = {
     'W0':               (('thrust_matching', 'W0'),               1.0 / gravity),  # kgf
     'W_f':              (('thrust_matching', 'W_fuel'),           1.0 / gravity),  # kgf
@@ -133,22 +150,15 @@ def run_case(airplane, timeout=TIMEOUT_S):
     '''
     Executa `analyze` de forma protegida.
 
-    Retorna o dicionario de saidas, ou None se a analise falhar (excecao
-    numerica, divergencia do ponto fixo detectada pelo timeout, ou saida
-    nao-finita). Isso e necessario para o DOE: as amostras do LHS varrem
-    faixas amplas e algumas combinacoes nao produzem uma aeronave viavel.
+    Retorna o dicionario de saidas, ou None se a analise falhar
     '''
-    old_handler = signal.signal(signal.SIGALRM, _timeout_handler)
-    signal.setitimer(signal.ITIMER_REAL, timeout)
     try:
-        with np.errstate(all='ignore'):
-            analyze(airplane, print_log=False, plot=False)
+        with _time_limit(timeout):
+            with np.errstate(all='ignore'):
+                analyze(airplane, print_log=False, plot=False)
         out = extract_outputs(airplane)
     except (_AnalyzeTimeout, Exception):
         return None
-    finally:
-        signal.setitimer(signal.ITIMER_REAL, 0.0)
-        signal.signal(signal.SIGALRM, old_handler)
 
     # Descarta resultados nao-finitos ou fisicamente absurdos
     for name, value in out.items():

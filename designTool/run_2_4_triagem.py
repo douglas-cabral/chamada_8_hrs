@@ -1,32 +1,7 @@
 '''
-INSTITUTO TECNOLOGICO DE AERONAUTICA
-PRJ-23 - Aircraft Preliminary Design
 Homework 01 - DOE analysis - Grupo NJ-0502
 
-Atividade 2.4 - Triagem (screening) das variaveis de projeto.
-
-Objetivo: identificar, entre todos os inputs que o grupo pode manipular, quais
-tem impacto consideravel sobre as saidas que definirao os requisitos e as
-restricoes do problema de otimizacao (Sec. 2.4 do enunciado):
-
-    W_0, W_f, deltaS_wlan, SM_fwd, SM_aft, CLv,
-    frac_nlg_fwd, frac_nlg_aft, alpha_tipback, alpha_tailstrike,
-    phi_overturn, e o volume de tanque (V_maxfuel, governado por b_tank_b_w).
-
-Metodo: sensibilidade relativa por diferencas finitas CENTRADAS (passo de
-+-2%), uma variavel por vez, em torno da aeronave do grupo:
-
-    S_ij = [ Y_i(X_j + h) - Y_i(X_j - h) ] / (2 h) * X_j* / Y_i*
-
-O ranqueamento usa duas metricas complementares:
-  - S_max  : maior |S_ij| observado (potencia do efeito mais forte);
-  - n_rel  : numero de saidas com |S_ij| >= LIMIAR (abrangencia do efeito).
-
-Saidas geradas em resultados/:
-  triagem_completa.csv   - matriz S_ij completa
-  triagem_ranking.csv    - ranking das variaveis
-  triagem_heatmap.png    - mapa de calor das variaveis mais influentes
-  triagem_ranking.png    - grafico de barras do ranking
+Atividade 2.4 - Triagem das variaveis de projeto.
 '''
 
 # IMPORTS
@@ -69,8 +44,7 @@ OUTPUTS = [
     ('V_maxfuel',        r'$V_{tank}$'),
 ]
 
-# Inputs candidatos: tudo que o grupo pode escolher no dimensionamento
-# preliminar. (chave no designTool, rotulo)
+# Inputs candidatos
 INPUTS = [
     # Asa
     ('S_w',              r'$S_w$'),
@@ -175,8 +149,7 @@ def screening_matrix(baseline_name, h_rel=H_REL):
 
 def rank_inputs(df, limiar=LIMIAR):
     '''
-    Ranqueia as variaveis por potencia (maior |S|) e abrangencia (numero de
-    saidas afetadas acima do limiar).
+    Ranqueia as variaveis por intensidade (maior |S|) e abrangencia (numero de saidas afetadas acima do limiar)
     '''
     absdf = df.abs()
     ranking = pd.DataFrame({
@@ -191,7 +164,7 @@ def rank_inputs(df, limiar=LIMIAR):
 
 def plot_heatmap(df, path, title):
     '''
-    Mapa de calor da matriz S_ij (escala simetrica com saturacao robusta).
+    Mapa de calor da matriz S_ij
     '''
     data = df.values.astype(float)
     finite = np.abs(data[np.isfinite(data)])
@@ -237,7 +210,7 @@ def plot_heatmap(df, path, title):
 
 def plot_ranking(ranking, path, title, n_show=20):
     '''
-    Barras horizontais com o ranking de influencia (escala log em S_max).
+    Barras horizontais com o ranking de influencia (escala log em S_max)
     '''
     sel = ranking.head(n_show).iloc[::-1]
 
@@ -299,8 +272,7 @@ if __name__ == '__main__':
                  'Sensibilidade relativa das saídas de projeto '
                  '— aeronave do grupo NJ-0502')
 
-    # Heatmap reduzido: as 18 variaveis de maior influencia (figura do corpo
-    # do relatorio; a matriz completa vai para o apendice)
+    # Mapa de calor reduzido com as 18 variaveis de maior influencia
     top = ranking.head(18).index
     plot_heatmap(df.loc[top],
                  os.path.join(RESULTS_DIR, 'triagem_heatmap_top.png'),
