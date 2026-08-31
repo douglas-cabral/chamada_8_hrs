@@ -28,7 +28,7 @@ from opt_common import (CON_NAMES, CONSTRAINTS, DV_NAMES, Model,
 # SETUP
 
 RESULTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                           'resultados')
+                           'resultados_otimizacao_NJ0502')
 
 OPTIONS = {'maxiter': 300, 'ftol': 1e-9, 'disp': False}
 TOL_ATIVA = 1e-4

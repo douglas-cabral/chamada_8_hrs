@@ -30,7 +30,7 @@ from opt_common import (CONSTRAINTS, DESIGN_VARS, DV_NAMES, get_baseline,
 # SETUP
 
 RESULTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                           'resultados')
+                           'resultados_otimizacao_NJ0502')
 
 COR_BASE = '#1f4e79'
 COR_OPT = '#c53030'

@@ -17,8 +17,8 @@ import pandas as pd
 # =========================================
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
-RESULTS_DIR = os.path.join(_HERE, 'resultados')
-TEX_DIR = os.path.join(_HERE, 'tex')
+RESULTS_DIR = os.path.join(_HERE, 'resultados_otimizacao_NJ0502')
+TEX_DIR = os.path.join(_HERE, 'tex_otimizacao_NJ0502')
 
 
 def esc(s):
