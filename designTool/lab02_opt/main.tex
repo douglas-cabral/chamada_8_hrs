@@ -1,0 +1,78 @@
+% =====================================================================
+% PRJ-23 - Aircraft Preliminary Design
+% Homework 02 - Optimization
+% Grupo NJ-0502 - Instituto Tecnológico de Aeronáutica
+% Compilar com: pdflatex main.tex (duas vezes)
+% =====================================================================
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{microtype}
+\usepackage[margin=2.4cm]{geometry}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage{fancyhdr}
+\usepackage{pdflscape}
+\usepackage{import}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue!60!black]{hyperref}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small PRJ-23 — Projeto Preliminar de Aeronave}
+\fancyhead[R]{\small Lab 02 — Otimização}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\newcommand{\code}[1]{\texttt{\small #1}}
+
+\begin{document}
+
+% ---- Capa ----
+\begin{titlepage}
+  \centering
+  \vspace*{1cm}
+
+  {\Large \textbf{Instituto Tecnológico de Aeronáutica}} \\[0.4cm]
+  {\large Departamento de Engenharia Aeronáutica} \\[1.5cm]
+
+  \rule{\linewidth}{1pt} \\[0.4cm]
+  {\LARGE \textbf{PRJ-23 — Laboratório 02}} \\[0.3cm]
+  {\Large NJ-0502 } \\[0.3cm]
+  \rule{\linewidth}{1pt} \\[2cm]
+
+  % ---- Dados da equipe ----
+  \begin{tabular}{rl}
+    \textbf{Integrantes:}  & Bruno Pimentel Santos \\
+                           & Douglas Rodrigues Cabral \\
+                           & Emanuel Garcia Alarcon \\
+                           & Gabriel Souza Bonanni \\
+                           & João Pedro Cruz Magalhães \\
+                           & Yuri Miranda Peres \\[0.6cm]
+    \textbf{Professor:}    & Maj Eng Ney Rafael Sêcco \\[0.6cm]
+    \textbf{Data:}      & 01 de setembro de 2026 \\
+  \end{tabular}
+
+  \vfill
+  {\small São José dos Campos, Setembro de 2026}
+\end{titlepage}
+
+\newpage
+
+% ---- Organização das seções ----
+% \subimport (pacote import) lê o .tex dentro da pasta de mesmo nome
+% e resolve \input{tex/...} e \includegraphics{resultados/...} a partir
+% dessa pasta. Um \input{otimizacao_NJ0502} simples procuraria o .tex
+% ao lado deste main.tex, não dentro da pasta.
+\subimport{otimizacao_aeronave_padrao/}{otimizacao_aeronave_padrao}
+\subimport{otimizacao_NJ0502/}{otimizacao_NJ0502}
+\subimport{otimizacao_multiobjetivo/}{otimizacao_multiobjetivo}
+
+\end{document}

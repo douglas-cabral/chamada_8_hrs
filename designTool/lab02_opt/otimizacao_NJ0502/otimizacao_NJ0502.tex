@@ -1,0 +1,500 @@
+% =====================================================================
+% Homework 02 --- Otimização da NJ-0502
+% Incluído por main.tex (\subimport). Figuras em resultados/, tabelas em tex/.
+% =====================================================================
+
+\begin{abstract}
+\noindent
+Este relatório resolve o Problema~3 (\emph{Team Aircraft Optimization}) do
+\emph{Homework}~02. A configuração final da NJ-0502, herdada de PRJ-22 e
+registrada como \code{my\_airplane} no \emph{Design Tools}, é tomada como
+ponto de partida de um problema de programação não linear restringida
+cujo objetivo é minimizar o peso de decolagem $W_0$. As nove variáveis
+--- as oito da triagem DOE do \emph{Homework}~01 mais $y_{mlg}$ --- são
+liberadas de uma vez no SLSQP. Com normalização de variáveis e
+restrições, e limites de pátio OACI~E / FAA~ADG~V, o ótimo reduz
+$W_0$ em $3{,}42\%$ (de $286\,563$ para $276\,769$~kgf) em 6 avaliações
+da função objetivo ($2{,}30$~s). O ponto é restringido: tanque,
+\emph{tipback}, \emph{tailstrike}, $SM_{aft}=0{,}10$, $C_{Lv}$, bitola
+($b_{mlg}=13{,}9$~m) e o trem sob a planta ($\xi_{mlg}=1$). $y_{mlg}$ recua
+o bordo de fuga local e permite avançar a asa sem tirar o MLG da planta;
+o piso $C_{ht}\ge 0{,}70$ preserva o volume de cauda de PRJ-22.
+\end{abstract}
+
+\vspace{0.3cm}
+\hrule
+\vspace{0.5cm}
+
+% =====================================================================
+\section{Introdução}
+% =====================================================================
+
+O roteiro pede para modificar o script de aula de otimização restringida
+(\code{02\_con\_opt\_class.py}) e aplicá-lo à aeronave do grupo, com no
+mínimo seis variáveis de projeto, as restrições de desempenho,
+estabilidade e trem de pouso listadas no enunciado, e os limites de pátio
+das Tabelas~1-1 (OACI, Anexo~14) e~1-2 (FAA, AC~150/5300-13A). A prática
+recomendada é normalizar entradas e restrições e ajustar a missão
+à aeronave real.
+
+Os códigos desta seção estão em \code{designTool/lab02\_opt/otimizacao\_NJ0502/}:
+\begin{itemize}
+\item \code{opt\_common.py} --- modelo normalizado, restrições e
+      acoplamento com \code{analyze};
+\item \code{run\_3\_1\_diagnostico.py} --- viabilidade da partida e
+      suficiência do conjunto $\{x,g\}$;
+\item \code{run\_3\_2\_otimizacao.py} --- SLSQP no conjunto completo;
+\item \code{run\_3\_3\_variantes.py} --- remoção de restrições
+      ativas;
+\item \code{run\_3\_4\_figuras.py} --- histórico (variáveis, objetivo,
+      restrições) e vistas superpostas.
+\end{itemize}
+
+A seção seguinte responde, na ordem, às nove questões do
+Problema~3.
+
+% =====================================================================
+\section{Problema 3 --- Otimização da aeronave do grupo}
+\label{sec:p3}
+% =====================================================================
+
+% ---------------------------------------------------------------------
+\subsection{Definição do problema e escolha das variáveis}
+\label{sec:p3q1}
+% ---------------------------------------------------------------------
+
+O problema de otimização é
+\begin{equation}
+\begin{aligned}
+\min_{x}\quad
+& f(x) = W_0(x)/W_{0,\mathrm{ref}} \\
+\text{s.a.}\quad
+& g_j(x) \ge 0, \qquad j=1,\ldots,17, \\
+& x_L \le x \le x_U,
+\end{aligned}
+\label{eq:nlp}
+\end{equation}
+em que $W_{0,\mathrm{ref}}$ é o MTOW da configuração de PRJ-22 e cada
+$x_i$ entra no otimizador já dividido por $|x_{i,\mathrm{ref}}|$. Com isso,
+o ponto de partida tem componentes de módulo unitário, o sinal de
+$z_{lg}$ (negativo) é preservado, e uma única tolerância do SLSQP
+($f_{\mathrm{tol}}=10^{-6}$) serve para o objetivo e para todas as
+restrições.
+
+As nove variáveis são as oito da triagem do \emph{Homework}~01 mais
+$y_{mlg}$. A justificativa das oito não muda: $\Lambda_w$,
+$S_w$ e $AR_w$ governam o \emph{trade-off} arrasto de onda / peso estrutural
+/ pouso; $x_{r,w}$ e $C_{ht}$ ajustam as margens estáticas; $x_{mlg}$ e
+$z_{lg}$ são os atuadores longitudinais e verticais do trem; $C_{vt}$ é
+o único controle efetivo de $C_{Lv}$ em OEI. $y_{mlg}$ entra porque, com
+asa enflechada, a estação do MLG desloca o bordo de fuga local: ir
+para fora recua $x_{\mathrm{TE}}(y)$ e libera $x_{mlg}$ sob a planta
+($\xi\le 1$), o que o SLSQP usa para avançar $x_{r,w}$. Sem $y_{mlg}$
+a bitola ficava congelada em $11{,}2$~m e o trem saturava o bordo de fuga
+cedo demais. O enunciado exige ``pelo menos seis''; as nove cabem nesse
+pedido.
+
+A missão não foi reaberta. A NJ-0502 já carrega, em
+\code{standard\_airplane.py}, $R=8\,000$~nm, $M=0{,}85$,
+$W_{\mathrm{pay}}=32\,000$~kgf, $d_{TO}=2\,900$~m e
+$d_{LDG}=1\,990$~m --- o mesmo conjunto usado em PRJ-22. O palpite
+\code{W0\_guess} é reinjetado algumas vezes após cada \code{analyze},
+para que o resíduo do ponto fixo interno ($\sim 10$~N) não contamine as
+diferenças finitas.
+
+\paragraph{Suficiência do conjunto.}
+O jacobiano normalizado no ponto de partida (script
+\code{run\_3\_1\_diagnostico.py}) mostra três fatos:
+\begin{enumerate}
+\item $x_{r,w}$, $x_{mlg}$, $y_{mlg}$ e $z_{lg}$ têm coluna nula no
+      objetivo. Não reduzem $W_0$ sozinhas; existem para viabilizar
+      restrições (estabilidade e trem). Isso é desejável, não
+      um defeito.
+\item A linha de $b_{mlg}$ deixa de ser nula: $y_{mlg}$ é o atuador da
+      bitola e, via $\xi_{mlg}$, do bordo de fuga local. A caixa
+      $4{,}0\le y_{mlg}\le 6{,}95$~m mantém o MLG fora da fuselagem
+      ($D_f/2=2{,}98$~m) e inboard do motor ($y_n-D_n/2=9{,}03$~m); o teto
+      $6{,}95$~m é o da letra~E ($b_{mlg}\le 13{,}9$~m).
+\item A partida \emph{viola} $\alpha_{tipback}\ge 15^\circ$
+      ($13{,}50^\circ$). Sem $x_{mlg}$ ou $x_{r,w}$, o problema é
+      inviável.
+\end{enumerate}
+
+% ---------------------------------------------------------------------
+\subsection{Restrições e objetivos adicionados}
+\label{sec:p3q2}
+% ---------------------------------------------------------------------
+
+O objetivo é só um: minimizar $W_0$. Não foi acrescentada segunda
+função (isso fica para o problema multiobjetivo).
+
+Além das restrições do roteiro, o grupo acrescentou:
+\begin{itemize}
+\item $T_0 \ge T_{0,\mathrm{req}}$, escrita
+      $(T_0/T_{0,\mathrm{req}}-1)\ge 0$. Com \code{Tmax} congelado no motor
+      de PRJ-22, $T_0$ é constante
+      ($n_{\mathrm{eng}}T_{\max}=79\,225$~kgf) e a desigualdade apenas
+      garante que a demanda de empuxo continue abaixo do instalado. No
+      ótimo a folga sobe de $5{,}7\%$ para $18{,}1\%$.
+\item $C_{Lv}\le 0{,}75$, escrita $(1-C_{Lv}/0{,}75)\ge 0$. O enunciado
+      não lista essa restrição, mas $C_{vt}$ foi escolhida
+      precisamente para controlá-la. Sem um teto, o otimizador encolhe a
+      EV até o limite inferior $C_{vt}=0{,}05$ e $C_{Lv}$ passa de $0{,}98$
+      (variante~V1). O valor $0{,}75$ é um teto de projeto conservador
+      para a condição OEI, ainda acima do $0{,}68$ da partida.
+\item Faixa de margem estática para controle:
+      $SM_{fwd}\le 0{,}25$ (o roteiro pedia $0{,}30$) e
+      $SM_{aft}\le 0{,}10$ (teto que o roteiro não traz; o piso
+      $SM_{aft}\ge 0{,}05$ permanece). Sem esse teto, o piso
+      $C_{ht}=0{,}70$ levava $SM_{aft}$ a $0{,}16$ e $SM_{fwd}$ a $0{,}30$.
+      Com o teto, o SLSQP \emph{não} encolhe a EH: recua o trem e avança
+      a asa ($x_{r,w}$), que a triagem DOE mostrou não pesar. O piso
+      $C_{ht}\ge 0{,}70$ fica como reserva de autoridade de profundor para
+      o S\&C; $0{,}60$ e $0{,}50$ foram testados e descartados.
+\item Trem sob a asa. Na estação $y=y_{mlg}$ define-se
+      $\xi_{mlg}=(x_{mlg}-x_{\mathrm{LE}})/c_{\mathrm{local}}$.
+      A partida tem $\xi=0{,}90$ (ainda na planta, junto do bordo de fuga);
+      sem restrição o ótimo ia a $\xi=1{,}25$ --- o trem saía
+      da asa e não recolhia no caixão. Impõe-se
+      $0{,}50\le\xi_{mlg}\le 1$: o teto mantém o trem sob a planta; o
+      piso o coloca na metade traseira (longarina traseira). Com $y_{mlg}$
+      livre, o SLSQP alarga a bitola até $13{,}9$~m: o bordo de fuga na
+      nova estação recua, $x_{r,w}$ pode avançar e o MLG continua
+      em $\xi=1$. Sem $y_{mlg}$ esse ganho exigia $\xi=1{,}25$ (variante~V5).
+\end{itemize}
+
+\paragraph{Como se lê as Tabelas~1-1 e~1-2.}
+A letra da OACI (Anexo~14, Sec.~1.3) e o grupo da FAA (AC~150/5300-13A)
+são definidos pela dimensão \emph{mais exigente}, não pela
+intersecção das duas faixas. Um avião com $b_w=60$~m (letra~E) e
+bitola de $8$~m (letra~C na bitola) continua letra~E; um com
+$h_{tail}=18{,}2$~m (ADG~IV na altura) e $b_w=64{,}9$~m (ADG~V na
+envergadura) continua ADG~V. Por isso \textbf{não} se impõe
+$9\le b_{mlg}<14$ nem $18{,}5\le h_{tail}<20$ como caixas. O que impede a
+aeronave de subir de categoria são os \emph{tetos}:
+\begin{equation}
+b_w < 65~\mathrm{m},\qquad
+b_{mlg} < 14~\mathrm{m},\qquad
+h_{tail} < 20~\mathrm{m}.
+\end{equation}
+A letra~E e o ADG~V são ``até, mas não incluindo, $65$~m''. Um teto
+de exatamente $65$~m colocaria a NJ-0502 em 4F / ADG~VI. Usamos
+$b_w\le 64{,}9$~m e $b_{mlg}\le 13{,}9$~m.
+
+A partida tem $b_w=60{,}50$~m, $b_{mlg}=11{,}2$~m e $h_{tail}=19{,}14$~m,
+com $d_{TO}=2\,900$~m (número~4). É um 4E / ADG~V, e o ótimo
+permanece nessa categoria: $b_w=64{,}63$~m, $b_{mlg}=13{,}9$~m (teto da
+letra~E na bitola; o MLG continua inboard do motor em $y_n=11$~m) e
+$h_{tail}=18{,}33$~m.
+A altura caiu abaixo de $18{,}5$~m; isso a classifica como ADG~IV \emph{na
+altura}, mas o grupo final continua V por causa da envergadura.
+
+Todas as restrições estão na forma normalizada $g\ge 0$ pedida no
+roteiro. O exemplo do enunciado, $(SM_{aft}/0{,}05-1)\ge 0$, é usado
+literalmente; as demais seguem o mesmo padrão (dividir pelo limite e
+subtrair 1, ou o complemento $1-(\cdot)/(\cdot)_{\lim}$ quando a
+desigualdade original é $\le$).
+
+% ---------------------------------------------------------------------
+\subsection{Tabela comparativa: partida $\times$ ótimo}
+\label{sec:p3q3}
+% ---------------------------------------------------------------------
+
+A Tabela~\ref{tab:dv} compara as variáveis de projeto; a
+Tabela~\ref{tab:con}, as restrições normalizadas; a
+Tabela~\ref{tab:phys}, as grandezas dimensionais.
+
+\begin{table}[H]
+\centering
+\caption{Variáveis de projeto --- configuração de PRJ-22 e ótimo.}
+\label{tab:dv}
+\small
+\input{tex/tab_variaveis.tex}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Restrições normalizadas $g(x)\ge 0$. Uma restrição é
+classificada como ativa quando $|g|\le 10^{-4}$.}
+\label{tab:con}
+\scriptsize
+\input{tex/tab_restricoes.tex}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Grandezas dimensionais da partida e do ótimo.}
+\label{tab:phys}
+\small
+\input{tex/tab_grandezas.tex}
+\end{table}
+
+Os movimentos têm leitura direta. A asa encolhe $1{,}83\%$ em área e
+estica $16{,}3\%$ em alongamento; a envergadura vai a $64{,}63$~m --- quase
+o teto $64{,}9$~m. O enflechamento sobe de $33^\circ$ para $35{,}2^\circ$.
+$C_{ht}$ permanece em $0{,}70$ e a EV encolhe até $C_{Lv}=0{,}75$.
+Quem ajusta a margem é $x_{r,w}$, que avança $1{,}17$~m;
+$SM_{aft}$ vai a $0{,}100$ (teto) e $SM_{fwd}$ a $0{,}249$ (quase $0{,}25$).
+O MLG quase não recua ($x_{mlg}$ sobe $4$~cm) mas \emph{abre}
+($y_{mlg}$: $5{,}60\to 6{,}95$~m, teto da letra~E): o bordo de fuga local
+recua, $\xi_{mlg}$ permanece $1$ e a asa pode avançar. $z_{lg}$ sobe
+$3$~cm. Combustível cai $9{,}34\%$ e o peso vazio sobe $0{,}29\%$.
+
+% ---------------------------------------------------------------------
+\subsection{Otimizador}
+\label{sec:p3q4}
+% ---------------------------------------------------------------------
+
+Foi usado o \textbf{SLSQP} de \code{scipy.optimize.minimize}
+(\emph{Sequential Least Squares Programming}), o mesmo método do script
+de aula \code{02\_con\_opt\_class.py}. A escolha tem três motivos:
+
+\begin{enumerate}
+\item o problema é de programação não linear com desigualdades e
+      caixas, exatamente o que o SLSQP trata por programação
+      quadrática sequencial;
+\item o roteiro pede gradientes do objetivo e das restrições, e o
+      SLSQP os consome a cada iteração (via \code{jac});
+\item não há gradiente analítico do \code{analyze}. As derivadas são
+      diferenças finitas centradas com passo $h=10^{-4}$ nas variáveis
+      \emph{normalizadas} --- um passo grande o bastante para ficar acima do
+      resíduo do ponto fixo interno, e pequeno o bastante para não
+      linearizar mal o modelo. O passo padrão do SciPy ($\sim 10^{-8}$)
+      cairia dentro desse ruído.
+\end{enumerate}
+
+Não foi usado algoritmo evolucionário (DE, GA). O ponto de partida já
+está na vizinhança de um projeto viável, o espaço tem nove
+dimensões com caixas estreitas, e cada avaliação chama o
+\emph{Design Tools} várias vezes. Um método de busca direta gastaria
+centenas de chamadas para um ganho que o SLSQP captura em menos de dez.
+
+% ---------------------------------------------------------------------
+\subsection{Melhoria relativa do objetivo}
+\label{sec:p3q5}
+% ---------------------------------------------------------------------
+
+\begin{equation}
+\frac{W_{0,\mathrm{ini}}-W_{0,\mathrm{ot}}}{W_{0,\mathrm{ini}}}
+= \frac{286\,563-276\,769}{286\,563}
+= 3{,}42\%.
+\end{equation}
+O valor $f^\star=0{,}9658$ é $1-0{,}0342$. Quase toda a redução vem
+de $W_f$ ($-9{,}34\%$); $W_e$ sobe $0{,}29\%$. Sem $y_{mlg}$ o ganho
+parava em $2{,}38\%$, com o trem saturando o bordo de fuga cedo demais.
+Sem $\xi_{mlg}\le 1$ (variante~V5) o ganho vai a $3{,}69\%$ --- só
+$0{,}27$~p.p.\ a mais --- mas o trem sai da planta ($\xi=1{,}25$). Com a
+bitola livre, manter o MLG sob a asa custa quase nada. O teste com
+$C_{ht}\ge 0{,}60$ anunciava $4{,}41\%$, à custa de $17\%$ menos EH ---
+descartado para não comprometer o S\&C.
+
+% ---------------------------------------------------------------------
+\subsection{Número de chamadas e tempo}
+\label{sec:p3q6}
+% ---------------------------------------------------------------------
+
+O SLSQP terminou com \emph{Optimization terminated successfully} após
+\begin{itemize}
+\item \textbf{6 iterações} do algoritmo (\code{nit} do SciPy): cada
+      iteração atualiza $x$ com base em $f$, $g$ e nos jacobianos;
+\item \textbf{6 avaliações} da função objetivo
+      (\code{nfev} / \code{n\_objfun}): são as vezes em que o
+      otimizador pediu $f(x)$, e correspondem ao eixo $n_f$ das figuras
+      de histórico;
+\item \textbf{114 avaliações do modelo} (\code{n\_designTool}): cada
+      uma é uma chamada a \code{run\_designTool}, \emph{não} uma
+      iteração. Com $n=9$ variáveis, o gradiente por diferenças
+      centradas custa $2n=18$ avaliações; somando o ponto em que $f$ é
+      pedido, $1+18=19$ avaliações de modelo por chamada de $f$, e
+      $6\times 19=114$. Essas 18 avaliações extras de cada passo
+      \emph{não} entram em $n_f$;
+\item \textbf{$2{,}30$~s} de tempo de parede.
+\end{itemize}
+Os 114 não são iterações, nem 19 iterações por chamada de $f$: são
+avaliações do \emph{designTool} usadas para montar os gradientes.
+Cada \code{run\_designTool} ainda executa $1+N_{\mathrm{refine}}=5$
+chamadas internas a \code{analyze} (refinamento do ponto fixo de $W_0$);
+o contador 114 não inclui essas chamadas internas.
+
+% ---------------------------------------------------------------------
+\subsection{Histórico de otimização}
+\label{sec:p3q7}
+% ---------------------------------------------------------------------
+
+O eixo horizontal das Figuras~\ref{fig:histx}--\ref{fig:histg2} é
+$n_f$: a $n$-ésima vez que o SLSQP pediu o valor de $f(x)$. Não é
+o número de iterações do SLSQP nem o de avaliações do modelo.
+Os gradientes por diferenças finitas ficam de fora
+desse eixo. As variáveis estão divididas pelo valor de partida para
+caberem no mesmo gráfico; as restrições foram separadas em
+desempenho/pátio e estabilidade/trem.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.92\textwidth]{resultados/opt_hist_variaveis.png}
+\caption{Histórico das variáveis de projeto, normalizadas por
+$x_{\mathrm{ini}}$. $n_f$ é a chamada da função objetivo.}
+\label{fig:histx}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.82\textwidth]{resultados/opt_hist_objetivo.png}
+\caption{Histórico da função objetivo $f=W_0/W_{0,\mathrm{ref}}$.}
+\label{fig:histf}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.92\textwidth]{resultados/opt_hist_g_desempenho.png}
+\caption{Histórico das restrições de desempenho e pátio.
+A linha cinza é $g=0$.}
+\label{fig:histg1}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.92\textwidth]{resultados/opt_hist_g_estabilidade.png}
+\caption{Histórico das restrições de estabilidade e trem.
+A linha cinza é $g=0$. O \emph{tipback}, único $g<0$ na partida,
+cruza zero na primeira chamada.}
+\label{fig:histg2}
+\end{figure}
+
+O objetivo cai de $1{,}00$ para $\approx 0{,}97$ na primeira avaliação
+e estabiliza em $0{,}966$. $AR_w$, $\Lambda_w$ e $y_{mlg}$ sobem;
+$S_w$, $x_{r,w}$ e $C_{vt}$ descem; $C_{ht}$ permanece em $1{,}00$.
+$y_{mlg}$ vai ao teto da caixa ($6{,}95$~m). Do lado das restrições,
+$SM_{aft}$, \emph{tipback}, \emph{tailstrike}, tanque, bitola, $C_{Lv}$
+e $\xi_{mlg}=1$ caminham para $g=0$. A envergadura chega perto do teto
+($b_w=64{,}63$~m) mas não satura.
+
+% ---------------------------------------------------------------------
+\subsection{O ótimo é restringido?}
+\label{sec:p3q8}
+% ---------------------------------------------------------------------
+
+Sim. Sete restrições de desigualdade saturam ($|g|\le 10^{-4}$) e
+$C_{ht}$ encosta no piso de controle:
+
+\begin{itemize}
+\item \textbf{Tanque} ($g_{\mathrm{tank}}\approx 0$): $W_{\max\mathrm{fuel}}=W_f$.
+      Qualquer redução adicional de $S_w$ deixa a missão sem
+      combustível. A variante V3, que desliga essa restrição, empurra
+      $S_w$ ao piso de $320$~m$^2$ e anuncia $5{,}59\%$ de ganho --- ao
+      preço de $28\%$ de déficit de tanque.
+\item \textbf{Bitola} ($g_{\mathrm{wheelspan}}\approx 0$): $b_{mlg}=13{,}9$~m,
+      teto da letra~E. $y_{mlg}$ senta no limite superior da caixa. Sem
+      esse teto o MLG ainda caberia inboard do motor ($y_n-D_n/2=9{,}03$~m),
+      mas a aeronave sairia da letra~E pela bitola.
+\item \textbf{Trem sob a asa} ($g_{\mathrm{gear\_te}}\approx 0$):
+      $\xi_{mlg}=1$. Sem ela (variante~V5) $W_0$ cai $3{,}69\%$ --- só
+      $0{,}27$~p.p.\ a mais --- e o trem sai da planta ($\xi=1{,}25$).
+      Com $y_{mlg}$ livre, manter o MLG sob a asa quase não custa $W_0$.
+\item \textbf{$C_{Lv}$} ($g_{\mathrm{CLv}}\approx 0$): $C_{Lv}=0{,}75$. Sem
+      ela (variante V1) $C_{vt}$ cai ao piso $0{,}05$ e $C_{Lv}$ vai a
+      $0{,}98$, com $0{,}88$~p.p.\ extras de ganho.
+\item \textbf{\emph{Tipback} e \emph{tailstrike}} saturam em $15^\circ$ e
+      $10^\circ$.
+\item \textbf{$SM_{aft}\le 0{,}10$} satura. Quem cumpre a faixa é
+      $x_{r,w}$, não o volume de cauda.
+\item \textbf{Caixa de $C_{ht}$}: o ótimo senta em $C_{ht}=0{,}70$.
+      Relaxar o piso para $0{,}50$ (variante V4) rende $5{,}13\%$ de $W_0$
+      com EH $29\%$ menor --- inaceitável para o S\&C.
+\end{itemize}
+
+A envergadura \emph{não} satura ($b_w=64{,}63$~m, $g_{\mathrm{span}}=0{,}004$).
+A variante V2, que desliga o teto de $64{,}9$~m, devolve o mesmo ponto.
+
+\begin{table}[H]
+\centering
+\caption{Estudo de remoção das restrições ativas. Cada variante
+parte da mesma configuração de PRJ-22.}
+\label{tab:var}
+\small
+\input{tex/tab_variantes.tex}
+\end{table}
+
+As demais desigualdades permanecem folgadas.
+$\Delta S_{wlan}=110$~m$^2$, $SM_{fwd}=0{,}249$ (quase o teto $0{,}25$),
+$\alpha_{tip}=15^\circ$ e $\alpha_{tail}=10^\circ$ (ativas). A altura cai
+para $18{,}33$~m --- abaixo de $18{,}5$~m, portanto ADG~IV na altura ---
+mas o grupo final continua V pela envergadura de $64{,}63$~m. A bitola
+sobe a $13{,}9$~m e satura o teto da letra~E; não há piso de $9$~m a
+cumprir.
+
+A partida, por outro lado, \emph{não} é viável:
+Tabela~\ref{tab:diag}. O único $g<0$ é o \emph{tipback}. O otimizador
+precisa, antes de emagrecer a aeronave, recolocar o trem (ou a asa) de modo
+que $\alpha_{tip}\ge 15^\circ$.
+
+\begin{table}[H]
+\centering
+\caption{Restrições normalizadas na configuração de partida
+(PRJ-22).}
+\label{tab:diag}
+\scriptsize
+\input{tex/tab_diagnostico.tex}
+\end{table}
+
+% ---------------------------------------------------------------------
+\subsection{Vistas em planta e lateral superpostas}
+\label{sec:p3q9}
+% ---------------------------------------------------------------------
+
+A Figura~\ref{fig:vistas} sobrepõe a NJ-0502 de PRJ-22 (azul) e a
+configuração otimizada (vermelho). Fuselagem e naceles, que não
+são variáveis de projeto, ficam em cinza como referência comum.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.92\textwidth]{resultados/opt_vistas.png}
+\caption{Vistas em planta e lateral da configuração de partida
+(azul) e da otimizada (vermelho). Fuselagem e naceles, congeladas, em
+cinza. A asa otimizada é mais alongada e um pouco mais enflechada;
+a EH quase não muda de tamanho ($C_{ht}$ ficou em $0{,}70$) e avança
+com a asa; a EV encolhe. O trem principal abre para $y_{mlg}=6{,}95$~m
+e permanece sob o bordo de fuga ($\xi_{mlg}=1$), inboard das naceles.}
+\label{fig:vistas}
+\end{figure}
+
+Na planta, o aumento de $AR_w$ e $\Lambda_w$ com $S_w$ menor produz uma
+asa um pouco mais estreita na raiz e de maior envergadura. A EH otimizada
+acompanha a asa para frente ($x_{r,w}$ cai $1{,}17$~m) mas quase não
+muda de área, porque $C_{ht}$ ficou no valor de PRJ-22. O trem não
+abandona a planta: $x_{mlg}$ quase não se mexe ($+4$~cm) e senta no
+bordo de fuga; $y_{mlg}$ abre $1{,}35$~m até o teto da letra~E, o que
+recua o bordo de fuga local e libera o avanço da asa. As naceles
+permanecem em $y_n=11$~m (congeladas). Recolhimento lateral para dentro:
+o comprimento do montante até o cubo é $\approx 4{,}6$~m, menor que
+$y_{mlg}=6{,}95$~m, então os dois MLG não se encontram na linha de
+centro; a folga entre as pontas recolhidas fica $\approx 3{,}5$~m. O
+espaço de asa exposta até a fuselagem ($y_{mlg}-D_f/2\approx 4{,}0$~m)
+é um pouco menor que o montante, como em PRJ-22: o trem entra numa
+carenagem de barriga, não cabe só no caixão. Recolher para fora
+esbarra na nacele ($2{,}1$~m até a parede interna). Na lateral, a
+EV fica mais baixa ($h_{tail}$ cai $0{,}81$~m) e o solo sobe $3$~cm
+($z_{lg}=-5{,}67$~m). A linha de \emph{tailstrike} encosta no limite
+($\alpha_{tail}=10^\circ$).
+
+% =====================================================================
+\section{Conclusão}
+% =====================================================================
+
+O conjunto de nove variáveis --- as oito do DOE mais $y_{mlg}$ --- é
+suficiente para tornar viável um ponto que a partida de PRJ-22 não era,
+e para reduzir $W_0$ em $3{,}42\%$ sem sair da letra~E / ADG~V. $y_{mlg}$
+é o atuador que faltava: alarga a bitola até $13{,}9$~m, recua o bordo
+de fuga na estação do MLG e permite avançar a asa com
+$\xi_{mlg}=1$. As restrições acrescentadas pelo grupo têm papéis
+distintos: $T_0\ge T_{0,\mathrm{req}}$ é um vigilante;
+$C_{Lv}\le 0{,}75$ governa a EV; $SM_{fwd}\le 0{,}25$ e
+$SM_{aft}\le 0{,}10$ delimitam o comando, e são cumpridas por $x_{r,w}$;
+$C_{ht}\ge 0{,}70$ reserva volume de cauda para o S\&C;
+$0{,}50\le\xi_{mlg}\le 1$ impede o SLSQP de separar o trem da asa.
+
+O ótimo é um ponto de KKT clássico, sentado em sete hiperplanos
+($SM_{aft}$, \emph{tipback}, \emph{tailstrike}, $tank\_excess$, $b_{mlg}$,
+$C_{Lv}$, $\xi_{mlg}$), no piso de $C_{ht}$ e no teto de $y_{mlg}$. A
+envergadura não satura ($64{,}63$~m); o teto da letra~E que aperta é o
+da bitola.

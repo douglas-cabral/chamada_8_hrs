@@ -1,0 +1,23 @@
+\begin{tabular}{llrrl}
+\toprule
+Restrição & Expressão & $g$ & Origem & Status \\
+\midrule
+landing & $\Delta S_{wlan} \geq 0$ & 0.2855 & roteiro & satisfeita \\
+SM\_fwd & $SM_{fwd} \leq 0{,}25$ & 0.1434 & adicionada & satisfeita \\
+SM\_aft & $SM_{aft} \geq 0{,}05$ & 0.9660 & roteiro & satisfeita \\
+SM\_aft\_max & $SM_{aft} \leq 0{,}10$ & 0.0170 & adicionada & satisfeita \\
+nlg\_fwd & $f_{nlg,fwd} \leq 0{,}18$ & 0.5497 & roteiro & satisfeita \\
+nlg\_aft & $f_{nlg,aft} \geq 0{,}03$ & 0.6524 & roteiro & satisfeita \\
+tipback & $\alpha_{tip} \geq 15^\circ$ & $-$0.1002 & roteiro & \textcolor{red}{\textbf{violada}} \\
+tailstrike & $\alpha_{tail} \geq 10^\circ$ & 0.0081 & roteiro & satisfeita \\
+overturn & $\phi_{ovt} \leq 63^\circ$ & 0.2302 & roteiro & satisfeita \\
+tank & $tank\_excess \geq 0$ & 0.0050 & roteiro & satisfeita \\
+span & $b_w < 65$ m (teto OACI E) & 0.0678 & roteiro & satisfeita \\
+wheelspan & $b_{mlg} < 14$ m (teto OACI E) & 0.1942 & roteiro & satisfeita \\
+height & $h_{tail} < 20$ m (teto FAA V) & 0.0432 & roteiro & satisfeita \\
+thrust & $T_0 \geq T_{0,req}$ & 0.0575 & adicionada & satisfeita \\
+CLv & $C_{Lv} \leq 0{,}75$ & 0.0889 & adicionada & satisfeita \\
+gear\_te & $\xi_{mlg} \leq 1$ (trem sob a asa) & 0.0987 & adicionada & satisfeita \\
+gear\_spar & $\xi_{mlg} \geq 0{,}50$ (longarina traseira) & 0.8025 & adicionada & satisfeita \\
+\bottomrule
+\end{tabular}
