@@ -21,7 +21,6 @@
 \usepackage[font=small,labelfont=bf]{caption}
 \usepackage{fancyhdr}
 \usepackage{pdflscape}
-\usepackage{import}
 \usepackage[colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue!60!black]{hyperref}
 
 \pagestyle{fancy}
@@ -67,12 +66,10 @@
 \newpage
 
 % ---- Organização das seções ----
-% \subimport (pacote import) lê o .tex dentro da pasta de mesmo nome
-% e resolve \input{tex/...} e \includegraphics{resultados/...} a partir
-% dessa pasta. Um \input{otimizacao_NJ0502} simples procuraria o .tex
-% ao lado deste main.tex, não dentro da pasta.
-\subimport{otimizacao_aeronave_padrao/}{otimizacao_aeronave_padrao}
-\subimport{otimizacao_NJ0502/}{otimizacao_NJ0502}
-\subimport{otimizacao_multiobjetivo/}{otimizacao_multiobjetivo}
+% Os três .tex das seções ficam no mesmo diretório que este main.tex.
+% Tabelas em tex/ e figuras em resultados/, também neste nível.
+\input{otimizacao_aeronave_padrao}
+\input{otimizacao_NJ0502}
+\input{otimizacao_multiobjetivo}
 
 \end{document}
