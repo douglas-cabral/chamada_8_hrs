@@ -65,11 +65,109 @@
 
 \newpage
 
+% ---- Resumo ----
+\begin{abstract}
+\noindent
+Este relatório resolve os três problemas de otimização do
+\emph{Homework}~02 de PRJ-23, todos acoplados ao \emph{Design Tools}
+desenvolvido em PRJ-22. No Problema~2, o MTOW da aeronave padrão
+(Fokker~100) é minimizado com o SLSQP em relação a $AR_w$ e $S_w$, sob um
+teto de envergadura de $30$~m: o MTOW cai $2{,}72\%$ em 33 avaliações da
+função objetivo, e o ótimo resulta \emph{interior} --- a envergadura para
+a $17$~cm do limite, resultado confirmado por quatro verificações
+independentes. No Problema~3, a NJ-0502 herdada de PRJ-22 é otimizada com
+nove variáveis e dezessete restrições normalizadas; $W_0$ cai $3{,}42\%$
+em 6 avaliações da função objetivo, num ponto de KKT com sete restrições
+ativas. No Problema~4, o mesmo problema é resolvido com dois objetivos
+($W_0$ e $W_f$) pelo NSGA-II do \code{pymoo}, com 100 indivíduos por
+geração e 400 gerações. A frente de Pareto resultante é
+\emph{degenerada}: sob o teto de envergadura da letra~E da OACI, os dois
+objetivos deixam de competir, e a frente inteira cabe em $11{,}2$~kgf de
+$W_0$ --- $0{,}004\%$ do MTOW. Relaxando o teto para a letra~F, a
+amplitude sobe 36 vezes, o que identifica a categoria de aeródromo --- e
+não a aerodinâmica --- como a restrição que governa o projeto.
+\end{abstract}
+
+\vspace{0.3cm}
+\hrule
+\vspace{0.5cm}
+
+% =====================================================================
+\section{Introdução}
+% =====================================================================
+
+Em PRJ-22 construiu-se um \emph{framework} de análise de aeronaves; o
+objetivo deste laboratório é acoplar técnicas de otimização a esse
+\emph{framework} para encontrar a aeronave que melhor atende aos
+requisitos de projeto. O roteiro propõe três problemas, e as seções deste
+relatório seguem essa numeração:
+
+\begin{itemize}
+\item a Seção~\ref{sec:aeronave-padrao} trata da \textbf{aeronave
+      padrão}: um problema de duas variáveis e uma restrição, que serve
+      para fixar a mecânica do \code{scipy.optimize.minimize} e a
+      convenção de normalização usada no resto do trabalho;
+\item a Seção~\ref{sec:nj0502} trata da \textbf{aeronave do grupo}
+      (NJ-0502), com nove variáveis de projeto e dezessete restrições de
+      desempenho, estabilidade, trem de pouso e categoria de aeródromo;
+\item a Seção~\ref{sec:multiobjetivo} repete o problema da
+      Seção~\ref{sec:nj0502} com um \textbf{segundo objetivo}, o peso de
+      combustível, resolvido por algoritmo genético multiobjetivo.
+\end{itemize}
+
+Três convenções valem para todo o relatório. Primeira: as variáveis de
+projeto entram no otimizador divididas pelo valor da configuração de
+partida, de modo que o ponto inicial tenha componentes de módulo
+unitário. Segunda: as restrições são escritas na forma normalizada
+$g(x)\ge 0$, adimensional e da ordem da unidade, como recomenda o
+enunciado --- o exemplo do roteiro, $(SM_{aft}/0{,}05-1)\ge 0$, é usado
+literalmente. Terceira: o palpite \code{W0\_guess} é reinjetado quatro
+vezes após cada análise, para que o resíduo do laço de ponto fixo interno
+do \code{analyze} ($\sim 10$~N) não contamine as diferenças finitas.
+
 % ---- Organização das seções ----
 % Os três .tex das seções ficam no mesmo diretório que este main.tex.
 % Cada seção tem tex_<nome>/ e resultados_<nome>/ neste nível.
 \input{otimizacao_aeronave_padrao}
 \input{otimizacao_NJ0502}
 \input{otimizacao_multiobjetivo}
+
+% =====================================================================
+\section{Conclusão}
+% =====================================================================
+
+Os três problemas mostram três regimes distintos de otimização.
+
+Na \textbf{aeronave padrão}, com duas variáveis e uma restrição, o ótimo
+é interior: existe um alongamento que equilibra arrasto induzido contra
+peso de asa ($AR_w \approx 10{,}5$), e o teto de envergadura de $30$~m
+passa $17$~cm ao lado dele. O mínimo é raso --- $0{,}50$~kgf separam o
+ótimo interior do melhor ponto sobre a fronteira ---, o que explica por
+que oito partidas diferentes concordam em $W_0$ até a sétima casa
+decimal mas divergem na terceira casa de $AR_w$.
+
+Na \textbf{NJ-0502}, com nove variáveis e dezessete restrições, o quadro
+se inverte: o ótimo é fortemente restringido, com sete desigualdades
+ativas, e o ganho de $3{,}42\%$ vem quase todo de combustível
+($-9{,}34\%$). O que limita o projeto não é a aerodinâmica, mas o
+conjunto tanque\,--\,trem de pouso\,--\,pátio.
+
+No problema \textbf{multiobjetivo}, essa mesma rigidez produz o resultado
+mais informativo do laboratório: $W_0$ e $W_f$ \emph{não competem} sob as
+restrições da letra~E. Com o tanque cheio e a envergadura no teto, reduzir
+combustível e reduzir peso de decolagem são o mesmo movimento, e a frente
+de Pareto degenera num ponto. O compromisso só aparece quando o teto de
+envergadura é relaxado. A lição de projeto é que a categoria de aeródromo
+escolhida para a NJ-0502 é a decisão dominante: enquanto ela estiver
+fixada em letra~E, não há trocas a fazer entre os dois pesos, e um
+otimizador de objetivo único basta.
+
+A comparação de custo fecha o argumento. O SLSQP resolve o problema da
+Seção~\ref{sec:nj0502} com 6 avaliações da função objetivo e 114
+chamadas ao \emph{Design Tools}; o NSGA-II gasta 40\,000 avaliações e
+ainda para a $0{,}27\%$ do mesmo ponto. Gradiente, quando disponível e
+confiável, é ordens de grandeza mais barato --- mas foi o algoritmo
+genético, varrendo a caixa inteira, que mostrou não haver outra bacia
+melhor escondida na caixa de projeto.
 
 \end{document}

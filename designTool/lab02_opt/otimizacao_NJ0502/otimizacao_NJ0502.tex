@@ -4,9 +4,11 @@
 % figuras em resultados_otimizacao_NJ0502/ (mesmo nível que main.tex no Overleaf).
 % =====================================================================
 
-\begin{abstract}
+\section{Otimização da NJ-0502}
+\label{sec:nj0502}
+
 \noindent
-Este relatório resolve o Problema~3 (\emph{Team Aircraft Optimization}) do
+Esta seção resolve o Problema~3 (\emph{Team Aircraft Optimization}) do
 \emph{Homework}~02. A configuração final da NJ-0502, herdada de PRJ-22 e
 registrada como \code{my\_airplane} no \emph{Design Tools}, é tomada como
 ponto de partida de um problema de programação não linear restringida
@@ -20,15 +22,11 @@ da função objetivo ($2{,}30$~s). O ponto é restringido: tanque,
 ($b_{mlg}=13{,}9$~m) e o trem sob a planta ($\xi_{mlg}=1$). $y_{mlg}$ recua
 o bordo de fuga local e permite avançar a asa sem tirar o MLG da planta;
 o piso $C_{ht}\ge 0{,}70$ preserva o volume de cauda de PRJ-22.
-\end{abstract}
 
-\vspace{0.3cm}
-\hrule
-\vspace{0.5cm}
-
-% =====================================================================
-\section{Introdução}
-% =====================================================================
+% ---------------------------------------------------------------------
+\subsection{Escopo e organização dos códigos}
+\label{sec:p3escopo}
+% ---------------------------------------------------------------------
 
 O roteiro pede para modificar o script de aula de otimização restringida
 (\code{02\_con\_opt\_class.py}) e aplicá-lo à aeronave do grupo, com no
@@ -51,13 +49,8 @@ Os códigos desta seção estão em \code{designTool/lab02\_opt/otimizacao\_NJ05
       restrições) e vistas superpostas.
 \end{itemize}
 
-A seção seguinte responde, na ordem, às nove questões do
+As subseções seguintes respondem, na ordem, às nove questões do
 Problema~3.
-
-% =====================================================================
-\section{Problema 3 --- Otimização da aeronave do grupo}
-\label{sec:p3}
-% =====================================================================
 
 % ---------------------------------------------------------------------
 \subsection{Definição do problema e escolha das variáveis}
@@ -478,9 +471,10 @@ EV fica mais baixa ($h_{tail}$ cai $0{,}81$~m) e o solo sobe $3$~cm
 ($z_{lg}=-5{,}67$~m). A linha de \emph{tailstrike} encosta no limite
 ($\alpha_{tail}=10^\circ$).
 
-% =====================================================================
-\section{Conclusão}
-% =====================================================================
+% ---------------------------------------------------------------------
+\subsection{Síntese da seção}
+\label{sec:p3sintese}
+% ---------------------------------------------------------------------
 
 O conjunto de nove variáveis --- as oito do DOE mais $y_{mlg}$ --- é
 suficiente para tornar viável um ponto que a partida de PRJ-22 não era,

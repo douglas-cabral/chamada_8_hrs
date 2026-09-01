@@ -1,0 +1,15 @@
+# Árvore achatada gerada por compila.py e artefatos do pdflatex
+build/
+*.aux
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# Pacote de entrega gerado por empacota.py
+*.zip
+
+__pycache__/
+*.pyc
