@@ -1,0 +1,2 @@
+sucesso,status,n_vars,n_iter,n_objfun,n_designTool,tempo_s,W0_kgf,f,ganho_pct,g_min,n_ativas
+True,Optimization terminated successfully,11,7,8,162,1.8156306743621826,276276.3394172155,0.9641022958096697,3.5897704190330337,-1.623324696886641e-09,9

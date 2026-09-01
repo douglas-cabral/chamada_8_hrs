@@ -32,7 +32,7 @@ from opt_padrao import (B_W_MAX, CONSTRAINTS, DESIGN_VARS, DV_NAMES, Model,
 
 # SETUP
 
-RESULTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+RESULTS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                            'resultados_otimizacao_aeronave_padrao')
 
 OPTIONS = {'maxiter': 200, 'ftol': 1e-8, 'disp': False}

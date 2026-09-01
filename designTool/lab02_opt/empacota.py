@@ -52,6 +52,7 @@ if __name__ == '__main__':
         os.remove(destino)
 
     itens = ['main.tex', 'compila.py', 'empacota.py', 'relatorio.pdf']
+    itens += [secao + '.tex' for secao in SECOES]
     raiz = []
     for nome in itens:
         p = os.path.join(_HERE, nome)
@@ -64,8 +65,27 @@ if __name__ == '__main__':
             z.write(os.path.join(_HERE, nome), os.path.join('lab02_opt', nome))
             n += 1
 
+        # Árvore Overleaf: tabelas e figuras no mesmo nível que main.tex.
+        for secao in SECOES:
+            for prefixo in ('tex_', 'resultados_'):
+                pasta = os.path.join(_HERE, prefixo + secao)
+                if not os.path.isdir(pasta):
+                    continue
+                for dirpath, dirnames, filenames in os.walk(pasta):
+                    dirnames[:] = [d for d in dirnames if d not in DIR_FORA]
+                    for fn in filenames:
+                        completo = os.path.join(dirpath, fn)
+                        rel = os.path.relpath(completo, _HERE)
+                        if not inclui(rel):
+                            continue
+                        z.write(completo, os.path.join('lab02_opt', rel))
+                        n += 1
+
+        # Códigos Python (permanecem nas pastas das seções).
         for secao in SECOES:
             base = os.path.join(_HERE, secao)
+            if not os.path.isdir(base):
+                continue
             for dirpath, dirnames, filenames in os.walk(base):
                 dirnames[:] = [d for d in dirnames if d not in DIR_FORA]
                 for fn in filenames:

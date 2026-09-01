@@ -11,15 +11,23 @@ Uso:  python gera_tex.py   (depois de run_4_1 a run_4_4)
 # IMPORTS
 import os
 import re
+import sys
 
 import numpy as np
 import pandas as pd
 
+_HERE = os.path.dirname(os.path.abspath(__file__))
+_P3_DIR = os.path.join(os.path.dirname(_HERE), 'otimizacao_NJ0502')
+if _P3_DIR not in sys.path:
+    sys.path.insert(0, _P3_DIR)
+
+from opt_common import CONSTRAINTS, DESIGN_VARS
+
 # =========================================
 
-_HERE = os.path.dirname(os.path.abspath(__file__))
-RESULTS_DIR = os.path.join(_HERE, 'resultados_otimizacao_multiobjetivo')
-TEX_DIR = os.path.join(_HERE, 'tex_otimizacao_multiobjetivo')
+_LAB = os.path.dirname(_HERE)
+RESULTS_DIR = os.path.join(_LAB, 'resultados_otimizacao_multiobjetivo')
+TEX_DIR = os.path.join(_LAB, 'tex_otimizacao_multiobjetivo')
 
 ROTULOS_SEL = ['A (mín.\\ $W_0$)', 'B (intermediária)', 'C (mín.\\ $W_f$)']
 
@@ -60,8 +68,8 @@ def tab_parametros():
         ('Cruzamento', 'SBX, $\\eta = 15$, $p = 0{,}9$'),
         ('Mutação', 'polinomial, $\\eta = 20$'),
         ('Semente aleatória', '%d' % c['seed']),
-        ('Variáveis de projeto', '9'),
-        ('Restrições de desigualdade', '17'),
+        ('Variáveis de projeto', '%d' % len(DESIGN_VARS)),
+        ('Restrições de desigualdade', '%d' % len(CONSTRAINTS)),
         ('Tempo de parede [s]', fmt(c['tempo_s'], 1)),
         ('Pontos na frente final', '%d' % c['n_frente']),
         ('Pontos inválidos penalizados', '%d' % c['n_invalido']),
@@ -143,6 +151,8 @@ def _tab_sel(arquivo):
         (r'$\Lambda_w$ [deg]', 'sweep_w', 2),
         (r'$x_{r,w}$ [m]', 'xr_w', 3),
         (r'$C_{vt}$', 'Cvt', 5),
+        (r'$L_{c,h}$', 'Lc_h', 3),
+        (r'$L_{b,v}$', 'Lb_v', 4),
         (r'$z_{lg}$ [m]', 'z_lg', 3),
     ]
     lines = [r'\begin{tabular}{lrrr}', r'\toprule',
@@ -179,7 +189,7 @@ def tab_sel_letraF():
 # resultados. O .tex final é gerado, não editado à mão.
 
 TEMPLATE = os.path.join(_HERE, 'otimizacao_multiobjetivo.tex.in')
-DESTINO = os.path.join(_HERE, 'otimizacao_multiobjetivo.tex')
+DESTINO = os.path.join(_LAB, 'otimizacao_multiobjetivo.tex')
 
 
 def _mil(v):

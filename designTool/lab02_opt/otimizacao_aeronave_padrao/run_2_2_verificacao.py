@@ -32,7 +32,7 @@ from opt_padrao import B_W_MAX, Model, gravity
 
 # SETUP
 
-RESULTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+RESULTS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                            'resultados_otimizacao_aeronave_padrao')
 
 OPTIONS = {'maxiter': 300, 'ftol': 1e-10, 'disp': False}

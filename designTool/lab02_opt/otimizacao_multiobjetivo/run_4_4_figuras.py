@@ -31,13 +31,13 @@ warnings.filterwarnings('ignore', category=RuntimeWarning)
 np.seterr(all='ignore')
 
 from opt_multi import MultiObjModel, gravity
-from opt_common import run_designTool
+from opt_common import DV_NAMES, run_designTool
 
 # =========================================
 
 # SETUP
 
-RESULTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+RESULTS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                            'resultados_otimizacao_multiobjetivo')
 
 COR_MOGA = '#1f4e79'
@@ -50,8 +50,7 @@ CORES_SEL = ['#c53030', '#dd6b20', '#1f4e79']
 NOMES_SEL = [r'A (mín.\ $W_0$)', 'B (intermediária)', r'C (mín.\ $W_f$)']
 NOMES_SEL_TXT = ['A (min W0)', 'B (intermediaria)', 'C (min Wf)']
 
-DV = ['S_w', 'AR_w', 'sweep_w', 'xr_w', 'Cht', 'Cvt', 'x_mlg', 'y_mlg',
-      'z_lg']
+DV = list(DV_NAMES)
 
 
 def _savefig(fig, path):

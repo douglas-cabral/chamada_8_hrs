@@ -73,7 +73,15 @@ DESIGN_VARS = [
     # Piso de controle: valor de PRJ-22. Margem estática é ajustada
     # com xr_w (não com Cht), para não entregar EH pequena ao S&C.
     ('Cht',     r'$C_{ht}$',     '-',     1.0,        0.70,       1.10),
+    # Braço adimensional da EH: L_h = Lc_h * cm_w. S_h = Cht*S_w/Lc_h,
+    # então alongar o braço encolhe a EH. O teto da caixa é folgado: o
+    # que impede a EH de sair da fuselagem é x_TE,raiz,h <= L_f.
+    ('Lc_h',    r'$L_{c,h}$',    '-',     1.0,        3.5,        6.0),
     ('Cvt',     r'$C_{vt}$',     '-',     1.0,        0.050,      0.120),
+    # Braço adimensional da EV: L_v = Lb_v * b_w. Sem piso de projeto:
+    # o ótimo anterior (0,507) não usou o 0,40. O 0,25 só evita
+    # geometria degenerada (S_v = Cvt*S_w/Lb_v dispara se Lb_v -> 0).
+    ('Lb_v',    r'$L_{b,v}$',    '-',     1.0,        0.25,       0.55),
     ('x_mlg',   r'$x_{mlg}$',    'm',     1.0,       29.0,       36.0),
     # Bitola: fora da fuselagem (D_f/2 = 2,98 m) e inboard do motor
     # (y_n - D_n/2 = 9,03 m). O teto efetivo é o da letra E (13,9 m).
@@ -113,13 +121,18 @@ XI_MLG_MAX = 1.00
 # Limite de sustentacao da empenagem vertical na condicao OEI.
 CLV_MAX = 0.75
 
+# Teto de margem estatica CG a frente. O roteiro pede 0,30; o teto 0,25
+# deixava a restricao ativa. Volta-se ao valor do enunciado para ver se
+# o otimo ainda senta nela.
+SM_FWD_MAX = 0.30
+
 CONSTRAINTS = [
     ('landing',    r'$\Delta S_{wlan} \geq 0$',
      r'$\Delta S_{wlan}/S_w$',
      lambda r: r['deltaS_wlan']/r['S_w'], 'roteiro'),
-    ('SM_fwd',     r'$SM_{fwd} \leq 0{,}25$',
-     r'$1 - SM_{fwd}/0{,}25$',
-     lambda r: 1.0 - r['SM_fwd']/0.25, 'adicionada'),
+    ('SM_fwd',     r'$SM_{fwd} \leq 0{,}30$',
+     r'$1 - SM_{fwd}/0{,}30$',
+     lambda r: 1.0 - r['SM_fwd']/SM_FWD_MAX, 'roteiro'),
     ('SM_aft',     r'$SM_{aft} \geq 0{,}05$',
      r'$SM_{aft}/0{,}05 - 1$',
      lambda r: r['SM_aft']/0.05 - 1.0, 'roteiro'),
@@ -165,6 +178,17 @@ CONSTRAINTS = [
     ('gear_spar',  r'$\xi_{mlg} \geq 0{,}50$ (longarina traseira)',
      r'$\xi_{mlg}/0{,}50 - 1$',
      lambda r: r['xi_mlg']/XI_MLG_MIN - 1.0, 'adicionada'),
+    # Bordo de fuga da raiz da EV não pode ultrapassar o cone de cauda.
+    # g = (L_f - x_TE,raiz,v)/L_f >= 0. Sem esta restrição, L_v ∝ b_w
+    # empurra a EV para trás da fuselagem quando a asa alonga.
+    ('vt_te',      r'$x_{\mathrm{TE},v} \leq L_f$',
+     r'$(L_f - x_{\mathrm{TE},v})/L_f$',
+     lambda r: (r['L_f'] - r['x_te_v'])/r['L_f'], 'adicionada'),
+    # Idem para a EH. Na partida o TE da raiz já ultrapassa L_f (~39 cm);
+    # Lc_h livre permite alongar o braço (e encolher S_h) até sentar em L_f.
+    ('ht_te',      r'$x_{\mathrm{TE},h} \leq L_f$',
+     r'$(L_f - x_{\mathrm{TE},h})/L_f$',
+     lambda r: (r['L_f'] - r['x_te_h'])/r['L_f'], 'adicionada'),
 ]
 
 CON_NAMES = [c[0] for c in CONSTRAINTS]
@@ -237,6 +261,15 @@ def extract(airplane):
         'xi_mlg': xi_mlg,
         'x_le_mlg': x_le_mlg,
         'x_te_mlg': x_le_mlg + c_mlg,
+        'L_f': inp['L_f'],
+        'xr_v': geo['xr_v'],
+        'cr_v': geo['cr_v'],
+        'x_te_v': geo['xr_v'] + geo['cr_v'],
+        'Lb_v': inp['Lb_v'],
+        'xr_h': geo['xr_h'],
+        'cr_h': geo['cr_h'],
+        'x_te_h': geo['xr_h'] + geo['cr_h'],
+        'Lc_h': inp['Lc_h'],
     }
 
 
@@ -451,4 +484,9 @@ def physical_report(res):
         ('h_tail [m]',          res['h_tail']),
         ('wheel_span [m]',      res['wheel_span']),
         ('xi_mlg [-]',          res['xi_mlg']),
+        ('L_f [m]',             res['L_f']),
+        ('x_te_v [m]',          res['x_te_v']),
+        ('Lb_v [-]',            res['Lb_v']),
+        ('x_te_h [m]',          res['x_te_h']),
+        ('Lc_h [-]',            res['Lc_h']),
     ]

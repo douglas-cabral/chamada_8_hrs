@@ -29,7 +29,7 @@ from opt_common import (CONSTRAINTS, DESIGN_VARS, DV_NAMES, get_baseline,
 
 # SETUP
 
-RESULTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+RESULTS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                            'resultados_otimizacao_NJ0502')
 
 COR_BASE = '#1f4e79'
@@ -37,18 +37,19 @@ COR_OPT = '#c53030'
 
 XLABEL_NF = r'chamada $n_f$ da função objetivo'
 
-# Cores distintas (tab10 só tem 10; com 17 restrições o ciclo se repetia).
+# Cores distintas (tab10 só tem 10; com 19 restrições o ciclo se repetia).
 CORES_G = [
     '#c53030', '#2b6cb0', '#2f855a', '#dd6b20', '#6b46c1',
     '#0d9488', '#b83280', '#1a365d', '#276749', '#9c4221',
     '#553c9a', '#234e52', '#744210', '#9b2c2c', '#2c5282',
-    '#22543d', '#7b341e',
+    '#22543d', '#7b341e', '#4a5568', '#718096',
 ]
 
 GRUPO_G = [
     ('desempenho e pátio',
      'opt_hist_g_desempenho.png',
-     ['landing', 'tank', 'thrust', 'span', 'wheelspan', 'height', 'CLv']),
+     ['landing', 'tank', 'thrust', 'span', 'wheelspan', 'height', 'CLv',
+      'vt_te', 'ht_te']),
     ('estabilidade e trem',
      'opt_hist_g_estabilidade.png',
      ['SM_fwd', 'SM_aft', 'SM_aft_max', 'nlg_fwd', 'nlg_aft',
@@ -199,8 +200,13 @@ def _lateral(ax, airplane, cor, rotulo, com_fuselagem):
         x_ts = inp['x_tailstrike']
         # Acima da estação de tailstrike o designTool achata o topo
         desloc = np.where(xf > x_ts, (inp['D_f'] - hf)/2, 0.0)
-        ax.plot(xf, hf/2 + desloc, color='0.4', lw=1.0)
-        ax.plot(xf, -hf/2 + desloc, color='0.4', lw=1.0)
+        z_top = hf/2 + desloc
+        z_bot = -hf/2 + desloc
+        ax.plot(xf, z_top, color='0.4', lw=1.0)
+        ax.plot(xf, z_bot, color='0.4', lw=1.0)
+        # Fecha o cone de cauda na estação L_f.
+        ax.plot([xf[-1], xf[-1]], [z_top[-1], z_bot[-1]],
+                color='0.4', lw=1.0)
         _naceles_lateral(ax, inp, '#d97706')
 
     # Corda de raiz da asa
@@ -230,14 +236,30 @@ def _lateral(ax, airplane, cor, rotulo, com_fuselagem):
             color=cor, lw=0.7, ls='-.')
 
 
+def _xmax_aeronave(airplane):
+    '''Estação mais a ré: fuselagem ou bordo de fuga das empenagens.'''
+    geo = airplane['geometry']
+    inp = airplane['inputs']
+    return max(inp['L_f'],
+               geo['xr_v'] + geo['cr_v'],
+               geo['xt_v'] + geo['ct_v'],
+               geo['xr_h'] + geo['cr_h'],
+               geo['xt_h'] + geo['ct_h'])
+
+
 def vistas(inputs_base, inputs_opt, path):
     '''
     Superpõe as vistas em planta e lateral das duas configurações.
+
+    A vista lateral usa aspect='equal' com adjustable='box' e limites
+    explícitos até L_f: com datalim o matplotlib cortava o cone de cauda
+    para caber a envergadura no mesmo quadro.
     '''
     ap_base = run_designTool(inputs_base)
     ap_opt = run_designTool(inputs_opt)
 
-    fig, axes = plt.subplots(2, 1, figsize=(9.0, 8.4))
+    fig, axes = plt.subplots(2, 1, figsize=(11.6, 8.2),
+                             gridspec_kw={'height_ratios': [2.15, 1.0]})
 
     _planta(axes[0], ap_base, COR_BASE, 'PRJ-22 (partida)', True)
     _planta(axes[0], ap_opt, COR_OPT, 'otimizada', False)
@@ -252,12 +274,23 @@ def vistas(inputs_base, inputs_opt, path):
     axes[1].set_title('Vista lateral')
     axes[1].legend(loc='upper right', fontsize=9)
 
+    pad = 1.8
+    x_max = max(_xmax_aeronave(ap_base), _xmax_aeronave(ap_opt))
+    b_max = max(ap_base['geometry']['b_w'], ap_opt['geometry']['b_w'])
+    z_lo = min(ap_base['inputs']['z_lg'], ap_opt['inputs']['z_lg'])
+    z_hi = max(ap_base['geometry']['zt_v'], ap_opt['geometry']['zt_v'])
+
+    axes[0].set_xlim(-pad, x_max + pad)
+    axes[0].set_ylim(-b_max/2.0 - pad, b_max/2.0 + pad)
+    axes[1].set_xlim(-pad, x_max + pad)
+    axes[1].set_ylim(z_lo - pad, z_hi + pad)
+
     for ax in axes:
-        ax.set_aspect('equal', adjustable='datalim')
+        ax.set_aspect('equal', adjustable='box')
         ax.grid(color='0.9', lw=0.5)
 
     fig.tight_layout()
-    fig.savefig(path, dpi=300)
+    fig.savefig(path, dpi=300, bbox_inches='tight')
     plt.close(fig)
 
 

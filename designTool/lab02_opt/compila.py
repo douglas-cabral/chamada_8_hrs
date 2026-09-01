@@ -4,12 +4,11 @@ PRJ-23 - Homework 02 - Grupo NJ-0502
 
 Monta a árvore "achatada" que o main.tex espera e compila o PDF.
 
-No repositório cada seção mora na sua própria pasta, com os códigos ao
-lado das tabelas e figuras que produz. No Overleaf, porém, o main.tex faz
-\input{<secao>} na raiz, e as tabelas/figuras são referenciadas como
-tex_<secao>/... e resultados_<secao>/... a partir da raiz.
+No repositório os códigos de cada seção ficam nas pastas
+otimizacao_*/. O main.tex, os .tex das seções e as pastas
+tex_*/ e resultados_*/ ficam todos no mesmo nível (formato Overleaf).
 
-Este script copia tudo para build/ nesse formato e roda o pdflatex duas
+Este script copia essa árvore para build/ e roda o pdflatex duas
 vezes (para resolver as referências cruzadas).
 
 Uso:  python compila.py
@@ -49,15 +48,13 @@ def monta_build():
                  os.path.join(BUILD_DIR, 'main.tex'))
 
     for secao in SECOES:
-        origem = os.path.join(_HERE, secao)
-
-        tex = os.path.join(origem, secao + '.tex')
+        tex = os.path.join(_HERE, secao + '.tex')
         if not os.path.isfile(tex):
             raise RuntimeError('não encontrei %s' % tex)
         shutil.copy2(tex, os.path.join(BUILD_DIR, secao + '.tex'))
 
         for prefixo in ('tex_', 'resultados_'):
-            pasta = os.path.join(origem, prefixo + secao)
+            pasta = os.path.join(_HERE, prefixo + secao)
             if os.path.isdir(pasta):
                 shutil.copytree(pasta,
                                 os.path.join(BUILD_DIR, prefixo + secao))

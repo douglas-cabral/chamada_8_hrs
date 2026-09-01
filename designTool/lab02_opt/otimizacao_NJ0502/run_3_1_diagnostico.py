@@ -30,7 +30,7 @@ from opt_common import (CONSTRAINTS, DESIGN_VARS, Model, constraint_vector,
 
 # SETUP
 
-RESULTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+RESULTS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                            'resultados_otimizacao_NJ0502')
 
 ALL_DVS = [spec[0] for spec in DESIGN_VARS]

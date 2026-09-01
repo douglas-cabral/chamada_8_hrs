@@ -77,7 +77,9 @@ class MultiObjModel(object):
     '''
     Empacota o designTool como problema BI-objetivo normalizado.
 
-    Reaproveita as nove variáveis e as dezessete restrições do Problema 3.
+    Reaproveita as variáveis e as restrições do Problema 3 (hoje onze
+    variáveis, dezenove desigualdades, incluindo os braços e os TE
+    das duas empenagens).
     Ao contrário da classe `Model` daquele problema, não há gradientes:
     o MOGA é um método de ordem zero.
     '''
@@ -111,6 +113,16 @@ class MultiObjModel(object):
         self.res0 = self.results(self.x0)
         self.W0_ref = self.res0['W0']
         self.Wf_ref = self.res0['W_fuel']
+
+    def __getstate__(self):
+        '''
+        O NSGA-II com save_history faz deepcopy do algoritmo a cada
+        geração. Sem isto, o cache de dezenas de milhares de análises
+        é clonado junto e estoura a memória.
+        '''
+        state = dict(self.__dict__)
+        state['_cache'] = {}
+        return state
 
     # -------------------------------------
 
@@ -204,7 +216,7 @@ class NJ0502BiObj(ElementwiseProblem):
     '''
     Interface do problema bi-objetivo para o pymoo.
 
-    n_var = 9, n_obj = 2, n_ieq_constr = 17.
+    n_var = len(DV_NAMES), n_obj = 2, n_ieq_constr = len(CON_NAMES).
     O pymoo minimiza F e exige G <= 0; como o relatório escreve as
     restrições como g >= 0, entrega-se G = -g.
     '''

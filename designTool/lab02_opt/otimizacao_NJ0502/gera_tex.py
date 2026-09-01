@@ -17,8 +17,9 @@ import pandas as pd
 # =========================================
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
-RESULTS_DIR = os.path.join(_HERE, 'resultados_otimizacao_NJ0502')
-TEX_DIR = os.path.join(_HERE, 'tex_otimizacao_NJ0502')
+_LAB = os.path.dirname(_HERE)
+RESULTS_DIR = os.path.join(_LAB, 'resultados_otimizacao_NJ0502')
+TEX_DIR = os.path.join(_LAB, 'tex_otimizacao_NJ0502')
 
 
 def esc(s):
@@ -109,6 +110,8 @@ def tab_grandezas():
         'frac_nlg_fwd [-]', 'frac_nlg_aft [-]',
         'alpha_tipback [deg]', 'alpha_tail [deg]', 'phi_overturn [deg]',
         'h_tail [m]', 'wheel_span [m]', 'xi_mlg [-]',
+        'L_f [m]', 'x_te_v [m]', 'Lb_v [-]',
+        'x_te_h [m]', 'Lc_h [-]',
     ]
     labels = {
         'W0 [kgf]': r'$W_0$ [kgf]',
@@ -133,6 +136,11 @@ def tab_grandezas():
         'h_tail [m]': r'$h_{tail}$ [m]',
         'wheel_span [m]': r'$b_{mlg}$ [m]',
         'xi_mlg [-]': r'$\xi_{mlg}$',
+        'L_f [m]': r'$L_f$ [m]',
+        'x_te_v [m]': r'$x_{\mathrm{TE},v}$ [m]',
+        'Lb_v [-]': r'$L_{b,v}$',
+        'x_te_h [m]': r'$x_{\mathrm{TE},h}$ [m]',
+        'Lc_h [-]': r'$L_{c,h}$',
     }
     lines = [r'\begin{tabular}{lrrr}',
              r'\toprule',

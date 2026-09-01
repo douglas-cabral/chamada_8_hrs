@@ -1,0 +1,25 @@
+\begin{tabular}{llrrr}
+\toprule
+Restrição & $g(x)$ & $g_{\mathrm{ini}}$ & $g_{\mathrm{ot}}$ & Ativa? \\
+\midrule
+$\Delta S_{wlan} \geq 0$ & $\Delta S_{wlan}/S_w$ & 0.2855 & 0.2788 & não \\
+$SM_{fwd} \leq 0{,}30$ & $1 - SM_{fwd}/0{,}30$ & 0.2862 & 0.1599 & não \\
+$SM_{aft} \geq 0{,}05$ & $SM_{aft}/0{,}05 - 1$ & 0.9660 & 1.0000 & não \\
+$SM_{aft} \leq 0{,}10$ & $1 - SM_{aft}/0{,}10$ & 0.0170 & 0.0000 & \textbf{sim} \\
+$f_{nlg,fwd} \leq 0{,}18$ & $1 - f_{nlg,fwd}/0{,}18$ & 0.5497 & 0.4828 & não \\
+$f_{nlg,aft} \geq 0{,}03$ & $f_{nlg,aft}/0{,}03 - 1$ & 0.6524 & 0.8341 & não \\
+$\alpha_{tip} \geq 15^\circ$ & $\alpha_{tip}/15^\circ - 1$ & $-$0.1002 & 0.0000 & \textbf{sim} \\
+$\alpha_{tail} \geq 10^\circ$ & $\alpha_{tail}/10^\circ - 1$ & 0.0081 & $-$0.0000 & \textbf{sim} \\
+$\phi_{ovt} \leq 63^\circ$ & $1 - \phi_{ovt}/63^\circ$ & 0.2302 & 0.3196 & não \\
+$tank\_excess \geq 0$ & $W_{maxfuel}/W_f - 1$ & 0.0050 & $-$0.0000 & \textbf{sim} \\
+$b_w < 65$ m (teto OACI E) & $1 - b_w/64{,}9$ & 0.0678 & 0.0117 & não \\
+$b_{mlg} < 14$ m (teto OACI E) & $1 - b_{mlg}/13{,}9$ & 0.1942 & 0.0000 & \textbf{sim} \\
+$h_{tail} < 20$ m (teto FAA V) & $1 - h_{tail}/20$ & 0.0432 & 0.0740 & não \\
+$T_0 \geq T_{0,req}$ & $T_0/T_{0,req} - 1$ & 0.0575 & 0.1767 & não \\
+$C_{Lv} \leq 0{,}75$ & $1 - C_{Lv}/0{,}75$ & 0.0889 & 0.0000 & \textbf{sim} \\
+$\xi_{mlg} \leq 1$ (trem sob a asa) & $1 - \xi_{mlg}$ & 0.0987 & 0.0000 & \textbf{sim} \\
+$\xi_{mlg} \geq 0{,}50$ (longarina traseira) & $\xi_{mlg}/0{,}50 - 1$ & 0.8025 & 1.0000 & não \\
+$x_{\mathrm{TE},v} \leq L_f$ & $(L_f - x_{\mathrm{TE},v})/L_f$ & 0.0038 & 0.0000 & \textbf{sim} \\
+$x_{\mathrm{TE},h} \leq L_f$ & $(L_f - x_{\mathrm{TE},h})/L_f$ & $-$0.0060 & $-$0.0000 & \textbf{sim} \\
+\bottomrule
+\end{tabular}

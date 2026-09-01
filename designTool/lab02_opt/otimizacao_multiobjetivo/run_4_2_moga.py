@@ -4,8 +4,9 @@ PRJ-23 - Homework 02 - Problema 4 - Grupo NJ-0502
 
 Etapa 2 - Otimização multiobjetivo (MOGA / NSGA-II do pymoo).
 
-Minimiza simultaneamente W0 e Wf da NJ-0502, com as MESMAS nove variáveis
-e as MESMAS dezessete restrições do Problema 3.
+Minimiza simultaneamente W0 e Wf da NJ-0502, com as MESMAS variáveis
+e as MESMAS restrições do Problema 3 (incluindo L_c,h, L_b,v e os TE
+de raiz da EH e da EV).
 
 O script roda dois casos:
 
@@ -50,7 +51,7 @@ import opt_common as oc
 
 # SETUP
 
-RESULTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+RESULTS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                            'resultados_otimizacao_multiobjetivo')
 
 # Parâmetros do MOGA (pergunta 2 do roteiro).

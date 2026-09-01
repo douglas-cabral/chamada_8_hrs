@@ -27,7 +27,7 @@ from opt_common import (CON_NAMES, CONSTRAINTS, DV_NAMES, Model,
 
 # SETUP
 
-RESULTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+RESULTS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                            'resultados_otimizacao_NJ0502')
 
 OPTIONS = {'maxiter': 300, 'ftol': 1e-9, 'disp': False}
@@ -44,7 +44,7 @@ VARIANTES = [
 ]
 
 # Grandezas acompanhadas em cada variante
-WATCH = ['S_w', 'AR_w', 'sweep_w', 'xr_w', 'Cht', 'Cvt',
+WATCH = ['S_w', 'AR_w', 'sweep_w', 'xr_w', 'Cht', 'Lc_h', 'Cvt', 'Lb_v',
          'x_mlg', 'y_mlg', 'z_lg']
 
 # =========================================
@@ -118,8 +118,10 @@ if __name__ == '__main__':
               % (row['W0_kgf'], row['ganho_pct']))
         print('  S_w %.2f m2 | AR_w %.3f | sweep %.2f deg | b_w %.2f m'
               % (row['S_w'], row['AR_w'], row['sweep_w'], row['b_w']))
-        print('  Cht %.4f | Cvt %.5f | CLv %.4f | tank_excess %+.5f'
-              % (row['Cht'], row['Cvt'], row['CLv'], row['tank_excess']))
+        print('  Cht %.4f | Lc_h %.3f | Cvt %.5f | Lb_v %.4f | CLv %.4f'
+              % (row['Cht'], row['Lc_h'], row['Cvt'], row['Lb_v'],
+                 row['CLv']))
+        print('  tank_excess %+.5f' % row['tank_excess'])
         print('  x_mlg %.3f m | y_mlg %.3f m | b_mlg %.2f m | z_lg %.3f m'
               % (row['x_mlg'], row['y_mlg'], 2.0*row['y_mlg'], row['z_lg']))
         print('  ativas    : %s' % (row['ativas'] or 'nenhuma'))

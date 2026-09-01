@@ -25,7 +25,7 @@ from opt_common import (CONSTRAINTS, DESIGN_VARS, DV_NAMES, Model,
 
 # SETUP
 
-RESULTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+RESULTS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                            'resultados_otimizacao_NJ0502')
 
 OPTIONS = {'maxiter': 200, 'ftol': 1e-6, 'disp': False}

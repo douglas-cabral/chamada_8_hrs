@@ -1,0 +1,2 @@
+caso,rotulo,B_W_MAX,WHEEL_SPAN_MAX,pop_size,n_gen,seed,n_semeados,n_eval,n_designTool,n_invalido,tempo_s,n_frente,n_inviavel,W0_min_kgf,W0_max_kgf,Wf_min_kgf,Wf_max_kgf,W0_ref_kgf,Wf_ref_kgf
+letraF,letra F (teto relaxado),79.9,15.9,100,400,42,10,40000,39999,5,436.9791443347931,11,0,276666.2935001598,276671.49733058084,99494.25657341738,99503.26033714751,286563.30414107547,109310.90894505226

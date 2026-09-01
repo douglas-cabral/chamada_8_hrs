@@ -16,17 +16,17 @@
 Esta seção resolve o Problema~4 do \emph{Homework}~02: o mesmo problema da
 Seção~\ref{sec:nj0502}, agora com dois objetivos --- minimizar $W_0$ e
 minimizar $W_f$ --- resolvido pelo NSGA-II do \code{pymoo} com
-@@POP@@ indivíduos por geração e @@NGEN@@ gerações. O resultado central
+100 indivíduos por geração e 400 gerações. O resultado central
 é negativo, e por isso mesmo informativo: sob as restrições da
 Seção~\ref{sec:nj0502}, \textbf{os dois objetivos praticamente não
-competem}. A frente de Pareto tem @@AMP_W0_E@@~kgf de amplitude em
-$W_0$ --- @@AMP_REL_E@@ do MTOW ---, isto é, degenera num ponto para
+competem}. A frente de Pareto tem 107{,}56~kgf de amplitude em
+$W_0$ --- 0{,}039\% do MTOW ---, isto é, degenera num ponto para
 qualquer fim de engenharia. A causa é identificada com precisão: o teto
 de envergadura da letra~E da OACI trunca a frente. Relaxando-o para a
-letra~F, a amplitude sobe para @@AMP_W0_F@@~kgf, @@RAZAO_AMP@@ vezes
+letra~F, a amplitude sobe para 388{,}00~kgf, 4 vezes
 maior. Mesmo relaxado o teto, a envergadura não dispara:
 $x_{\mathrm{TE}}\le L_f$ prende as empenagens sobre a fuselagem, e a âncora de
-mínimo $W_f$ na letra~F para em $b_w=$@@BW_C_F@@~m.
+mínimo $W_f$ na letra~F para em $b_w=$65{,}61~m.
 
 % ---------------------------------------------------------------------
 \subsection{Definição do problema e organização dos códigos}
@@ -76,7 +76,7 @@ algoritmo genético:
       ponto finito, péssimo e fortemente inviável
       ($f_i = 10^3$, $g_j = -10^3$), que o algoritmo descarta pela regra
       de dominância restringida. Na corrida final isso ocorreu em
-      @@N_INVALIDO@@ dos @@N_EVAL@@ indivíduos.
+      7 dos 40\,000 indivíduos.
 \end{itemize}
 
 Os códigos desta seção estão em
@@ -109,7 +109,7 @@ direita amplia a frente até que ela ocupe o quadro inteiro.
 azuis: frente devolvida pelo NSGA-II. Curva vermelha: frente de
 referência calculada pelo método da $\epsilon$-restrição com SLSQP.
 Marcadores ``X'' e ``+'': âncoras de objetivo único. Note a escala do
-painel direito --- a frente inteira cabe em @@AMP_W0_E@@~kgf de $W_0$.}
+painel direito --- a frente inteira cabe em 107{,}56~kgf de $W_0$.}
 \label{fig:p4pareto}
 \end{figure}
 
@@ -150,15 +150,15 @@ O mecanismo do compromisso é a envergadura. Reduzir $W_f$ pede mais
 $b_w$: menos arrasto induzido, melhor $L/D$, menos combustível para os
 $8\,000$~nm. Isso, porém, engorda a asa e sobe $W_0$. É a troca clássica,
 e ela existe --- ao longo da frente de referência, $b_w$ vai de
-@@BW_A_E@@~m (no ponto de mínimo $W_0$) a @@BW_C_E@@~m (no de mínimo
+64{,}14~m (no ponto de mínimo $W_0$) a 64{,}90~m (no de mínimo
 $W_f$), com $AR_w$ subindo e $\Lambda_w$ caindo junto.
 
 O problema é que a âncora de mínimo $W_f$ satura o teto
-$b_w < 64{,}9$~m da letra~E: ela senta exatamente em @@BW_C_E@@~m.
+$b_w < 64{,}9$~m da letra~E: ela senta exatamente em 64{,}90~m.
 A troca é interrompida antes de produzir qualquer diferença
 apreciável. Liberando o teto para a letra~F, a mesma âncora vai a
-@@BW_C_F@@~m e a amplitude em $W_0$ salta de @@AMP_W0_E@@ para
-@@AMP_W0_F@@~kgf. \textbf{Não é a física que anula o compromisso entre
+65{,}61~m e a amplitude em $W_0$ salta de 107{,}56 para
+388{,}00~kgf. \textbf{Não é a física que anula o compromisso entre
 $W_0$ e $W_f$; é a categoria de pátio escolhida para a NJ-0502.}
 
 % ---------------------------------------------------------------------
@@ -174,13 +174,13 @@ $W_0$ e $W_f$; é a categoria de pátio escolhida para a NJ-0502.}
 \input{tex_otimizacao_multiobjetivo/tab_parametros.tex}
 \end{table}
 
-Foram \textbf{@@POP@@ indivíduos por geração} e \textbf{@@NGEN@@
-gerações}, ou @@N_EVAL@@ avaliações da função objetivo, em
-@@TEMPO@@~s. Os operadores são os padrões do NSGA-II: cruzamento SBX
+Foram \textbf{100 indivíduos por geração} e \textbf{400
+gerações}, ou 40\,000 avaliações da função objetivo, em
+449~s. Os operadores são os padrões do NSGA-II: cruzamento SBX
 ($\eta = 15$, $p = 0{,}9$) e mutação polinomial ($\eta = 20$).
 
-Dez dos @@POP@@ indivíduos da primeira geração são semeados com a
-configuração de PRJ-22 e uma nuvem em volta dela; os outros @@N_RAND@@
+Dez dos 100 indivíduos da primeira geração são semeados com a
+configuração de PRJ-22 e uma nuvem em volta dela; os outros 90
 são amostrados uniformemente na caixa. A escolha é fiel ao roteiro, que
 manda partir da configuração final de PRJ-22, e tem efeito prático: numa
 corrida-piloto com população puramente aleatória, o primeiro indivíduo
@@ -237,11 +237,11 @@ frente não dominada.}
 \label{fig:p4conv}
 \end{figure}
 
-\textbf{O MOGA não converge à frente.} Após @@N_EVAL@@ avaliações, o
-melhor $W_0$ que ele encontra está @@GAP_W0@@\% acima da âncora, e o
-melhor $W_f$, @@GAP_WF@@\% acima. Isso é
-@@GAP_W0_KGF@@~kgf de MTOW --- ordens de grandeza mais que a
-@@AMP_W0_E@@~kgf de amplitude da frente inteira. Em outras palavras: a
+\textbf{O MOGA não converge à frente.} Após 40\,000 avaliações, o
+melhor $W_0$ que ele encontra está 0{,}18\% acima da âncora, e o
+melhor $W_f$, 1{,}01\% acima. Isso é
+500~kgf de MTOW --- ordens de grandeza mais que a
+107{,}56~kgf de amplitude da frente inteira. Em outras palavras: a
 ``frente'' devolvida pelo MOGA está inteira \emph{acima} da frente
 verdadeira, a uma distância muito maior que a sua própria largura. Sem a
 âncora da Seção~\ref{sec:nj0502}, a nuvem de pontos da
@@ -251,7 +251,7 @@ respeitável, e a conclusão do trabalho seria errada.
 A comparação de custo é dura com o algoritmo genético. O SLSQP resolve o
 mesmo problema com \textbf{8 avaliações da função objetivo} e 162
 chamadas ao \emph{Design Tools} (Seção~\ref{sec:nj0502}); o NSGA-II gasta
-\textbf{@@N_EVAL@@} e ainda fica a @@GAP_W0@@\% do alvo. A curva central
+\textbf{40\,000} e ainda fica a 0{,}18\% do alvo. A curva central
 da Figura~\ref{fig:p4conv} explica: o erro cai rapidamente nas primeiras
 dezenas de gerações e depois estaciona num platô. Um GA é bom em
 localizar a bacia certa e ruim em descer até o fundo dela, sobretudo num
@@ -290,8 +290,8 @@ roteiro).}
 
 A conclusão honesta é que, no problema como enunciado, \textbf{as três
 aeronaves são a mesma aeronave}. De A a C, $W_0$ varia
-@@AMP_W0_E@@~kgf (@@AMP_REL_E@@), $W_f$ varia @@AMP_WF_E@@~kgf, a
-envergadura muda @@DBW_E@@~m e o alongamento, @@DAR_E@@. São diferenças
+107{,}56~kgf (0{,}039\%), $W_f$ varia 173{,}27~kgf, a
+envergadura muda 0{,}76~m e o alongamento, 0{,}199. São diferenças
 menores que a incerteza de qualquer método de estimativa de peso em
 projeto preliminar, e menores que a espessura da linha num desenho em
 escala. O painel superior da Figura~\ref{fig:p4planta} mostra isso:
@@ -332,24 +332,24 @@ as três se separam --- ou deixam de se separar, no caso da letra~E.}
 Na letra~F o padrão é limpo e tem leitura física direta. Indo de A
 (mínimo $W_0$) para C (mínimo $W_f$):
 \begin{itemize}
-\item a \textbf{envergadura} cresce de @@BW_A_F@@ para @@BW_C_F@@~m e o
-      \textbf{alongamento} de @@AR_A_F@@ para @@AR_C_F@@. É o motor da
+\item a \textbf{envergadura} cresce de 64{,}14 para 65{,}61~m e o
+      \textbf{alongamento} de 10{,}64 para 11{,}02. É o motor da
       troca: mais $AR_w$ reduz o arrasto induzido em cruzeiro, melhora o
-      $L/D$ e corta @@AMP_WF_F@@~kgf de combustível;
-\item o \textbf{enflechamento} cai de @@SW_A_F@@$^\circ$ para
-      @@SW_C_F@@$^\circ$. Com mais alongamento a asa fica mais fina em
+      $L/D$ e corta 223{,}15~kgf de combustível;
+\item o \textbf{enflechamento} cai de 35{,}4$^\circ$ para
+      34{,}1$^\circ$. Com mais alongamento a asa fica mais fina em
       corda, e parte da compensação de arrasto de onda pode ser trocada
       por menos peso estrutural e menos arrasto de perfil;
-\item a \textbf{área} sobe de @@S_A_F@@ para @@S_C_F@@~m$^2$,
+\item a \textbf{área} sobe de 386{,}5 para 390{,}4~m$^2$,
       acompanhando o tanque: a restrição \code{tank\_excess} está ativa
       nos três pontos, então o volume de asa tem de continuar exatamente
       comportando o combustível da missão;
-\item o \textbf{preço} é @@AMP_W0_F@@~kgf de MTOW. A asa mais alongada é
+\item o \textbf{preço} é 388{,}00~kgf de MTOW. A asa mais alongada é
       mais pesada, e o efeito bola de neve devolve parte do ganho.
 \end{itemize}
 
-A troca, portanto, é \emph{@@AMP_W0_F@@~kgf de MTOW por
-@@AMP_WF_F@@~kgf de combustível}. Qual das três escolher depende do
+A troca, portanto, é \emph{388{,}00~kgf de MTOW por
+223{,}15~kgf de combustível}. Qual das três escolher depende do
 critério econômico: $W_f$ governa o custo de combustível por voo, $W_0$
 governa taxas de pouso e navegação e, indiretamente, o custo de
 aquisição. Como a razão é próxima de $1{,}7$~kgf de MTOW por kgf de
@@ -372,7 +372,7 @@ há escolha a fazer.
 % ---------------------------------------------------------------------
 
 A frente de Pareto entre $W_0$ e $W_f$ existe, é monotônica e convexa,
-mas é irrelevante em escala de engenharia: @@AMP_W0_E@@~kgf de $W_0$
+mas é irrelevante em escala de engenharia: 107{,}56~kgf de $W_0$
 sobre um MTOW de $276{,}3$~t. Sob as restrições da
 Seção~\ref{sec:nj0502}, minimizar combustível e minimizar peso de
 decolagem são o mesmo movimento de projeto, e o otimizador de objetivo
@@ -384,7 +384,7 @@ nas duas empenagens impede a asa de alongar muito mesmo quando esse teto
 
 Do ponto de vista de método, a seção mostra o valor de ter um resultado
 de objetivo único como padrão de aferição. Sem a âncora da
-Seção~\ref{sec:nj0502}, a nuvem de @@N_FRENTE@@ pontos devolvida pelo
+Seção~\ref{sec:nj0502}, a nuvem de 1 pontos devolvida pelo
 NSGA-II passaria por uma frente de Pareto convergida --- quando na
-verdade está @@GAP_W0_KGF@@~kgf acima da frente verdadeira, uma
+verdade está 500~kgf acima da frente verdadeira, uma
 distância muito maior que a sua própria largura.

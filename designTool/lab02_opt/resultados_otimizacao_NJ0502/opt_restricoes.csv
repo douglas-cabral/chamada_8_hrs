@@ -1,0 +1,20 @@
+restricao,descricao,expressao,origem,g_inicial,g_otimo,ativa
+landing,$\Delta S_{wlan} \geq 0$,$\Delta S_{wlan}/S_w$,roteiro,0.28550586553321794,0.2787527408696896,False
+SM_fwd,"$SM_{fwd} \leq 0{,}30$","$1 - SM_{fwd}/0{,}30$",roteiro,0.28615687771394893,0.15986545411489883,False
+SM_aft,"$SM_{aft} \geq 0{,}05$","$SM_{aft}/0{,}05 - 1$",roteiro,0.9659729485535251,0.999999998514675,False
+SM_aft_max,"$SM_{aft} \leq 0{,}10$","$1 - SM_{aft}/0{,}10$",adicionada,0.017013525723237444,7.426624870632281e-10,True
+nlg_fwd,"$f_{nlg,fwd} \leq 0{,}18$","$1 - f_{nlg,fwd}/0{,}18$",roteiro,0.5496813796121855,0.48278490309034283,False
+nlg_aft,"$f_{nlg,aft} \geq 0{,}03$","$f_{nlg,aft}/0{,}03 - 1$",roteiro,0.6523580268711406,0.8341417949287875,False
+tipback,$\alpha_{tip} \geq 15^\circ$,$\alpha_{tip}/15^\circ - 1$,roteiro,-0.10018785416211484,2.649429564627326e-10,True
+tailstrike,$\alpha_{tail} \geq 10^\circ$,$\alpha_{tail}/10^\circ - 1$,roteiro,0.00805979875423235,-5.040412531798211e-14,True
+overturn,$\phi_{ovt} \leq 63^\circ$,$1 - \phi_{ovt}/63^\circ$,roteiro,0.23019279783305713,0.3196013938848271,False
+tank,$tank\_excess \geq 0$,$W_{maxfuel}/W_f - 1$,roteiro,0.005042681749004352,-1.623324696886641e-09,True
+span,$b_w < 65$ m (teto OACI E),"$1 - b_w/64{,}9$",roteiro,0.06783832817564839,0.011720922501820663,False
+wheelspan,$b_{mlg} < 14$ m (teto OACI E),"$1 - b_{mlg}/13{,}9$",roteiro,0.1942446043165469,2.220446049250313e-16,True
+height,$h_{tail} < 20$ m (teto FAA V),$1 - h_{tail}/20$,roteiro,0.04324923136936021,0.07401640475854765,False
+thrust,"$T_0 \geq T_{0,req}$","$T_0/T_{0,req} - 1$",adicionada,0.05748241948867605,0.17668514766027132,False
+CLv,"$C_{Lv} \leq 0{,}75$","$1 - C_{Lv}/0{,}75$",adicionada,0.08890435738557623,8.799667661207877e-10,True
+gear_te,$\xi_{mlg} \leq 1$ (trem sob a asa),$1 - \xi_{mlg}$,adicionada,0.09873045994746854,4.4697245904501415e-10,True
+gear_spar,"$\xi_{mlg} \geq 0{,}50$ (longarina traseira)","$\xi_{mlg}/0{,}50 - 1$",adicionada,0.8025390801050629,0.9999999991060551,False
+vt_te,"$x_{\mathrm{TE},v} \leq L_f$","$(L_f - x_{\mathrm{TE},v})/L_f$",adicionada,0.0037882414699059413,2.8193580346183474e-10,True
+ht_te,"$x_{\mathrm{TE},h} \leq L_f$","$(L_f - x_{\mathrm{TE},h})/L_f$",adicionada,-0.005985208129259565,-5.6482743918581655e-11,True

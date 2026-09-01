@@ -32,7 +32,7 @@ from opt_padrao import (B_W_MAX, DESIGN_VARS, DV_NAMES, Model, get_baseline,
 
 # SETUP
 
-RESULTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+RESULTS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                            'resultados_otimizacao_aeronave_padrao')
 
 COR_BASE = '#1f4e79'
