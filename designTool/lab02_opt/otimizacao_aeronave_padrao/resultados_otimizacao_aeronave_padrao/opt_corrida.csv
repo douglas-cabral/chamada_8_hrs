@@ -1,0 +1,2 @@
+sucesso,status,n_vars,n_iter,nfev_scipy,njev_scipy,n_objfun,n_confun,n_designTool,tempo_s,W0_ini_kgf,W0_kgf,f,ganho_pct,b_w,g_span,g_min,n_ativas
+True,Optimization terminated successfully,2,11,33,11,33,45,33,1.1572790145874023,42788.945732366774,41624.08637154368,0.972776628615508,2.7223371384492046,29.825149223695366,0.005828359210154455,0.005828359210154455,0

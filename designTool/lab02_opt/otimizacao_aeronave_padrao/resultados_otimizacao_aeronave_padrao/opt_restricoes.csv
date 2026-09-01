@@ -1,0 +1,2 @@
+restricao,descricao,expressao,origem,g_inicial,g_otimo,ativa
+span,$b_w \leq 30$ m,$1 - b_w/30$,roteiro,0.1339745962155613,0.005828359210154455,False

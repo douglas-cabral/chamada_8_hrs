@@ -1,0 +1,3 @@
+variavel,label,unidade,inicial,otimo,lim_inf,lim_sup,variacao_pct,no_limite
+AR_w,$AR_w$,-,7.5,10.466420882516406,7.0,12.0,39.55227843355209,False
+S_w,$S_w$,m$^2$,90.0,84.98984860255565,80.0,120.0,-5.566834886049277,False

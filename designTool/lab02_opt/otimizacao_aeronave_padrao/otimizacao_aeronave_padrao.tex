@@ -9,9 +9,297 @@
 \section{Otimização da aeronave padrão}
 \label{sec:aeronave-padrao}
 
-Texto, códigos e figuras desta seção são produzidos nesta pasta
-(\code{designTool/lab02\_opt/otimizacao\_aeronave\_padrao/}). A partida é a
-aeronave \code{fokker100} de \code{designTool/standard\_airplane.py}.
+% ---------------------------------------------------------------------
+\subsection{Definição do problema}
+\label{sec:p2-def}
+% ---------------------------------------------------------------------
 
-\textit{Seção a cargo do grupo --- substituir este parágrafo pelo
-conteúdo da otimização da aeronave padrão.}
+O roteiro pede para minimizar o MTOW da aeronave padrão
+(\code{fokker100} de \code{standard\_airplane.py}) mexendo apenas na área
+e no alongamento da asa, com um teto de envergadura:
+\begin{equation}
+\begin{aligned}
+\min_{AR_w,\,S_w}\quad & W_0(AR_w, S_w) \\
+\text{s.a.}\quad       & b_w \le 30~\mathrm{m}, \\
+                       & 7 \le AR_w \le 12, \\
+                       & 80 \le S_w \le 120~\mathrm{m^2},
+\end{aligned}
+\label{eq:p2}
+\end{equation}
+partindo de $AR_w = 7{,}5$ e $S_w = 90$~m$^2$. Todos os demais parâmetros
+do \code{fokker100} permanecem congelados.
+
+Seguindo a recomendação do enunciado, variáveis e restrição entram
+normalizadas. Cada $x_i$ é dividida pelo valor de partida, de modo que
+$x_0 = (1;\,1)$, e a restrição é escrita na forma $g(x)\ge 0$:
+\begin{equation}
+f(x) = \frac{W_0(x)}{W_{0,\mathrm{ref}}},
+\qquad
+g(x) = 1 - \frac{b_w(x)}{30~\mathrm{m}} \;\ge\; 0 ,
+\label{eq:p2norm}
+\end{equation}
+com $W_{0,\mathrm{ref}}$ o MTOW do ponto de partida. Assim os dois
+números que o SLSQP enxerga são adimensionais e da ordem da unidade,
+e uma única tolerância serve para objetivo e restrição.
+
+Como a envergadura é $b_w = \sqrt{AR_w S_w}$, a fronteira $b_w = 30$~m
+é a hipérbole $AR_w S_w = 900$: uma reta no plano
+$(\ln AR_w, \ln S_w)$, mas curva na caixa de projeto da
+Figura~\ref{fig:p2mapa}.
+
+Os códigos desta seção estão em
+\code{designTool/lab02\_opt/otimizacao\_aeronave\_padrao/}:
+\begin{itemize}
+\item \code{opt\_padrao.py} --- modelo normalizado, restrição e
+      acoplamento com \code{analyze};
+\item \code{run\_2\_1\_otimizacao.py} --- corrida do SLSQP e tabelas;
+\item \code{run\_2\_2\_verificacao.py} --- \emph{multistart}, corrida sem a
+      restrição, varredura da fronteira e gradiente no ótimo;
+\item \code{run\_2\_3\_figuras.py} --- mapa de $W_0$, histórico e vistas;
+\item \code{gera\_tex.py} --- fragmentos LaTeX das tabelas.
+\end{itemize}
+
+\paragraph{Convergência do modelo.}
+O laço de ponto fixo de $W_0$ dentro do \code{analyze} para quando o
+resíduo cai abaixo de $10$~N, o que deixaria um ruído relativo de
+$\sim 3\times 10^{-6}$ em $W_0$ --- o bastante para contaminar diferenças
+finitas. Como no Problema~3, o \code{W0\_guess} é reinjetado quatro vezes
+após cada análise. Com isso a derivada de $W_0$ fica estável ao longo de
+cinco ordens de grandeza do passo ($10^{-8}$ a $10^{-3}$), e as
+diferenças finitas do próprio SciPy --- que o roteiro manda usar --- são
+confiáveis sem qualquer ajuste de passo.
+
+% ---------------------------------------------------------------------
+\subsection{Resultados da otimização}
+\label{sec:p2q1}
+% ---------------------------------------------------------------------
+
+A Tabela~\ref{tab:p2res} é a Tabela~1 pedida no roteiro.
+
+\begin{table}[H]
+\centering
+\caption{Resultados da otimização da aeronave padrão.}
+\label{tab:p2res}
+\small
+\input{tex_otimizacao_aeronave_padrao/tab_resultados.tex}
+\end{table}
+
+O otimizador estica a asa e a encolhe ao mesmo tempo: $AR_w$ sobe
+$39{,}6\%$ (de $7{,}5$ para $10{,}47$) e $S_w$ cai $5{,}6\%$ (de $90$ para
+$85{,}0$~m$^2$). O produto cresce, e a envergadura vai de $25{,}98$~m para
+$29{,}83$~m --- $14{,}8\%$ a mais, parando a $17$~cm do teto de $30$~m.
+
+A leitura física está na Tabela~\ref{tab:p2grand}: o ganho vem do
+combustível. Mais alongamento significa menos arrasto induzido, logo
+melhor $L/D$ de cruzeiro; menos área significa menos arrasto parasita e
+uma asa mais leve. $W_f$ cai $9{,}94\%$ e $W_e$ cai $0{,}95\%$; o empuxo
+requerido cai $11{,}1\%$. É o efeito bola de neve do projeto preliminar
+operando a favor: menos combustível $\Rightarrow$ menos peso
+$\Rightarrow$ menos empuxo e estrutura $\Rightarrow$ menos combustível.
+
+\begin{table}[H]
+\centering
+\caption{Grandezas dimensionais na partida e no ótimo da aeronave padrão.}
+\label{tab:p2grand}
+\small
+\input{tex_otimizacao_aeronave_padrao/tab_grandezas.tex}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.94\textwidth]{resultados_otimizacao_aeronave_padrao/opt_mapa.png}
+\caption{Mapa de $W_0$ na caixa de projeto, obtido por varredura
+$61\times 61$ do \emph{Design Tools}. A curva vermelha é
+$b_w = 30$~m ($AR_w S_w = 900$) e a região sombreada é inviável. A
+linha branca é a trajetória do SLSQP, do círculo azul (partida) à
+estrela vermelha (ótimo). O ótimo cai \emph{dentro} da região viável,
+sobre o fundo do vale de $W_0$.}
+\label{fig:p2mapa}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{resultados_otimizacao_aeronave_padrao/opt_historico.png}
+\caption{Histórico da otimização. À esquerda, a função objetivo
+normalizada; à direita, as variáveis de projeto e a envergadura,
+divididas pelo valor de partida. O eixo horizontal conta as chamadas
+de $f(x)$, incluindo as que o SciPy gasta montando as diferenças
+finitas.}
+\label{fig:p2hist}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.94\textwidth]{resultados_otimizacao_aeronave_padrao/opt_vistas.png}
+\caption{Vista em planta da asa de partida (azul) e da asa otimizada
+(vermelho), com a fuselagem do Fokker~100 em cinza como referência.
+A asa otimizada é visivelmente mais esbelta: cordas $17{,}7\%$ menores
+e $3{,}84$~m a mais de envergadura. As linhas pontilhadas marcam
+$b_w/2 = 15$~m.}
+\label{fig:p2vistas}
+\end{figure}
+
+\paragraph{Uma observação sobre o ponto de partida.}
+O $\Delta S_{wlan}$ da Tabela~\ref{tab:p2grand} é negativo nos dois
+pontos, isto é, nem a partida nem o ótimo cumprem o requisito de pouso.
+Isso não é um erro: o Fokker~100 original ($AR_w = 8{,}32$,
+$S_w = 93{,}5$~m$^2$) tem $\Delta S_{wlan} = +3{,}63$~m$^2$, e é o
+enunciado que manda partir de $S_w = 90$~m$^2$, área pequena demais para
+pousar em $1\,990$~m. Como o Problema~2 impõe \emph{apenas} o teto de
+envergadura, o otimizador não tem motivo para corrigir isso --- e de fato
+piora o $\Delta S_{wlan}$ ao encolher mais a asa. É exatamente o tipo de
+lacuna que o conjunto completo de restrições do Problema~3 fecha.
+
+% ---------------------------------------------------------------------
+\subsection{Melhoria relativa da função objetivo}
+\label{sec:p2q2}
+% ---------------------------------------------------------------------
+
+\begin{equation}
+\frac{W_{0,\mathrm{ini}} - W_{0,\mathrm{ot}}}{W_{0,\mathrm{ini}}}
+= \frac{42\,788{,}95 - 41\,624{,}09}{42\,788{,}95}
+= 2{,}72\% ,
+\label{eq:p2ganho}
+\end{equation}
+ou $1\,164{,}9$~kgf de MTOW. Em termos da função objetivo normalizada,
+$f^\star = 0{,}97278 = 1 - 0{,}02722$.
+
+O ganho é modesto porque só duas variáveis estão livres e a missão é a
+do Fokker~100. Para comparação, o Problema~3 obtém $3{,}42\%$ na NJ-0502
+com nove variáveis. Vale notar de onde vem: $W_f$ cai $9{,}94\%$, mas
+combustível é só $22\%$ do MTOW nessa aeronave, então a redução de
+$W_0$ fica bem abaixo dos dois dígitos.
+
+% ---------------------------------------------------------------------
+\subsection{Número de chamadas de função}
+\label{sec:p2q3}
+% ---------------------------------------------------------------------
+
+\begin{table}[H]
+\centering
+\caption{Contadores da corrida do SLSQP na aeronave padrão.}
+\label{tab:p2corrida}
+\small
+\input{tex_otimizacao_aeronave_padrao/tab_corrida.tex}
+\end{table}
+
+O SLSQP terminou com \emph{Optimization terminated successfully} em
+$1{,}16$~s. Os números precisam ser lidos com cuidado, porque
+``chamadas de função'' pode significar três coisas diferentes:
+
+\begin{itemize}
+\item \textbf{11 iterações} (\code{nit}): cada uma resolve um subproblema
+      de programação quadrática e dá um passo em $x$;
+\item \textbf{33 avaliações da função objetivo} (\code{nfev}): é o número
+      que responde à pergunta do roteiro. Como não fornecemos gradiente,
+      o SciPy monta $\nabla f$ por diferenças finitas progressivas, o que
+      custa $n = 2$ avaliações extras por gradiente. Com 11 gradientes
+      (\code{njev} $= 11$), a conta fecha:
+      $11\;(\text{pontos}) + 11\times 2\;(\text{diferenças finitas}) = 33$;
+\item \textbf{45 avaliações da restrição}, contadas à parte porque o
+      SLSQP pede $g$ e $\nabla g$ em pontos que nem sempre coincidem com
+      os de $f$.
+\end{itemize}
+
+Graças ao \emph{cache} interno do modelo --- objetivo e restrição
+compartilham a mesma análise quando caem no mesmo $x$ --- foram
+necessárias apenas \textbf{33 chamadas distintas ao \emph{Design
+Tools}}, e não $33 + 45 = 78$. Cada uma dessas chamadas executa
+internamente $1 + 4 = 5$ análises do \code{analyze} por causa do
+refinamento do ponto fixo de $W_0$.
+
+Comparado ao Problema~3 (114 avaliações de modelo para nove variáveis), o
+custo aqui é baixo justamente porque $n = 2$: o gradiente por diferenças
+finitas escala com o número de variáveis.
+
+% ---------------------------------------------------------------------
+\subsection{O ótimo é restringido? Restrições ativas}
+\label{sec:p2q4}
+% ---------------------------------------------------------------------
+
+\textbf{Não.} O ótimo é um ponto \emph{interior}: nenhuma restrição está
+ativa, e nenhum limite de caixa é atingido.
+
+\begin{itemize}
+\item A restrição de envergadura fica folgada:
+      $b_w = 29{,}825$~m contra o teto de $30$~m, ou seja
+      $g_{\mathrm{span}} = +5{,}83\times 10^{-3}$ --- três ordens de
+      grandeza acima da tolerância de atividade ($10^{-4}$);
+\item $AR_w = 10{,}47$ está no interior de $[7;\,12]$;
+\item $S_w = 85{,}0$~m$^2$ está no interior de $[80;\,120]$.
+\end{itemize}
+
+Como o ponto está a apenas $17$~cm da fronteira, a conclusão não pode
+depender de uma única corrida. O script
+\code{run\_2\_2\_verificacao.py} produz quatro evidências independentes,
+resumidas na Tabela~\ref{tab:p2ver}.
+
+\begin{table}[H]
+\centering
+\caption{Evidências de que o ótimo da aeronave padrão é interior.}
+\label{tab:p2ver}
+\small
+\input{tex_otimizacao_aeronave_padrao/tab_verificacao.tex}
+\end{table}
+
+\begin{enumerate}
+\item \textbf{Gradiente nulo.} No ótimo,
+      $\partial W_0/\partial AR_w = -1{,}2\times 10^{-3}$~kgf e
+      $\partial W_0/\partial S_w = -5{,}8\times 10^{-4}$~kgf/m$^2$:
+      zero, dentro da precisão do modelo. Num mínimo restringido o
+      gradiente do objetivo seria paralelo ao da restrição ativa, com
+      multiplicador de Lagrange $\lambda > 0$; aqui as condições de KKT
+      são satisfeitas com $\nabla f = 0$ e $\lambda = 0$, que é a
+      assinatura de um mínimo interior.
+
+\item \textbf{A restrição pode ser removida.} Repetindo a otimização
+      \emph{sem} a desigualdade de envergadura (só com as caixas),
+      o SLSQP devolve exatamente o mesmo ponto, com diferença nula em
+      $W_0$. Uma restrição que não muda nada ao ser removida está,
+      por definição, inativa.
+
+\item \textbf{A fronteira é pior.} Varrendo $101$ pontos ao longo de
+      $b_w = 30$~m ($AR_w S_w = 900$), o melhor deles pesa
+      $41\,624{,}59$~kgf --- $0{,}50$~kgf a \emph{mais} que o ótimo
+      interior. Empurrar o projeto até o teto de envergadura piora o
+      MTOW, ainda que muito pouco.
+
+\item \textbf{Multistart.} Oito partidas espalhadas pela caixa,
+      incluindo os quatro cantos, convergem todas para o mesmo ponto
+      (Tabela~\ref{tab:p2multi}). A dispersão de $W_0$ entre elas é de
+      $5{,}7\times 10^{-7}$~kgf.
+\end{enumerate}
+
+\begin{table}[H]
+\centering
+\caption{\emph{Multistart}: oito pontos de partida na caixa de projeto.}
+\label{tab:p2multi}
+\small
+\input{tex_otimizacao_aeronave_padrao/tab_multistart.tex}
+\end{table}
+
+\paragraph{Por que o ótimo é interior.}
+O mapa da Figura~\ref{fig:p2mapa} mostra um vale de $W_0$ que corre
+quase paralelo à fronteira de envergadura, e o fundo desse vale cai
+do lado viável. Existe um alongamento ótimo finito: subir $AR_w$ reduz o
+arrasto induzido, mas a fórmula de peso de asa penaliza asas muito
+esbeltas, e por volta de $AR_w \approx 10{,}5$ os dois efeitos se
+equilibram. O teto de $30$~m simplesmente não chega a morder esse
+ponto --- passa $17$~cm ao lado.
+
+Vale registrar quão \emph{raso} é esse mínimo. Entre o ótimo interior e
+o melhor ponto sobre a fronteira há $0{,}50$~kgf em $42$~t, isto é
+$1{,}2\times 10^{-5}$ do MTOW. É por isso que as oito corridas do
+\emph{multistart} concordam em $W_0$ até a sétima casa decimal mas
+diferem na terceira casa de $AR_w$: o vale é longo e quase plano, então
+a posição exata ao longo dele é mal condicionada, embora o valor do
+objetivo seja muito bem determinado. Na prática, qualquer projeto com
+$AR_w$ entre $10$ e $11$ e $S_w$ ajustado para manter $b_w \lesssim 30$~m
+entrega o mesmo MTOW.
+
+Por fim, um alerta de projeto: o ótimo é irrestrito \emph{neste} problema
+porque o problema só tem uma restrição. Com $29{,}83$~m a aeronave está
+na letra~C da OACI (envergadura de $24$ a $36$~m) e a apenas $17$~cm de
+um teto que existe por razões de pátio. Um projeto real trataria essa
+folga como nula e verificaria as demais restrições --- pouso,
+estabilidade, trem --- que o Problema~3 traz para dentro do laço.
