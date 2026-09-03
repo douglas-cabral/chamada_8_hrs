@@ -50,13 +50,9 @@ Figura~\ref{fig:p2mapa}.
 Os códigos desta seção estão em
 \code{designTool/lab02\_opt/otimizacao\_aeronave\_padrao/}:
 \begin{itemize}
-\item \code{opt\_padrao.py} --- modelo normalizado, restrição e
-      acoplamento com \code{analyze};
-\item \code{run\_2\_1\_otimizacao.py} --- corrida do SLSQP e tabelas;
-\item \code{run\_2\_2\_verificacao.py} --- \emph{multistart}, corrida sem a
-      restrição, varredura da fronteira e gradiente no ótimo;
-\item \code{run\_2\_3\_figuras.py} --- mapa de $W_0$, histórico e vistas;
-\item \code{gera\_tex.py} --- fragmentos LaTeX das tabelas.
+\item \code{opt\_padrao.py} --- modelo normalizado e acoplamento com
+      \code{analyze};
+\item \code{run\_2\_otimizacao.py} --- SLSQP, CSV e figuras.
 \end{itemize}
 
 \paragraph{Convergência do modelo.}
@@ -230,17 +226,8 @@ ativa, e nenhum limite de caixa é atingido.
 \end{itemize}
 
 Como o ponto está a apenas $17$~cm da fronteira, a conclusão não pode
-depender de uma única corrida. O script
-\code{run\_2\_2\_verificacao.py} produz quatro evidências independentes,
-resumidas na Tabela~\ref{tab:p2ver}.
-
-\begin{table}[H]
-\centering
-\caption{Evidências de que o ótimo da aeronave padrão é interior.}
-\label{tab:p2ver}
-\small
-\input{tex_otimizacao_aeronave_padrao/tab_verificacao.tex}
-\end{table}
+depender só da folga de $g_{\mathrm{span}}$. Quatro evidências
+independentes confirmam que o ótimo é interior.
 
 \begin{enumerate}
 \item \textbf{Gradiente nulo.} No ótimo,
@@ -265,18 +252,9 @@ resumidas na Tabela~\ref{tab:p2ver}.
       MTOW, ainda que muito pouco.
 
 \item \textbf{Multistart.} Oito partidas espalhadas pela caixa,
-      incluindo os quatro cantos, convergem todas para o mesmo ponto
-      (Tabela~\ref{tab:p2multi}). A dispersão de $W_0$ entre elas é de
-      $5{,}7\times 10^{-7}$~kgf.
+      incluindo os quatro cantos, convergem todas para o mesmo ponto.
+      A dispersão de $W_0$ entre elas é de $5{,}7\times 10^{-7}$~kgf.
 \end{enumerate}
-
-\begin{table}[H]
-\centering
-\caption{\emph{Multistart}: oito pontos de partida na caixa de projeto.}
-\label{tab:p2multi}
-\small
-\input{tex_otimizacao_aeronave_padrao/tab_multistart.tex}
-\end{table}
 
 \paragraph{Por que o ótimo é interior.}
 O mapa da Figura~\ref{fig:p2mapa} mostra um vale de $W_0$ que corre

@@ -1,14 +1,8 @@
 '''
-INSTITUTO TECNOLÓGICO DE AERONÁUTICA
-PRJ-23 - Homework 02 - Problema 3 - Grupo NJ-0502
-
-Gera os fragmentos LaTeX consumidos por otimizacao_NJ0502.tex a partir
-dos CSV produzidos pelos scripts de otimização.
-
-Uso:  python gera_tex.py     (após rodar run_3_1, run_3_2 e run_3_3)
+PRJ-23 Lab 02 - Problema 3. Tabelas LaTeX a partir dos CSV.
+Uso: python gera_tex.py
 '''
 
-# IMPORTS
 import os
 
 import numpy as np
@@ -40,26 +34,6 @@ def write(name, content):
 
 
 # =========================================
-
-
-def tab_diagnostico():
-    df = pd.read_csv(os.path.join(RESULTS_DIR, 'diag_baseline.csv'),
-                     index_col=0)
-    lines = [r'\begin{tabular}{llrrl}',
-             r'\toprule',
-             r'Restrição & Expressão & $g$ & Origem & Status \\',
-             r'\midrule']
-    for idx, row in df.iterrows():
-        status = str(row['status'])
-        if status == 'VIOLADA':
-            status = r'\textcolor{red}{\textbf{violada}}'
-        else:
-            status = r'satisfeita'
-        lines.append('%s & %s & %s & %s & %s \\\\' % (
-            esc(idx), row['descricao'], fmt(row['g'], 4),
-            row['origem'], status))
-    lines += [r'\bottomrule', r'\end{tabular}']
-    return '\n'.join(lines)
 
 
 def tab_variaveis():
@@ -157,34 +131,10 @@ def tab_grandezas():
     return '\n'.join(lines)
 
 
-def tab_variantes():
-    df = pd.read_csv(os.path.join(RESULTS_DIR, 'opt_variantes.csv'),
-                     index_col=0)
-    lines = [r'\begin{tabular}{lrrrrr}',
-             r'\toprule',
-             r'Variante & $W_0$ [kgf] & $\Delta W_0$ [\%] & '
-             r'$S_w$ [m$^2$] & $AR_w$ & $b_w$ [m] \\',
-             r'\midrule']
-    for idx, row in df.iterrows():
-        lines.append('%s & %s & %s & %s & %s & %s \\\\' % (
-            esc(idx),
-            fmt(row['W0_kgf'], 1),
-            fmt(row['ganho_pct'], 2),
-            fmt(row['S_w'], 2),
-            fmt(row['AR_w'], 3),
-            fmt(row['b_w'], 2)))
-    lines += [r'\bottomrule', r'\end{tabular}']
-    return '\n'.join(lines)
-
-
-# =========================================
-
 if __name__ == '__main__':
 
     os.makedirs(TEX_DIR, exist_ok=True)
 
-    write('tab_diagnostico.tex', tab_diagnostico())
     write('tab_variaveis.tex', tab_variaveis())
     write('tab_restricoes.tex', tab_restricoes())
     write('tab_grandezas.tex', tab_grandezas())
-    write('tab_variantes.tex', tab_variantes())

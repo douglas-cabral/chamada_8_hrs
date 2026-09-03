@@ -42,15 +42,9 @@ recomendada é normalizar entradas e restrições e ajustar a missão
 
 Os códigos desta seção estão em \code{designTool/lab02\_opt/otimizacao\_NJ0502/}:
 \begin{itemize}
-\item \code{opt\_common.py} --- modelo normalizado, restrições e
-      acoplamento com \code{analyze};
-\item \code{run\_3\_1\_diagnostico.py} --- viabilidade da partida e
-      suficiência do conjunto $\{x,g\}$;
-\item \code{run\_3\_2\_otimizacao.py} --- SLSQP no conjunto completo;
-\item \code{run\_3\_3\_variantes.py} --- remoção de restrições
-      ativas;
-\item \code{run\_3\_4\_figuras.py} --- histórico (variáveis, objetivo,
-      restrições) e vistas superpostas.
+\item \code{opt\_common.py} --- variáveis, restrições e acoplamento com
+      \code{analyze};
+\item \code{run\_3\_otimizacao.py} --- SLSQP, CSV e figuras.
 \end{itemize}
 
 As subseções seguintes respondem, na ordem, às nove questões do
@@ -128,8 +122,7 @@ para que o resíduo do ponto fixo interno ($\sim 10$~N) não contamine as
 diferenças finitas.
 
 \paragraph{Suficiência do conjunto.}
-O jacobiano normalizado no ponto de partida (script
-\code{run\_3\_1\_diagnostico.py}) mostra três fatos:
+O jacobiano normalizado no ponto de partida mostra três fatos:
 \begin{enumerate}
 \item $x_{r,w}$, $x_{mlg}$, $y_{mlg}$ e $z_{lg}$ têm coluna nula no
       objetivo. Não reduzem $W_0$ sozinhas; existem para viabilizar
@@ -293,14 +286,20 @@ de aula \code{02\_con\_opt\_class.py}. A escolha tem três motivos:
 \item o problema é de programação não linear com desigualdades e
       caixas, exatamente o que o SLSQP trata por programação
       quadrática sequencial;
-\item o roteiro pede gradientes do objetivo e das restrições, e o
-      SLSQP os consome a cada iteração (via \code{jac});
-\item não há gradiente analítico do \code{analyze}. As derivadas são
-      diferenças finitas centradas com passo $h=10^{-4}$ nas variáveis
-      \emph{normalizadas} --- um passo grande o bastante para ficar acima do
-      resíduo do ponto fixo interno, e pequeno o bastante para não
-      linearizar mal o modelo. O passo padrão do SciPy ($\sim 10^{-8}$)
-      cairia dentro desse ruído.
+\item o roteiro pede os gradientes de $f$ e de $g$. O SLSQP vive
+      disso: a cada iteração ele pergunta para que lado $W_0$ cai e
+      para que lado as restrições apertam, e dá um passo nessa direção.
+      Sem essas inclinações o algoritmo não tem o que seguir;
+\item o \code{analyze} não tem derivada no papel --- é um laço de
+      geometria, pesos e desempenho. O que o SLSQP recebe é um palpite
+      numérico: cada variável é empurrada um pouco para cima e um pouco
+      para baixo, e a inclinação sai da diferença (diferenças finitas
+      centradas). O empurrão é $h=10^{-4}$ nas variáveis já
+      normalizadas. O padrão do SciPy ($\sim 10^{-8}$) é pequeno demais:
+      o deslocamento some no resíduo de $\sim 10$~N do ponto fixo
+      interno de $W_0$, e o ``gradiente'' vira ruído. Um $h$ grande
+      demais sairia da vizinhança em que a inclinação ainda vale. Esse
+      valor fica no meio.
 \end{enumerate}
 
 Não foi usado algoritmo evolucionário (DE, GA). O ponto de partida já
@@ -423,21 +422,16 @@ $C_{ht}$ encosta no piso de controle:
 \begin{itemize}
 \item \textbf{Tanque} ($g_{\mathrm{tank}}\approx 0$): $W_{\max\mathrm{fuel}}=W_f$.
       Qualquer redução adicional de $S_w$ deixa a missão sem
-      combustível. A variante V3, que desliga essa restrição, empurra
-      $S_w$ ao piso de $320$~m$^2$ e anuncia $6{,}19\%$ de ganho --- ao
-      preço de $27\%$ de déficit de tanque.
+      combustível.
 \item \textbf{Bitola} ($g_{\mathrm{wheelspan}}\approx 0$): $b_{mlg}=13{,}9$~m,
       teto da letra~E. $y_{mlg}$ senta no limite superior da caixa. Sem
       esse teto o MLG ainda caberia inboard do motor ($y_n-D_n/2=9{,}03$~m),
       mas a aeronave sairia da letra~E pela bitola.
 \item \textbf{Trem sob a asa} ($g_{\mathrm{gear\_te}}\approx 0$):
-      $\xi_{mlg}=1$. Sem ela (variante~V5) $W_0$ cai $4{,}13\%$ ---
-      $0{,}54$~p.p.\ a mais --- a envergadura satura em $64{,}9$~m e
-      $y_{mlg}$ volta a $5{,}60$~m. Com $y_{mlg}$ livre, manter o MLG
-      sob a asa quase não custa $W_0$.
-\item \textbf{$C_{Lv}$} ($g_{\mathrm{CLv}}\approx 0$): $C_{Lv}=0{,}75$. Sem
-      ela (variante V1) $C_{vt}$ cai ao piso $0{,}05$ e $C_{Lv}$ vai a
-      $0{,}99$, com $1{,}03$~p.p.\ extras de ganho.
+      $\xi_{mlg}=1$. Com $y_{mlg}$ no teto da letra~E, manter o MLG sob a
+      asa quase não custa $W_0$.
+\item \textbf{$C_{Lv}$} ($g_{\mathrm{CLv}}\approx 0$): $C_{Lv}=0{,}75$.
+      A EV não pode encolher além desse teto de sustentação.
 \item \textbf{\emph{Tipback} e \emph{tailstrike}} saturam em $15^\circ$ e
       $10^\circ$.
 \item \textbf{$SM_{aft}\le 0{,}10$} satura. Quem cumpre a faixa é
@@ -451,21 +445,10 @@ $C_{ht}$ encosta no piso de controle:
       encolhe a EH $9{,}6\%$. Na partida essa restrição já estava
       violada ($39$~cm além de $L_f$).
 \item \textbf{Caixa de $C_{ht}$}: o ótimo senta em $C_{ht}=0{,}70$.
-      Relaxar o piso para $0{,}50$ (variante V4) rende $5{,}22\%$ de $W_0$
-      com EH ainda menor --- inaceitável para o S\&C.
+      O piso de controle impede a EH de encolher além do valor de PRJ-22.
 \end{itemize}
 
 A envergadura \emph{não} satura ($b_w=64{,}14$~m, $g_{\mathrm{span}}=0{,}012$).
-A variante V2, que desliga o teto de $64{,}9$~m, devolve o mesmo ponto.
-
-\begin{table}[H]
-\centering
-\caption{Estudo de remoção das restrições ativas. Cada variante
-parte da mesma configuração de PRJ-22.}
-\label{tab:var}
-\small
-\input{tex_otimizacao_NJ0502/tab_variantes.tex}
-\end{table}
 
 As demais desigualdades permanecem folgadas.
 $\Delta S_{wlan}=108$~m$^2$, $SM_{fwd}=0{,}252$,
@@ -475,19 +458,10 @@ altura --- e o grupo final continua V pela envergadura de $64{,}14$~m. A bitola
 sobe a $13{,}9$~m e satura o teto da letra~E; não há piso de $9$~m a
 cumprir. Os dois TE de raiz sentam em $L_f$.
 
-A partida, por outro lado, \emph{não} é viável:
-Tabela~\ref{tab:diag}. Há dois $g<0$: o \emph{tipback} ($13{,}50^\circ$)
-e o TE da EH ($39$~cm além de $L_f$). O otimizador precisa, antes de
-emagrecer a aeronave, recolocar o trem (ou a asa) e alongar $L_{c,h}$.
-
-\begin{table}[H]
-\centering
-\caption{Restrições normalizadas na configuração de partida
-(PRJ-22).}
-\label{tab:diag}
-\scriptsize
-\input{tex_otimizacao_NJ0502/tab_diagnostico.tex}
-\end{table}
+A partida, por outro lado, \emph{não} é viável: há dois $g<0$, o
+\emph{tipback} ($13{,}50^\circ$) e o TE da EH ($39$~cm além de $L_f$).
+O otimizador precisa, antes de emagrecer a aeronave, recolocar o trem
+(ou a asa) e alongar $L_{c,h}$.
 
 % ---------------------------------------------------------------------
 \subsection{Vistas em planta e lateral superpostas}

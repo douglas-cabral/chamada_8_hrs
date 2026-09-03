@@ -1,14 +1,8 @@
 '''
-INSTITUTO TECNOLÓGICO DE AERONÁUTICA
-PRJ-23 - Homework 02 - Problema 4 - Grupo NJ-0502
-
-Gera os fragmentos LaTeX consumidos por otimizacao_multiobjetivo.tex a
-partir dos CSV produzidos pelos scripts da seção.
-
-Uso:  python gera_tex.py   (depois de run_4_1 a run_4_4)
+PRJ-23 Lab 02 - Problema 4. Tabelas LaTeX a partir dos CSV.
+Uso: python gera_tex.py
 '''
 
-# IMPORTS
 import os
 import re
 import sys

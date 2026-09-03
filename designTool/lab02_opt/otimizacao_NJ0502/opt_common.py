@@ -1,27 +1,14 @@
 '''
-INSTITUTO TECNOLÓGICO DE AERONÁUTICA
-PRJ-23 - Homework 02 - Problema 3 (Team Aircraft Optimization) - Grupo NJ-0502
-
-Módulo comum aos scripts de otimização da aeronave NJ-0502.
-
-Concentra:
-  - a definição das variáveis de projeto e de seus limites;
-  - a definição das restrições na forma normalizada g(x) >= 0;
-  - o acoplamento com o designTool (função `analyze`);
-  - a classe `Model`, que entrega função objetivo, restrições e gradientes
-    já normalizados para o `scipy.optimize.minimize`.
+PRJ-23 Lab 02 - Problema 3. Modelo da NJ-0502: variáveis, restrições e SLSQP.
 '''
 
-# IMPORTS
 import copy
 import os
 import sys
 
 import numpy as np
 
-# O pacote designTool fica na raiz do repositório (dois ou mais níveis
-# acima desta pasta). Procuramos analyze.py para que os scripts rodem
-# de qualquer profundidade dentro de lab02_opt.
+
 def _find_project_root(start):
     here = os.path.abspath(start)
     while True:
@@ -42,49 +29,23 @@ from designTool.analyze import analyze
 from designTool.standard_airplane import standard_airplane
 from designTool.constants import gravity
 
-# =========================================
-# CONSTANTES
-
 deg2rad = np.pi/180.0
 rad2deg = 180.0/np.pi
 
 BASELINE_NAME = 'my_airplane'
-
-# O laço de convergência de W0 dentro do designTool para quando o resíduo
-# cai abaixo de 10 N, o que deixa um ruído relativo de ~3e-6 em W0. Esse
-# ruído contamina as diferenças finitas, então reaplicamos o ponto fixo
-# algumas vezes reinjetando o W0 convergido como novo palpite.
 N_REFINE = 4
-
-# Passo das diferenças finitas centradas, em variáveis normalizadas.
 H_FD = 1e-4
-
-# =========================================
-# VARIÁVEIS DE PROJETO
-#
-# Os limites são dados em unidades físicas; a normalização é feita pela
-# classe Model. A ordem desta lista define a ordem do vetor de projeto.
 
 DESIGN_VARS = [
     ('S_w',     r'$S_w$',        'm$^2$', 1.0,      320.0,      470.0),
     ('AR_w',    r'$AR_w$',       '-',     1.0,        7.5,       12.0),
     ('sweep_w', r'$\Lambda_w$',  'deg',   rad2deg,  25.0*deg2rad, 40.0*deg2rad),
     ('xr_w',    r'$x_{r,w}$',    'm',     1.0,       17.0,       23.0),
-    # Piso de controle: valor de PRJ-22. Margem estática é ajustada
-    # com xr_w (não com Cht), para não entregar EH pequena ao S&C.
     ('Cht',     r'$C_{ht}$',     '-',     1.0,        0.70,       1.10),
-    # Braço adimensional da EH: L_h = Lc_h * cm_w. S_h = Cht*S_w/Lc_h,
-    # então alongar o braço encolhe a EH. O teto da caixa é folgado: o
-    # que impede a EH de sair da fuselagem é x_TE,raiz,h <= L_f.
     ('Lc_h',    r'$L_{c,h}$',    '-',     1.0,        3.5,        6.0),
     ('Cvt',     r'$C_{vt}$',     '-',     1.0,        0.050,      0.120),
-    # Braço adimensional da EV: L_v = Lb_v * b_w. Sem piso de projeto:
-    # o ótimo anterior (0,507) não usou o 0,40. O 0,25 só evita
-    # geometria degenerada (S_v = Cvt*S_w/Lb_v dispara se Lb_v -> 0).
     ('Lb_v',    r'$L_{b,v}$',    '-',     1.0,        0.25,       0.55),
     ('x_mlg',   r'$x_{mlg}$',    'm',     1.0,       29.0,       36.0),
-    # Bitola: fora da fuselagem (D_f/2 = 2,98 m) e inboard do motor
-    # (y_n - D_n/2 = 9,03 m). O teto efetivo é o da letra E (13,9 m).
     ('y_mlg',   r'$y_{mlg}$',    'm',     1.0,        4.0,        6.95),
     ('z_lg',    r'$z_{lg}$',     'm',     1.0,       -7.0,       -4.5),
 ]
@@ -92,38 +53,12 @@ DESIGN_VARS = [
 DV_INDEX = {spec[0]: i for i, spec in enumerate(DESIGN_VARS)}
 DV_NAMES = [spec[0] for spec in DESIGN_VARS]
 
-# =========================================
-# RESTRIÇÕES
-#
-# Todas escritas na forma normalizada g(x) >= 0, de modo que g seja
-# adimensional e da ordem da unidade. Assim uma única tolerância do
-# otimizador atende a todas elas.
-
-# Limites SUPERIORES da categoria de aeródromo. A letra/grupo é definida
-# pela dimensão MAIS exigente (OACI Anexo 14 Sec. 1.3; FAA AC 150/5300-13A).
-# Não se impõe o piso da faixa (52 m, 9 m, 18,5 m): um 4E pode ter bitola
-# < 9 m ou altura de cauda < 18,5 m e continua 4E, porque a envergadura
-# é o elemento mais exigente.
-#
-# A letra E e o ADG V são "até, mas não incluindo, 65 m". O teto 64,9 m
-# deixa folga numérica para não escorregar para 4F / ADG VI.
-B_W_MAX = 64.9         # envergadura máxima para permanecer OACI E / FAA V [m]
-WHEEL_SPAN_MAX = 13.9  # teto da bitola para não subir a letra F [m]
-H_TAIL_MAX = 20.0      # teto da altura para não subir ao ADG VI [m]
-
-# Estação do trem principal na asa: xi = (x_mlg - x_LE)/c_local.
-# xi <= 1 garante que o trem ainda esteja sob a planta (recolhimento
-# no caixão / carenagem de bordo de fuga). xi >= 0,50 coloca a viga
-# na metade traseira, onde fica a longarina traseira.
+B_W_MAX = 64.9
+WHEEL_SPAN_MAX = 13.9
+H_TAIL_MAX = 20.0
 XI_MLG_MIN = 0.50
 XI_MLG_MAX = 1.00
-
-# Limite de sustentacao da empenagem vertical na condicao OEI.
 CLV_MAX = 0.75
-
-# Teto de margem estatica CG a frente. O roteiro pede 0,30; o teto 0,25
-# deixava a restricao ativa. Volta-se ao valor do enunciado para ver se
-# o otimo ainda senta nela.
 SM_FWD_MAX = 0.30
 
 CONSTRAINTS = [
@@ -178,14 +113,9 @@ CONSTRAINTS = [
     ('gear_spar',  r'$\xi_{mlg} \geq 0{,}50$ (longarina traseira)',
      r'$\xi_{mlg}/0{,}50 - 1$',
      lambda r: r['xi_mlg']/XI_MLG_MIN - 1.0, 'adicionada'),
-    # Bordo de fuga da raiz da EV não pode ultrapassar o cone de cauda.
-    # g = (L_f - x_TE,raiz,v)/L_f >= 0. Sem esta restrição, L_v ∝ b_w
-    # empurra a EV para trás da fuselagem quando a asa alonga.
     ('vt_te',      r'$x_{\mathrm{TE},v} \leq L_f$',
      r'$(L_f - x_{\mathrm{TE},v})/L_f$',
      lambda r: (r['L_f'] - r['x_te_v'])/r['L_f'], 'adicionada'),
-    # Idem para a EH. Na partida o TE da raiz já ultrapassa L_f (~39 cm);
-    # Lc_h livre permite alongar o braço (e encolher S_h) até sentar em L_f.
     ('ht_te',      r'$x_{\mathrm{TE},h} \leq L_f$',
      r'$(L_f - x_{\mathrm{TE},h})/L_f$',
      lambda r: (r['L_f'] - r['x_te_h'])/r['L_f'], 'adicionada'),
@@ -194,22 +124,11 @@ CONSTRAINTS = [
 CON_NAMES = [c[0] for c in CONSTRAINTS]
 CON_INDEX = {c[0]: i for i, c in enumerate(CONSTRAINTS)}
 
-# =========================================
-# ACOPLAMENTO COM O designTool
-
-
 def get_baseline():
-    '''
-    Devolve o dicionário de entradas da aeronave do grupo (NJ-0502).
-    '''
     return copy.deepcopy(standard_airplane(BASELINE_NAME)['inputs'])
 
 
 def run_designTool(inputs):
-    '''
-    Executa o designTool e refina o ponto fixo de W0 reinjetando o valor
-    convergido como novo palpite. Devolve o dicionário completo da aeronave.
-    '''
     airplane = {'inputs': copy.deepcopy(inputs)}
     analyze(airplane, print_log=False, plot=False)
 
@@ -221,10 +140,6 @@ def run_designTool(inputs):
 
 
 def extract(airplane):
-    '''
-    Reúne num único dicionário plano todas as grandezas usadas pela função
-    objetivo e pelas restrições.
-    '''
     inp = airplane['inputs']
     geo = airplane['geometry']
     bal = airplane['balance']
@@ -274,12 +189,6 @@ def extract(airplane):
 
 
 def constraint_vector(res, con_names=None):
-    '''
-    Avalia as restrições normalizadas a partir do dicionário de saídas.
-
-    `con_names` permite avaliar apenas um subconjunto, o que é usado nos
-    estudos de remoção de restrições.
-    '''
     if con_names is None:
         specs = CONSTRAINTS
     else:
@@ -289,22 +198,7 @@ def constraint_vector(res, con_names=None):
     return np.array([spec[3](res) for spec in specs])
 
 
-# =========================================
-# MODELO DE OTIMIZAÇÃO
-
-
 class Model(object):
-    '''
-    Empacota o designTool como um problema de otimização normalizado.
-
-    As variáveis de projeto ativas são passadas por nome. Todas as demais
-    entradas ficam congeladas no valor da aeronave de referência.
-
-    A normalização usa o módulo do valor de referência como escala, de forma
-    que o ponto de partida tenha componentes de módulo unitário e que o sinal
-    da variável seja preservado (importante para z_lg, que é negativo).
-    '''
-
     def __init__(self, dv_names, baseline_inputs=None, h_fd=H_FD,
                  con_names=None, bounds_phys=None):
 
@@ -312,10 +206,6 @@ class Model(object):
         self.base_inputs = (get_baseline() if baseline_inputs is None
                             else copy.deepcopy(baseline_inputs))
         self.h_fd = h_fd
-
-        # Restrições impostas ao otimizador. O histórico sempre guarda o
-        # conjunto completo, para que os estudos de remoção mostrem o que
-        # acontece com a restrição desligada.
         self.con_names = list(CON_NAMES if con_names is None else con_names)
 
         specs = {spec[0]: spec for spec in DESIGN_VARS}
@@ -325,8 +215,6 @@ class Model(object):
                                  for name in self.dv_names])
         self.scale = np.abs(self.x0_phys)
 
-        # Limites em unidades físicas, com possibilidade de sobrescrever
-        # os valores padrão para estudar o efeito das caixas de projeto.
         overrides = bounds_phys or {}
         self.limits = [overrides.get(spec[0], (spec[4], spec[5]))
                        for spec in self.specs]
@@ -335,12 +223,8 @@ class Model(object):
         self.bounds = [(lim[0]/s, lim[1]/s)
                        for lim, s in zip(self.limits, self.scale)]
 
-        # Contadores e histórico
-        # n_designTool conta avaliações de run_designTool, NÃO iterações
-        # do SLSQP. Com diferenças centradas, cada pedido de f custa
-        # 1 + 2n avaliações de modelo; os 2n do gradiente não entram em n_f.
-        self.n_designTool = 0   # chamadas ao modelo (inclui gradientes)
-        self.n_objfun = 0       # avaliações da função objetivo
+        self.n_designTool = 0
+        self.n_objfun = 0
         self.hist_x = []
         self.hist_f = []
         self.hist_g = []
@@ -348,18 +232,13 @@ class Model(object):
         self._cache = {}
         self._fd_cache = {}
 
-        # Referência da função objetivo: MTOW da configuração de partida.
         self.res0 = self.results(self.x0)
         self.W0_ref = self.res0['W0']
 
-    # -------------------------------------
-
     def to_physical(self, x):
-        '''Converte o vetor normalizado para unidades físicas.'''
         return np.asarray(x, dtype=float)*self.scale
 
     def build_inputs(self, x):
-        '''Monta o dicionário de entradas do designTool para um dado x.'''
         inputs = copy.deepcopy(self.base_inputs)
         for name, value in zip(self.dv_names, self.to_physical(x)):
             inputs[name] = value
@@ -369,21 +248,13 @@ class Model(object):
         return tuple(np.round(np.asarray(x, dtype=float), 12))
 
     def results(self, x):
-        '''
-        Devolve as saídas do designTool para o ponto x, com cache para que
-        objetivo, restrições e gradientes compartilhem a mesma análise.
-        '''
         key = self._key(x)
         if key not in self._cache:
             self._cache[key] = extract(run_designTool(self.build_inputs(x)))
             self.n_designTool += 1
         return self._cache[key]
 
-    # -------------------------------------
-    # Interface para o scipy
-
     def objfun(self, x):
-        '''Função objetivo normalizada: MTOW dividido pelo MTOW de partida.'''
         res = self.results(x)
         f = res['W0']/self.W0_ref
 
@@ -395,18 +266,9 @@ class Model(object):
         return f
 
     def confun(self, x):
-        '''Vetor de restrições normalizadas ativas, na forma g(x) >= 0.'''
         return constraint_vector(self.results(x), self.con_names)
 
     def _finite_differences(self, x):
-        '''
-        Diferenças finitas centradas do objetivo e das restrições.
-
-        O modelo do designTool tem um laço de ponto fixo interno, então não há
-        gradiente analítico disponível. O passo padrão do SLSQP (~1e-8) cairia
-        dentro do resíduo de convergência; por isso usamos um passo maior e
-        diferenças centradas.
-        '''
         key = self._key(x)
         if key in self._fd_cache:
             return self._fd_cache[key]
@@ -436,13 +298,7 @@ class Model(object):
     def conjac(self, x):
         return self._finite_differences(x)[1]
 
-    # -------------------------------------
-
     def summary(self, x):
-        '''
-        Devolve um dicionário com variáveis físicas, objetivo e restrições
-        para um dado ponto de projeto.
-        '''
         res = self.results(x)
         out = {'W0_kgf': res['W0']/gravity,
                'f': res['W0']/self.W0_ref}
@@ -454,13 +310,7 @@ class Model(object):
         return out
 
 
-# =========================================
-
-
 def physical_report(res):
-    '''
-    Formata as grandezas dimensionais de interesse para impressão no terminal.
-    '''
     return [
         ('W0 [kgf]',            res['W0']/gravity),
         ('W_empty [kgf]',       res['W_empty']/gravity),

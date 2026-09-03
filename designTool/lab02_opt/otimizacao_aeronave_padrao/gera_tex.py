@@ -1,14 +1,8 @@
 '''
-INSTITUTO TECNOLÓGICO DE AERONÁUTICA
-PRJ-23 - Homework 02 - Problema 2 - Grupo NJ-0502
-
-Gera os fragmentos LaTeX consumidos por otimizacao_aeronave_padrao.tex a
-partir dos CSV produzidos pelos scripts de otimização.
-
-Uso:  python gera_tex.py     (após rodar run_2_1 e run_2_2)
+PRJ-23 Lab 02 - Problema 2. Tabelas LaTeX a partir dos CSV.
+Uso: python gera_tex.py
 '''
 
-# IMPORTS
 import os
 
 import numpy as np
@@ -43,9 +37,6 @@ def write(name, content):
 
 
 def tab_resultados():
-    '''
-    Tabela 1 do roteiro: AR_w, S_w, MTOW e b_w na partida e no ótimo.
-    '''
     df = pd.read_csv(os.path.join(RESULTS_DIR, 'opt_tabela1.csv'),
                      index_col=0)
     lines = [r'\begin{tabular}{lrrrr}',
@@ -63,9 +54,6 @@ def tab_resultados():
 
 
 def tab_corrida():
-    '''
-    Contadores da corrida do SLSQP.
-    '''
     df = pd.read_csv(os.path.join(RESULTS_DIR, 'opt_corrida.csv'))
     r = df.iloc[0]
     itens = [
@@ -121,63 +109,6 @@ def tab_grandezas():
     return '\n'.join(lines)
 
 
-def tab_multistart():
-    df = pd.read_csv(os.path.join(RESULTS_DIR, 'ver_multistart.csv'))
-    lines = [r'\begin{tabular}{rrrrrr}', r'\toprule',
-             r'\multicolumn{2}{c}{Partida} & \multicolumn{4}{c}{Convergiu para} \\',
-             r'\cmidrule(lr){1-2}\cmidrule(lr){3-6}',
-             r'$AR_w$ & $S_w$ & $AR_w$ & $S_w$ [m$^2$] & '
-             r'$b_w$ [m] & $W_0$ [kgf] \\',
-             r'\midrule']
-    for _, row in df.iterrows():
-        lines.append('%s & %s & %s & %s & %s & %s \\\\' % (
-            fmt(row['AR_w_ini'], 2), fmt(row['S_w_ini'], 1),
-            fmt(row['AR_w'], 5), fmt(row['S_w'], 5),
-            fmt(row['b_w'], 5), fmt(row['W0_kgf'], 4)))
-    lines += [r'\bottomrule', r'\end{tabular}']
-    return '\n'.join(lines)
-
-
-def tab_verificacao():
-    '''
-    Resumo das quatro evidências de que o ótimo é interior.
-    '''
-    df_ms = pd.read_csv(os.path.join(RESULTS_DIR, 'ver_multistart.csv'))
-    df_sr = pd.read_csv(os.path.join(RESULTS_DIR, 'ver_sem_restricao.csv'))
-    df_gr = pd.read_csv(os.path.join(RESULTS_DIR, 'ver_gradiente.csv'))
-    g = df_gr.iloc[0]
-
-    com = df_sr[df_sr['caso'] == 'com restrição'].iloc[0]
-    sem = df_sr[df_sr['caso'] == 'sem restrição'].iloc[0]
-
-    itens = [
-        (r'Dispersão de $W_0$ entre 8 partidas [kgf]',
-         '%.1e' % (df_ms['W0_kgf'].max() - df_ms['W0_kgf'].min())),
-        (r'$W_0$ com a restrição de envergadura [kgf]',
-         fmt(com['W0_kgf'], 4)),
-        (r'$W_0$ sem a restrição de envergadura [kgf]',
-         fmt(sem['W0_kgf'], 4)),
-        (r'Diferença entre os dois [kgf]',
-         '%.1e' % abs(com['W0_kgf'] - sem['W0_kgf'])),
-        (r'Melhor $W_0$ \emph{sobre} a fronteira $b_w=30$ m [kgf]',
-         fmt(g['W0_melhor_fronteira_kgf'], 4)),
-        (r'Penalidade de ir para a fronteira [kgf]',
-         fmt(g['penalidade_fronteira_kgf'], 4)),
-        (r'$\partial W_0/\partial AR_w$ no ótimo [kgf]',
-         fmt(g['dW0_dAR_kgf'], 5)),
-        (r'$\partial W_0/\partial S_w$ no ótimo [kgf/m$^2$]',
-         fmt(g['dW0_dS_kgf_m2'], 5)),
-    ]
-    lines = [r'\begin{tabular}{lr}', r'\toprule',
-             r'Evidência & Valor \\', r'\midrule']
-    for label, valor in itens:
-        lines.append('%s & %s \\\\' % (label, valor))
-    lines += [r'\bottomrule', r'\end{tabular}']
-    return '\n'.join(lines)
-
-
-# =========================================
-
 if __name__ == '__main__':
 
     os.makedirs(TEX_DIR, exist_ok=True)
@@ -185,5 +116,3 @@ if __name__ == '__main__':
     write('tab_resultados.tex', tab_resultados())
     write('tab_corrida.tex', tab_corrida())
     write('tab_grandezas.tex', tab_grandezas())
-    write('tab_multistart.tex', tab_multistart())
-    write('tab_verificacao.tex', tab_verificacao())
