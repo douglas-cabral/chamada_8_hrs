@@ -1,0 +1,1 @@
+Coloque aqui figuras, CSV e demais saidas da secao analise_xfoil.

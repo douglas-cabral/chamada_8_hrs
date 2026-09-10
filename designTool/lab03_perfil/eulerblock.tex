@@ -1,0 +1,52 @@
+% =====================================================================
+% Homework 03 --- Analise e otimizacao com Euler solver
+% Incluido por main.tex. Tabelas em tex_eulerblock/ e figuras em
+% resultados_eulerblock/ (mesmo nivel que este arquivo e o main.tex).
+% Codigos em eulerblock/.
+% =====================================================================
+
+\section{Analise e Otimizacao com Euler Solver}
+\label{sec:euler}
+
+\subsection{Objetivo}
+
+Explique nesta secao o papel do solver de Euler no laboratorio:
+analise do perfil em escoamento inviscido, comparacao com o XFOIL,
+estudo de malha, ou otimizacao do perfil.
+
+\subsection{Modelo Numerico}
+
+Descreva aqui:
+\begin{itemize}
+\item tipo de solver e ordem numerica;
+\item malha adotada;
+\item condicoes de contorno;
+\item criterio de convergencia;
+\item variaveis de projeto e restricoes, se houver otimizacao.
+\end{itemize}
+
+\begin{equation}
+\min_{\mathbf{x}} \; f(\mathbf{x})
+\qquad
+\text{sujeito a} \qquad
+\mathbf{g}(\mathbf{x}) \ge 0.
+\end{equation}
+
+\subsection{Resultados}
+
+Inclua aqui os resultados principais desta etapa: historico de convergencia,
+campo de pressao, comparacao de perfis, frente de iteracoes, ou historico
+da otimizacao.
+
+\begin{figure}[H]
+\centering
+% \includegraphics[width=0.85\textwidth]{resultados_eulerblock/exemplo.png}
+\caption{Substitua esta legenda por uma descricao da principal figura da
+etapa com o solver de Euler.}
+\label{fig:euler-exemplo}
+\end{figure}
+
+\subsection{Discussao}
+
+Comente a convergencia, o custo computacional, a sensibilidade a malha e a
+comparacao entre os resultados do Euler solver e os obtidos no XFOIL.

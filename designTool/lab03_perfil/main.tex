@@ -1,0 +1,88 @@
+% =====================================================================
+% PRJ-23 - Aircraft Preliminary Design
+% Homework 03 - Perfil Aerodinamico
+% Grupo NJ-0502 - Instituto Tecnologico de Aeronautica
+% Compilar com: pdflatex main.tex (duas vezes)
+% =====================================================================
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{microtype}
+\usepackage[margin=2.4cm]{geometry}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage{fancyhdr}
+\usepackage{pdflscape}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue!60!black]{hyperref}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small PRJ-23 --- Projeto Preliminar de Aeronave}
+\fancyhead[R]{\small Lab 03 --- Perfil Aerodinâmico}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\newcommand{\code}[1]{\texttt{\small #1}}
+
+\begin{document}
+
+\begin{titlepage}
+  \centering
+  \vspace*{1cm}
+
+  {\Large \textbf{Instituto Tecnologico de Aeronautica}} \\[0.4cm]
+  {\large Departamento de Engenharia Aeronautica} \\[1.5cm]
+
+  \rule{\linewidth}{1pt} \\[0.4cm]
+  {\LARGE \textbf{PRJ-23 --- Laboratorio 03}} \\[0.3cm]
+  {\Large NJ-0502} \\[0.3cm]
+  \rule{\linewidth}{1pt} \\[2cm]
+
+  \begin{tabular}{rl}
+    \textbf{Integrantes:}  & Bruno Pimentel Santos \\
+                           & Douglas Rodrigues Cabral \\
+                           & Emanuel Garcia Alarcon \\
+                           & Gabriel Souza Bonanni \\
+                           & Joao Pedro Cruz Magalhaes \\
+                           & Yuri Miranda Peres \\[0.6cm]
+    \textbf{Professor:}    & Maj Eng Ney Rafael Secco \\[0.6cm]
+    \textbf{Data:}         & 13 de setembro de 2026 \\
+  \end{tabular}
+
+  \vfill
+  {\small São José dos Campos, 2026}
+\end{titlepage}
+
+\newpage
+
+\begin{abstract}
+\noindent
+Este documento e um modelo de relatorio para o Laboratorio 03 de PRJ-23.
+O texto foi estruturado no mesmo estilo adotado nos Labs 01 e 02, com uma
+introducao geral, seccoes separadas por etapa do trabalho, espacos para
+figuras, tabelas e discussoes, e uma conclusao final. O modelo esta
+organizado para receber os resultados das etapas de parametrizacao do
+perfil, analise com o XFOIL e analise/otimizacao com o Euler solver.
+\end{abstract}
+
+\vspace{0.3cm}
+\hrule
+\vspace{0.5cm}
+
+
+
+\input{airfoil_mod}
+\input{analise_xfoil}
+\input{eulerblock}
+
+
+
+\end{document}

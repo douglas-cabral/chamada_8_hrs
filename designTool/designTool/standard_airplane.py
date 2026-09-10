@@ -146,22 +146,29 @@ def standard_airplane(name):
 
     elif name == 'my_airplane':
 
-        # This is just a placeholder to register the student airplane.
+        # NJ-0502. Valores ativos = otimo do Lab 02 (SLSQP).
+        # Linhas comentadas = configuracao de partida (PRJ-22).
 
         inputs = {'type': 'transport', # Can be 'transport', 'fighter', or 'general'
                     
-                    'S_w' : 395.24, # Wing area [m2]
-                    'AR_w' : 9.26,  # Wing aspect ratio
+                    # 'S_w' : 395.24, # Wing area [m2] (PRJ-22)
+                    'S_w' : 386.47778034173234, # Wing area [m2] (Lab 02)
+                    # 'AR_w' : 9.26,  # Wing aspect ratio (PRJ-22)
+                    'AR_w' : 10.644470574284451,  # Wing aspect ratio (Lab 02)
                     'taper_w' : 0.2, # Wing taper ratio
-                    'sweep_w' : 33*np.pi/180, # Wing sweep [rad]
+                    # 'sweep_w' : 33*np.pi/180, # Wing sweep [rad] (PRJ-22)
+                    'sweep_w' : 35.38134616107342*np.pi/180, # Wing sweep [rad] (Lab 02)
                     'dihedral_w' : 4.5*np.pi/180, # Wing dihedral [rad]
-                    'xr_w' : 19.8, # Longitudinal position of the wing (with respect to the fuselage nose) [m]
+                    # 'xr_w' : 19.8, # Longitudinal position of the wing (with respect to the fuselage nose) [m] (PRJ-22)
+                    'xr_w' : 18.553808618756847, # Longitudinal position of the wing (with respect to the fuselage nose) [m] (Lab 02)
                     'zr_w' : -1.04, # Vertical position of the wing (with respect to the fuselage nose) [m]
                     'tcr_w' : 0.16, # t/c of the root section of the wing
                     'tct_w' : 0.08, # t/c of the tip section of the wing
                     
-                    'Cht' : 0.7, # Horizontal tail volume coefficient
-                    'Lc_h' : 4.5, # Non-dimensional lever of the horizontal tail (lever/wing_mac)
+                    # 'Cht' : 0.7, # Horizontal tail volume coefficient (PRJ-22)
+                    'Cht' : 0.7, # Horizontal tail volume coefficient (Lab 02)
+                    # 'Lc_h' : 4.5, # Non-dimensional lever of the horizontal tail (lever/wing_mac) (PRJ-22)
+                    'Lc_h' : 4.868589376933749, # Non-dimensional lever of the horizontal tail (lever/wing_mac) (Lab 02)
                     'AR_h' : 4.5, # HT aspect ratio
                     'taper_h' : 0.40, # HT taper ratio
                     'sweep_h' : 33.92*np.pi/180, # HT sweep [rad]
@@ -171,8 +178,10 @@ def standard_airplane(name):
                     'tct_h' : 0.09, # t/c of the tip section of the HT
                     'eta_h' : 0.9, # NSEI Dynamic pressure factor of the HT
                     
-                    'Cvt' : 0.075, # Vertical tail volume coefficient
-                    'Lb_v' : 0.53, # Non-dimensional lever of the vertical tail (lever/wing_span)
+                    # 'Cvt' : 0.075, # Vertical tail volume coefficient (PRJ-22)
+                    'Cvt' : 0.0652533576453312, # Vertical tail volume coefficient (Lab 02)
+                    # 'Lb_v' : 0.53, # Non-dimensional lever of the vertical tail (lever/wing_span) (PRJ-22)
+                    'Lb_v' : 0.5099260081582092, # Non-dimensional lever of the vertical tail (lever/wing_span) (Lab 02)
                     'AR_v' : 1.74, # VT aspect ratio
                     'taper_v' : 0.39, # VT taper ratio
                     'sweep_v' : 39.73*np.pi/180, # VT sweep [rad]
@@ -202,9 +211,12 @@ def standard_airplane(name):
                               },
                     
                     'x_nlg' : 4.6, # Longitudinal position of the nose landing gear [m]
-                    'x_mlg' : 32.2, # Longitudinal position of the main landing gear [m]
-                    'y_mlg' : 5.6, # Lateral position of the main landing gear [m]
-                    'z_lg' : -5.7, # Vertical position of the landing gear [m]
+                    # 'x_mlg' : 32.2, # Longitudinal position of the main landing gear [m] (PRJ-22)
+                    'x_mlg' : 32.22633466487209, # Longitudinal position of the main landing gear [m] (Lab 02)
+                    # 'y_mlg' : 5.6, # Lateral position of the main landing gear [m] (PRJ-22)
+                    'y_mlg' : 6.95, # Lateral position of the main landing gear [m] (Lab 02)
+                    # 'z_lg' : -5.7, # Vertical position of the landing gear [m] (PRJ-22)
+                    'z_lg' : -5.6731592928945105, # Vertical position of the landing gear [m] (Lab 02)
                     'x_tailstrike' : 47.5, # NSEI Longitudinal position of critical tailstrike point [m]
                     'z_tailstrike' : -2.98, # NSEI Vertical position of critical tailstrike point [m]
                     
@@ -268,7 +280,8 @@ def standard_airplane(name):
                     
                     'rho_fuel' : 804, # Fuel density kg/m3 (This is Jet A-1)
 
-                    'W0_guess' : 3000000 # Guess for MTOW
+                    # 'W0_guess' : 3000000 # Guess for MTOW (PRJ-22)
+                    'W0_guess' : 276276.3394172155*gravity # Guess for MTOW (Lab 02)
                     }
 
     airplane = {'inputs':inputs}

@@ -1,0 +1,174 @@
+% =====================================================================
+% Homework 03 --- Parametrizacao e geracao de perfis
+% Incluido por main.tex. Tabelas em tex_airfoil_mod/ e figuras em
+% resultados_airfoil_mod/ (mesmo nivel que este arquivo e o main.tex).
+% Codigos em airfoil_mod/.
+% =====================================================================
+
+\section{Ponto de projeto da seção de referência}
+\label{sec:ponto-projeto}
+
+O primeiro passo do laboratório é fixar o ponto de projeto em que o
+aerofólio será otimizado. A aeronave de referência é a NJ-0502 com os
+inputs já atualizados para o ótimo do Lab~02. Adotou-se o
+\textbf{meio do cruzeiro}: altitude e Mach de cruzeiro da missão de
+projeto, e o peso médio aritmético entre o início e o fim dessa etapa da missão.
+
+\subsection{Altitude, Mach e área de referência}
+
+Na missão de projeto da NJ-0502,
+\begin{equation}
+h = 35\,000~\mathrm{ft},
+\qquad
+M_{\infty} = 0{,}85,
+\qquad
+S_{\mathrm{ref}} = S_w = 386{,}48~\mathrm{m}^2.
+\end{equation}
+A área de referência é a área alar otimizada no Lab~02.
+
+\subsection{Atmosfera no ponto de projeto}
+
+Com a atmosfera padrão ISA em $h = 35\,000$~ft ($10\,668$~m),
+\begin{equation}
+\rho_{\infty} = 0{,}3805~\mathrm{kg/m}^3,
+\qquad
+a_{\infty} = 296{,}59~\mathrm{m/s},
+\qquad
+\mu_{\infty} = 1{,}445\times 10^{-5}~\mathrm{Pa\,s}.
+\end{equation}
+A velocidade de voo correspondente é
+\begin{equation}
+V_{\infty} = M_{\infty}\,a_{\infty}
+= 0{,}85\times 296{,}59
+= 252{,}10~\mathrm{m/s}.
+\end{equation}
+
+\subsection{Peso no meio do cruzeiro}
+
+O \emph{Design Tools} decompõe a missão em frações de massa. Para a
+categoria \emph{transport},
+\begin{equation}
+\begin{aligned}
+M_{f,\mathrm{start}} &= 0{,}990,&
+M_{f,\mathrm{taxi}} &= 0{,}990,&
+M_{f,\mathrm{TO}} &= 0{,}995,&
+M_{f,\mathrm{climb}} &= 0{,}980.
+\end{aligned}
+\end{equation}
+Com o MTOW convergido $W_0 = 276\,276$~kgf, o peso no \emph{início} do
+cruzeiro é
+\begin{equation}
+W_{\mathrm{ini}}
+= W_0\,M_{f,\mathrm{start}}\,M_{f,\mathrm{taxi}}\,M_{f,\mathrm{TO}}\,M_{f,\mathrm{climb}}
+= 264\,036~\mathrm{kgf}.
+\end{equation}
+A fração de cruzeiro vem da equação de Breguet implementada em
+\code{fuel\_weight},
+\begin{equation}
+M_{f,\mathrm{cruise}} = 0{,}6992,
+\end{equation}
+de modo que o peso no \emph{fim} do cruzeiro fica
+\begin{equation}
+W_{\mathrm{fim}} = W_{\mathrm{ini}}\,M_{f,\mathrm{cruise}}
+= 184\,607~\mathrm{kgf}.
+\end{equation}
+O ponto de projeto adotado é a média aritmética entre esses extremos:
+\begin{equation}
+W
+= \frac{W_{\mathrm{ini}} + W_{\mathrm{fim}}}{2}
+= 224\,321~\mathrm{kgf}.
+\end{equation}
+
+\subsection{Coeficiente de sustentação da aeronave}
+
+Em voo nivelado,
+\begin{equation}
+C_L
+= \frac{2W}{\rho_{\infty}\,S_{\mathrm{ref}}\,V_{\infty}^{2}}
+= 0{,}4710.
+\end{equation}
+Seguindo o enunciado, a seção de referência herda esse valor:
+\begin{equation}
+c_{l\mathrm{ref}} = C_L = 0{,}4710.
+\end{equation}
+
+\subsection{Corda e espessura da seção de referência}
+
+A corda de referência é a corda média aerodinâmica (MAC) da asa
+otimizada,
+\begin{equation}
+c_{\mathrm{ref}} = c_{m,w}
+= \frac{2}{3}\,c_{r,w}\,\frac{1+\lambda_w+\lambda_w^{2}}{1+\lambda_w}
+= 6{,}918~\mathrm{m},
+\end{equation}
+com $\lambda_w = 0{,}20$. A espessura relativa mínima para a otimização
+é a média entre raiz e ponta da asa da NJ-0502,
+\begin{equation}
+\left(\frac{t}{c}\right)_{\mathrm{ref}}
+= \frac{(t/c)_{r} + (t/c)_{t}}{2}
+= \frac{0{,}16 + 0{,}08}{2}
+= 0{,}12.
+\end{equation}
+
+\subsection{Reynolds da seção de referência}
+
+\begin{equation}
+Re_{\mathrm{ref}}
+= \frac{\rho_{\infty}\,V_{\infty}\,c_{\mathrm{ref}}}{\mu_{\infty}}
+= 4{,}592\times 10^{7}.
+\end{equation}
+
+\subsection{Tabela-resumo}
+
+Os dados da seção de referência estão reunidos na Tabela~\ref{tab:ponto}.
+
+\begin{table}[H]
+\centering
+\caption{Dados para a seção de referência.}
+\label{tab:ponto}
+\small
+\input{tex_airfoil_mod/tab_ponto_projeto.tex}
+\end{table}
+
+% ---------------------------------------------------------------------
+\section{Parametrização e Geração de Perfis}
+\label{sec:airfoil-mod}
+% ---------------------------------------------------------------------
+
+\subsection{Objetivo}
+
+Explique aqui qual parametrização foi usada no laboratório
+(por exemplo, NACA, CST ou outra), quais variáveis geométricas foram
+adotadas e qual era o objetivo desta etapa.
+
+\subsection{Organização dos códigos}
+
+Os códigos desta seção estão em
+\code{designTool/lab03\_perfil/airfoil\_mod/}:
+\begin{itemize}
+\item \code{run\_1\_ponto\_projeto.py} --- ponto de projeto e Tabela~\ref{tab:ponto};
+\item demais rotinas de geração/ajuste de perfil.
+\end{itemize}
+
+\subsection{Metodologia}
+
+Registre a definição do perfil, os parâmetros geométricos escolhidos,
+o procedimento de geração das coordenadas e, se houver, o método de ajuste
+do perfil de referência.
+
+\subsection{Resultados}
+
+Insira aqui as figuras e tabelas desta etapa.
+
+\begin{figure}[H]
+\centering
+% \includegraphics[width=0.85\textwidth]{resultados_airfoil_mod/exemplo.png}
+\caption{Substitua esta legenda por uma descrição da figura da etapa de
+parametrização.}
+\label{fig:airfoil-mod-exemplo}
+\end{figure}
+
+\subsection{Discussão}
+
+Discuta a qualidade do ajuste, a interpretação dos parâmetros e eventuais
+vantagens ou limitações da parametrização usada.
