@@ -11,10 +11,12 @@ Sept 2022
 '''
 
 # Modify path to include the Euler solver
+import os
 import sys
-with open('../eulerblock_path.txt') as f:
-    exec(f.read())
-sys.path.append(eulerblock_path)
+_HERE = os.path.dirname(os.path.abspath(__file__))
+# Path absoluto: o txt original (../eulerblock_path.txt) depende do cwd.
+eulerblock_path = os.path.abspath(os.path.join(_HERE, '..', '..'))
+sys.path.insert(0, eulerblock_path)
 from eulerblock import euler_mod as eb
 import airfoil_mod as am
 
@@ -22,8 +24,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Flow conditions
-alpha = 1.405*np.pi/180.0 # Angle of attack [rad]
-mach = 0.75 # mach number
+alpha = 0.3134*np.pi/180.0 # Angle of attack [rad] (NACA1411, M=0.85, cl~0.471)
+mach = 0.85 # mach number
 gamma = 1.4 # ratio of specific heats of the fluid
 
 # Solver parameters

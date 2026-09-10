@@ -10,9 +10,71 @@
 
 \subsection{Objetivo}
 
-Explique nesta secao o papel do solver de Euler no laboratorio:
-analise do perfil em escoamento inviscido, comparacao com o XFOIL,
-estudo de malha, ou otimizacao do perfil.
+Nesta etapa, o perfil de partida (NACA~1411) é analisado com o solver
+inviscido \emph{EulerBlock}, nas condições do ponto de projeto definidas
+na Seção~\ref{sec:ponto-projeto}. O primeiro passo é determinar o ângulo
+de ataque $\alpha$ que faz a seção atingir o $c_{\ell\mathrm{ref}}$ de
+projeto.
+
+\subsection{\^Angulo de ataque para o $c_\ell$ de projeto}
+
+O enunciado pede o uso dos scripts em \code{02\_single\_run}. As
+condições de escoamento no \code{single\_run.py} foram fixadas em
+\begin{equation}
+M_{\infty} = 0{,}85,
+\qquad
+c_{\ell\mathrm{ref}} = 0{,}4710,
+\end{equation}
+com a parametrização CST do NACA~1411 já ativa no script. A malha e os
+parâmetros do solver foram mantidos nos valores de referência do
+exemplo (segunda ordem, $N_{\mathrm{chord}}=31$,
+$N_J=49$, $\mathrm{CFL}=0{,}2$,
+$\mathrm{res}_{\mathrm{tol}}=10^{-6}$).
+
+A relação $c_\ell(\alpha)$ é aproximadamente linear na faixa de
+interesse. Rodaram-se três análises em $\alpha=\{1{,}0;\ 1{,}4;\ 1{,}8\}^\circ$,
+extrapolou-se linearmente até $c_{\ell\mathrm{ref}}$ e refinou-se com
+um passo de secante. O ângulo adotado e gravado em \code{alpha} no
+\code{single\_run.py} é
+\begin{equation}
+\alpha = 0{,}3134^\circ.
+\end{equation}
+A Tabela~\ref{tab:alpha-naca1411} resume as corridas de calibração.
+
+\begin{table}[H]
+\centering
+\caption{Análises Euler do NACA~1411 em $M_{\infty}=0{,}85$ usadas
+para calibrar $\alpha$ ao $c_{\ell\mathrm{ref}}$.}
+\label{tab:alpha-naca1411}
+\input{tex_eulerblock/tab_alpha_naca1411.tex}
+\end{table}
+
+\subsection{Resultados no ponto calibrado}
+
+Com $\alpha = 0{,}3134^\circ$ e $M_{\infty}=0{,}85$, a execução final do
+\code{single\_run.py} forneceu
+\begin{equation}
+c_\ell = 0{,}4730,
+\qquad
+c_d = 0{,}05969,
+\qquad
+c_m = -0{,}2203,
+\end{equation}
+com erro $|c_\ell - c_{\ell\mathrm{ref}}|\approx 0{,}002$. Os valores
+completos estão na Tabela~\ref{tab:resultado-alpha}.
+
+\begin{table}[H]
+\centering
+\caption{Resultado Euler do NACA~1411 no ângulo de ataque de projeto.}
+\label{tab:resultado-alpha}
+\small
+\input{tex_eulerblock/tab_resultado_alpha.tex}
+\end{table}
+
+O arrasto de onda é elevado ($c_d\approx 0{,}06$), o que é esperado para
+um NACA~1411 a $M=0{,}85$: o escoamento já apresenta choque pronunciado
+sobre o extradorso. Esse será o ponto de partida da otimização do
+perfil nas etapas seguintes.
 
 \subsection{Modelo Numerico}
 
@@ -31,20 +93,6 @@ Descreva aqui:
 \text{sujeito a} \qquad
 \mathbf{g}(\mathbf{x}) \ge 0.
 \end{equation}
-
-\subsection{Resultados}
-
-Inclua aqui os resultados principais desta etapa: historico de convergencia,
-campo de pressao, comparacao de perfis, frente de iteracoes, ou historico
-da otimizacao.
-
-\begin{figure}[H]
-\centering
-% \includegraphics[width=0.85\textwidth]{resultados_eulerblock/exemplo.png}
-\caption{Substitua esta legenda por uma descricao da principal figura da
-etapa com o solver de Euler.}
-\label{fig:euler-exemplo}
-\end{figure}
 
 \subsection{Discussao}
 
