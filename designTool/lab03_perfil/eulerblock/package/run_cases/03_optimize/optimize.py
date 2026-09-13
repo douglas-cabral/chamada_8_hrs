@@ -35,11 +35,11 @@ import time
 # INPUTS
 
 # Flow conditions
-mach = 0.75
-CLref = 0.5
+mach = 0.85
+CLref = 0.470976947932197
 
 # Minimum thickness allowed
-tref = 0.11
+tref = 0.12
 tlower = 0.01
 
 # Euler solver parameters
@@ -53,7 +53,7 @@ res_tol = 1e-8 # Tolerance on residual MSE to stop iterations. I do not recommen
 
 # Guess for initial angle of attack (this will be changed during the optimization)
 #alpha = 2.06*np.pi/180.0 # CL=0.5 for first order
-alpha = 1.405*np.pi/180.0 # CL=0.5 for second order
+alpha = 0.3134*np.pi/180.0 # CL=0.5 for second order
 
 # Airfoil discretization
 Nchord = 31
@@ -67,7 +67,7 @@ Au = [ 0.16146332,  0.18349204,  0.14126241,  0.18194397]
 Al_lower = [-1.00, -1.00, -1.00, -1.00]
 Al_upper = [-0.05, -0.05, -0.05, -0.05]
 
-Au_lower = [ 0.05,  0.05,  0.05,  0.05]
+Au_lower = [ 0.125, 0.05,  0.05,  0.05]
 Au_upper = [ 1.00,  1.00,  1.00,  1.00]
 
 # Number of airfoil CST parameters (design variables of the problem)

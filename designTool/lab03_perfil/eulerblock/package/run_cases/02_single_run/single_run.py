@@ -24,7 +24,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Flow conditions
-alpha = 0.3134*np.pi/180.0 # Angle of attack [rad] (NACA1411, M=0.85, cl~0.471)
+alpha = 1.7902*np.pi/180.0 # Angle of attack [rad] (optimized airfoil, M=0.85, cl~0.471)
 mach = 0.85 # mach number
 gamma = 1.4 # ratio of specific heats of the fluid
 
@@ -55,9 +55,13 @@ s0 = NJ0/(NJ-1)*s00
 #Al = [-0.1294, -0.0036, -0.0666]
 #Au = [0.206, 0.2728, 0.2292]
 
+# Airfoil CST values - optimized airfoil (03_optimize, Au1 >= 0.125)
+Al = [-0.23215118, -0.0790831, -0.2943548, -0.05]
+Au = [ 0.125, 0.06519282, 0.25440633, 0.14671565]
+
 # Airfoil CST values - NACA1411
-Al = [-0.1489439, -0.10330027, -0.10305128, -0.10514982]
-Au = [ 0.16146332,  0.18349204,  0.14126241,  0.18194397]
+#Al = [-0.1489439, -0.10330027, -0.10305128, -0.10514982]
+#Au = [ 0.16146332,  0.18349204,  0.14126241,  0.18194397]
 
 # Airfoil CST values - NACA0012
 #Al = [-0.16941, -0.15145, -0.13904, -0.13988]
