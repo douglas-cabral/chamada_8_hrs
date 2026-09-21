@@ -1,0 +1,169 @@
+NJ-0502 - asa com quebra (y_b=14.640 m)
+#  Unidades: METROS / graus. Otimo re-obtido (SLSQP) com nacele livre + water spray,
+#  margem estatica verificada no AVL e quebra tipo Yehudi no bordo de fuga interno.
+#  BF interno VERTICAL em x=34.744 m, quebra em y=14.640 m (45.5% b/2); trem principal a 70% da corda local.
+#  S=386.620 m2, b=64.375 m, corda de ponta=2.0019 m (quebra preserva S, BA, c_t e b da asa otimizada).
+#  Flap c_f/c=0.32 do lado da fuselagem ate y=21.24 m (66% b/2); nacele x_n=19.599 y_n=9.920 z_n=-2.985.
+#  Xref = CG traseiro corrigido pela quebra. Perfil a1.dat e washout linear de -3 deg (hipoteses).
+#Mach
+ 0.85
+
+#IYsym IZsym Zsym
+ 0 0 0.0
+
+#Sref Cref Bref
+ 386.6199 8.6277 64.3746
+
+#Xref Yref Zref
+ 30.2360 0.0 -1.0400
+
+# CDp
+ 0.0
+
+SURFACE
+Wing
+12 1.0 60 -1.5
+COMPONENT
+1
+YDUPLICATE
+0.0
+
+SECTION
+19.5378 0.0000 -1.0400 15.2060 -0.000
+AFILE
+a1.dat
+CONTROL
+flap 1.0 0.680 0. 0. 0. +1
+
+SECTION
+21.8180 2.9800 -0.8055 12.9258 -0.278
+AFILE
+a1.dat
+CONTROL
+slat -1.0 -0.140 0. 0. 0. +1
+CONTROL
+flap 1.0 0.680 0. 0. 0. +1
+
+SECTION
+30.7399 14.6401 0.1122 4.0039 -1.365
+AFILE
+a1.dat
+CONTROL
+slat -1.0 -0.140 0. 0. 0. +1
+CONTROL
+flap 1.0 0.680 0. 0. 0. +1
+
+SECTION
+35.7927 21.2436 0.6319 3.2505 -1.980
+AFILE
+a1.dat
+CONTROL
+slat -1.0 -0.140 0. 0. 0. +1
+CONTROL
+flap 1.0 0.680 0. 0. 0. +1
+
+SECTION
+36.2853 21.8874 0.6826 3.1770 -2.040
+AFILE
+a1.dat
+CONTROL
+slat -1.0 -0.140 0. 0. 0. +1
+CONTROL
+aileron -1.0 0.700 0. 0. 0. -1
+
+SECTION
+41.7036 28.9686 1.2399 2.3691 -2.700
+AFILE
+a1.dat
+CONTROL
+slat -1.0 -0.140 0. 0. 0. +1
+CONTROL
+aileron -1.0 0.700 0. 0. 0. -1
+
+SECTION
+44.1665 32.1873 1.4932 2.0019 -3.000
+AFILE
+a1.dat
+CONTROL
+aileron -1.0 0.700 0. 0. 0. -1
+
+SURFACE
+Stab
+8 1.0 16 -1.5
+COMPONENT
+2
+YDUPLICATE
+0.0
+
+SECTION
+60.0061 0.0000 2.2200 5.0839 0.0
+CONTROL
+elevator 1.0 0.650 0. 0. 0. +1
+
+SECTION
+66.1533 8.0071 3.1408 2.0336 0.0
+CONTROL
+elevator 1.0 0.650 0. 0. 0. +1
+
+SURFACE
+Fin
+8 1.0 12 1.0
+COMPONENT
+3
+
+SECTION
+57.6906 0.0 3.5700 7.3994 0.0
+CONTROL
+rudder 1.0 0.680 0. 0. 0. +1
+
+SECTION
+66.2558 0.0 12.5181 2.8858 0.0
+CONTROL
+rudder 1.0 0.680 0. 0. 0. +1
+
+BODY
+Fuselage
+30 1.0
+SCALE
+65.090 5.960 5.960
+BFILE
+fuseB737_nondim.dat
+
+SURFACE
+Nacelle
+6 1.0 12 0.0
+COMPONENT
+4
+YDUPLICATE
+0.0
+SCALE
+6.060 1.970 1.970
+TRANSLATE
+19.599 9.920 -2.985
+
+SECTION
+ 0.0 0.0000 1.0000 1.0 0. 1 0.
+SECTION
+ 0.0 0.5000 0.8660 1.0 0. 1 0.
+SECTION
+ 0.0 0.8660 0.5000 1.0 0. 1 0.
+SECTION
+ 0.0 1.0000 0.0000 1.0 0. 1 0.
+SECTION
+ 0.0 0.8660 -0.5000 1.0 0. 1 0.
+SECTION
+ 0.0 0.5000 -0.8660 1.0 0. 1 0.
+SECTION
+ 0.0 0.0000 -1.0000 1.0 0. 1 0.
+SECTION
+ 0.0 -0.5000 -0.8660 1.0 0. 1 0.
+SECTION
+ 0.0 -0.8660 -0.5000 1.0 0. 1 0.
+SECTION
+ 0.0 -1.0000 -0.0000 1.0 0. 1 0.
+SECTION
+ 0.0 -0.8660 0.5000 1.0 0. 1 0.
+SECTION
+ 0.0 -0.5000 0.8660 1.0 0. 1 0.
+SECTION
+ 0.0 -0.0000 1.0000 1.0 0. 1 0.
