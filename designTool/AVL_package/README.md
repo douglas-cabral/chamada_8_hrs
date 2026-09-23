@@ -121,21 +121,20 @@ Continuação com correção pelo AVL, sem crédito de combustível, `crank_cb` 
 - No AVL: perfil `a1.dat` em todas as seções, washout linear de −3°, fuselagem com a forma do 737 escalada e nacele como anel sustentador. O Xnp é independente de `Xref`.
 - O CG corrigido pela quebra usa a regra do designTool para o CG da asa (x_MAC + 0,4·MAC).
 
-### Como reproduzir
+### Como reproduzir (estudo manual da quebra)
 
 Requer Python com `numpy`, `scipy`, `matplotlib` e `pandas`, e **Windows** (por causa do `avl337.exe`). Rode dentro de `estudo_quebra_asa/scripts/`:
 
 ```
-python 01_otimiza_com_avl.py --cb2   # otimização + continuação em xi (demorado) -> resultados/avl_opt_rows_cons_cb2.json
-python 02_relatorio_final.py         # relatório do ponto xi = 0,70 e do flap  -> resultados/final_design.json
-python 03_gera_avl_final.py          # gera nj0502_otim_quebra.avl e nj0502_otim_quebra_inputs.py
-python 04_figura_planta.py           # gera nj0502_otim_quebra_planta.png
+python quebra_asa.py   # edite YB_FRAC / TE_FRAC no topo do script
+                       # -> resultados/caso_manual_quebra.json
+                       # -> resultados/planta_caso_manual.png  (atual vs manual)
 ```
 
-Sem `--cb2`, a continuação usa c_quebra ≥ c_ponta e gera `avl_opt_rows_cons.json`. Esse caso chega a ξ = 0,65, mas com o painel externo retangular (c_quebra = c_ponta), uma asa pouco realista.
+Referência do DT: `resultados/final_design_dt.json`. Modelos AVL vigentes (quebra escolhida, yb=40% te=0,10): `fwd.avl` / `aft.avl`. A planta `planta_caso_manual.png` ainda compara essa escolha com a quebra anterior (JSON mantido).
 
 | Script | Função |
 |---|---|
-| `opt_nac.py` | Estende `opt_common` (Lab 02): variáveis `x_n`/`y_n`, restrições de nacele/spray/quebra, `crank()` |
-| `opt_avl.py` | Correções da quebra dentro do SLSQP e laço externo de calibração do NP pelo AVL |
+| `quebra_asa.py` | Ajuste manual de `y_b` e `te_frac` (S/BA/c_t fixos); compara planta atual × manual |
+| `opt_nac.py` | Estende `opt_common` (Lab 02): variáveis `x_n`/`y_n` e restrições de nacele/spray (DT trapezoidal; quebra só em `quebra_asa.py`) |
 | `avl_check.py` | Planforma com quebra, escrita do `.avl` completo e leitura do Xnp |

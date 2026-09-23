@@ -15,24 +15,34 @@ RESDIR = os.path.abspath(os.path.join(HERE, '..', 'resultados'))
 sys.path.insert(0, DESIGNTOOL_DIR)
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import opt_nac as on  # noqa: F401  (registra o path do Lab 02 e as restricoes novas)
+import opt_nac as on  # noqa: F401  (path Lab 02 + nacele livre)
 import opt_common as oc
 from designTool.geometry import change_sweep
 
 TWIST_TIP = -3.0
 
 
-def planform(ap, Y_B):
+def planform(ap, Y_B, CR=None, te_frac=None):
+    """Planta com quebra. te_frac=0 -> BF interno vertical; >0 -> BF inclinado."""
     I, G = ap['inputs'], ap['geometry']
     L = G['b_w']/2; cr0 = G['cr_w']; ct = G['ct_w']; xr = I['xr_w']
     t = np.tan(change_sweep(0.25, 0., I['sweep_w'], L, cr0, ct))
-    A = Y_B + (L - Y_B)/2.
-    B = -t*Y_B**2/2. + (L - Y_B)*(-t*Y_B + ct)/2.
-    CR = (I['S_w']/2 - B)/A
-    CB = CR - t*Y_B
+    if te_frac is None:
+        te_frac = 0.0
+    t_te = te_frac * t
+    if CR is None:
+        # resolve CR para area S/2 com BF inclinado (te_frac)
+        s = t_te - t
+        # S2 = 0.5*L*(CR+ct) + 0.5*Y_B*(CR - ct) + 0.5*s*Y_B*L
+        # 2*S2 = L*(CR+ct) + Y_B*(CR-ct) + s*Y_B*L
+        # 2*S2 - L*ct + Y_B*ct - s*Y_B*L = CR*(L + Y_B)
+        S2 = I['S_w']/2.0
+        den = L + Y_B
+        CR = (2*S2 - L*ct + Y_B*ct - s*Y_B*L)/den if abs(den) > 1e-12 else cr0
+    CB = CR + (t_te - t)*Y_B
 
     def ch(y):
-        return CR - t*y if y <= Y_B else CB + (ct - CB)*(y - Y_B)/(L - Y_B)
+        return CR + (t_te - t)*y if y <= Y_B else CB + (ct - CB)*(y - Y_B)/(L - Y_B)
     y = np.linspace(0, L, 100001)
     c = np.array([ch(v) for v in y])
     a = np.trapezoid(c, y)
@@ -43,8 +53,8 @@ def planform(ap, Y_B):
     wg = (c**2*tc)[m]
     xf = (xr + t*y + (I['x_tank_c_w'] + 0.5*I['c_tank_c_w'])*c)[m]
     vol = np.trapezoid(wg, y[m])
-    return dict(L=L, t=t, CR=CR, CB=CB, ct=ct, xr=xr, ch=ch, S=2*a, MAC=mac,
-                XM=xm, xcg_w=xm + 0.4*mac,
+    return dict(L=L, t=t, t_te=t_te, te_frac=te_frac, CR=CR, CB=CB, ct=ct,
+                xr=xr, ch=ch, S=2*a, MAC=mac, XM=xm, xcg_w=xm + 0.4*mac,
                 xcg_f=np.trapezoid(wg*xf, y[m])/vol, vol=vol)
 
 
@@ -133,13 +143,13 @@ def xnp(name):
     raise RuntimeError(p.stdout[-1500:])
 
 
-def evaluate(inputs, Y_B, name, keep=False, fuel_credit=None):
+def evaluate(inputs, Y_B, name, keep=False, fuel_credit=None, CR=None):
     if fuel_credit is None:
         import opt_avl
         fuel_credit = opt_avl.FUEL_CREDIT
     ap = oc.run_designTool(inputs)
-    P0 = planform(ap, 1e-6)
-    P = planform(ap, Y_B); P['Y_B'] = Y_B
+    P0 = planform(ap, 1e-6, CR=None, te_frac=0.0)
+    P = planform(ap, Y_B, CR=CR); P['Y_B'] = Y_B
     W0 = ap['thrust_matching']['W0']
     dcg = (ap['empty_weight']['W_w']*(P['xcg_w'] - P0['xcg_w'])
            + (ap['thrust_matching']['W_fuel']*(P['xcg_f'] - P0['xcg_f']) if fuel_credit else 0.0))/W0
@@ -148,7 +158,7 @@ def evaluate(inputs, Y_B, name, keep=False, fuel_credit=None):
     path = os.path.join(AVLDIR, name)
     YF = write_avl(ap, P, xa, path)
     X = xnp(name)
-    if not keep:
+    if not keep and os.path.isfile(path):
         os.remove(path)
     I = ap['inputs']
     xle = P['xr'] + P['t']*I['y_mlg']

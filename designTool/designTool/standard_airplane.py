@@ -146,29 +146,35 @@ def standard_airplane(name):
 
     elif name == 'my_airplane':
 
-        # NJ-0502. Valores ativos = otimo do Lab 02 (SLSQP).
-        # Linhas comentadas = configuracao de partida (PRJ-22).
+        # NJ-0502. Valores ativos = DT atual (trapezio, naceles livres; final_design_dt.json).
+        # Valores comentados Lab 02 = otimizacao antiga (naceles fixas).
+        # Demais linhas comentadas = configuracao de partida (PRJ-22).
 
         inputs = {'type': 'transport', # Can be 'transport', 'fighter', or 'general'
                     
                     # 'S_w' : 395.24, # Wing area [m2] (PRJ-22)
-                    'S_w' : 386.47778034173234, # Wing area [m2] (Lab 02)
+                    # 'S_w' : 386.47778034173234, # Wing area [m2] (Lab 02)
+                    'S_w' : 382.934074099816, # Wing area [m2] (DT atual)
                     # 'AR_w' : 9.26,  # Wing aspect ratio (PRJ-22)
-                    'AR_w' : 10.644470574284451,  # Wing aspect ratio (Lab 02)
+                    # 'AR_w' : 10.644470574284451,  # Wing aspect ratio (Lab 02)
+                    'AR_w' : 10.5901712776992,  # Wing aspect ratio (DT atual)
                     'taper_w' : 0.2, # Wing taper ratio
                     # 'sweep_w' : 33*np.pi/180, # Wing sweep [rad] (PRJ-22)
-                    'sweep_w' : 35.38134616107342*np.pi/180, # Wing sweep [rad] (Lab 02)
+                    # 'sweep_w' : 35.38134616107342*np.pi/180, # Wing sweep [rad] (Lab 02)
+                    'sweep_w' : 35.197821997569214*np.pi/180, # Wing sweep [rad] (DT atual)
                     'dihedral_w' : 4.5*np.pi/180, # Wing dihedral [rad]
                     # 'xr_w' : 19.8, # Longitudinal position of the wing (with respect to the fuselage nose) [m] (PRJ-22)
-                    'xr_w' : 18.553808618756847, # Longitudinal position of the wing (with respect to the fuselage nose) [m] (Lab 02)
+                    # 'xr_w' : 18.553808618756847, # Longitudinal position of the wing (with respect to the fuselage nose) [m] (Lab 02)
+                    'xr_w' : 17.854489660296384, # Longitudinal position of the wing (with respect to the fuselage nose) [m] (DT atual)
                     'zr_w' : -1.04, # Vertical position of the wing (with respect to the fuselage nose) [m]
                     'tcr_w' : 0.16, # t/c of the root section of the wing
                     'tct_w' : 0.08, # t/c of the tip section of the wing
                     
                     # 'Cht' : 0.7, # Horizontal tail volume coefficient (PRJ-22)
-                    'Cht' : 0.7, # Horizontal tail volume coefficient (Lab 02)
+                    'Cht' : 0.7, # Horizontal tail volume coefficient
                     # 'Lc_h' : 4.5, # Non-dimensional lever of the horizontal tail (lever/wing_mac) (PRJ-22)
-                    'Lc_h' : 4.868589376933749, # Non-dimensional lever of the horizontal tail (lever/wing_mac) (Lab 02)
+                    # 'Lc_h' : 4.868589376933749, # Non-dimensional lever of the horizontal tail (lever/wing_mac) (Lab 02)
+                    'Lc_h' : 5.002258239454384, # Non-dimensional lever of the horizontal tail (lever/wing_mac) (DT atual)
                     'AR_h' : 4.5, # HT aspect ratio
                     'taper_h' : 0.40, # HT taper ratio
                     'sweep_h' : 33.92*np.pi/180, # HT sweep [rad]
@@ -179,9 +185,11 @@ def standard_airplane(name):
                     'eta_h' : 0.9, # NSEI Dynamic pressure factor of the HT
                     
                     # 'Cvt' : 0.075, # Vertical tail volume coefficient (PRJ-22)
-                    'Cvt' : 0.0652533576453312, # Vertical tail volume coefficient (Lab 02)
+                    # 'Cvt' : 0.0652533576453312, # Vertical tail volume coefficient (Lab 02)
+                    'Cvt' : 0.056300425980783206, # Vertical tail volume coefficient (DT atual)
                     # 'Lb_v' : 0.53, # Non-dimensional lever of the vertical tail (lever/wing_span) (PRJ-22)
-                    'Lb_v' : 0.5099260081582092, # Non-dimensional lever of the vertical tail (lever/wing_span) (Lab 02)
+                    # 'Lb_v' : 0.5099260081582092, # Non-dimensional lever of the vertical tail (lever/wing_span) (Lab 02)
+                    'Lb_v' : 0.5301864128151047, # Non-dimensional lever of the vertical tail (lever/wing_span) (DT atual)
                     'AR_v' : 1.74, # VT aspect ratio
                     'taper_v' : 0.39, # VT taper ratio
                     'sweep_v' : 39.73*np.pi/180, # VT sweep [rad]
@@ -192,9 +200,12 @@ def standard_airplane(name):
                     'L_f' : 65.09, # Fuselage length [m]
                     'D_f' : 5.96, # Fuselage diameter [m]
                     
-                    'x_n' : 24.3, # Longitudinal position of the nacelle frontal face [m]
-                    'y_n' : 11, # Lateral position of the nacelle centerline [m]
-                    'z_n' : -2.9, # Vertical position of the nacelle centerline [m]
+                    # 'x_n' : 24.3, # Longitudinal position of the nacelle frontal face [m] (Lab 02, naceles fixas)
+                    'x_n' : 19.41619350200424, # Longitudinal position of the nacelle frontal face [m] (DT atual)
+                    # 'y_n' : 11, # Lateral position of the nacelle centerline [m] (Lab 02, naceles fixas)
+                    'y_n' : 9.92, # Lateral position of the nacelle centerline [m] (DT atual)
+                    # 'z_n' : -2.9, # Vertical position of the nacelle centerline [m] (Lab 02, naceles fixas)
+                    'z_n' : -2.9852790682997856, # Vertical position of the nacelle centerline [m] (DT atual)
                     'L_n' : 6.06, # Nacelle length [m]
                     'D_n' : 3.94, # Nacelle diameter [m]
                     
@@ -203,7 +214,8 @@ def standard_airplane(name):
                   'engine' : {'model' : 'Howe turbofan', # Check engineTSFC function for options
                               #'model' : 'Raymer turbofan', # Check engineTSFC function for options
                               'BPR' : 9.6, # Engine bypass ratio
-                              'weight' : 7277*gravity, # Single engine weight [N] (Can also be omitted to let designTool estimate it)
+                              # 'weight' : 7277*gravity, # Single engine weight [N] (Lab 02)
+                              'weight' : 7279.485859085416*gravity, # Single engine weight [N] (DT atual)
                               'Tmax' : 1.04*84000*lb2N,
                               'C_ref' : 0.478/3600, # Reference thrust-specific fuel consumption [1/s] (Can also be omitted to let designTool estimate it)
                               'altitude_ref': 35000*ft2m, # Altitude that corresponds to the given TSFC [m]
@@ -212,11 +224,13 @@ def standard_airplane(name):
                     
                     'x_nlg' : 4.6, # Longitudinal position of the nose landing gear [m]
                     # 'x_mlg' : 32.2, # Longitudinal position of the main landing gear [m] (PRJ-22)
-                    'x_mlg' : 32.22633466487209, # Longitudinal position of the main landing gear [m] (Lab 02)
+                    # 'x_mlg' : 32.22633466487209, # Longitudinal position of the main landing gear [m] (Lab 02)
+                    'x_mlg' : 31.46635412210544, # Longitudinal position of the main landing gear [m] (DT atual)
                     # 'y_mlg' : 5.6, # Lateral position of the main landing gear [m] (PRJ-22)
-                    'y_mlg' : 6.95, # Lateral position of the main landing gear [m] (Lab 02)
+                    'y_mlg' : 6.95, # Lateral position of the main landing gear [m]
                     # 'z_lg' : -5.7, # Vertical position of the landing gear [m] (PRJ-22)
-                    'z_lg' : -5.6731592928945105, # Vertical position of the landing gear [m] (Lab 02)
+                    # 'z_lg' : -5.6731592928945105, # Vertical position of the landing gear [m] (Lab 02)
+                    'z_lg' : -5.807164367397472, # Vertical position of the landing gear [m] (DT atual)
                     'x_tailstrike' : 47.5, # NSEI Longitudinal position of critical tailstrike point [m]
                     'z_tailstrike' : -2.98, # NSEI Vertical position of critical tailstrike point [m]
                     
@@ -225,11 +239,13 @@ def standard_airplane(name):
                     'b_tank_b_w_start' : 0.0, # NSEI Fraction of the wing semi-span where fuel tank starts
                     'b_tank_b_w_end' : 0.98, # NSEI Fraction of the wing semi-span where fuel tank ends
                     
-                    'clmax_w' : 1.8, # NSEI Maximum lift coefficient of wing airfoil
+                    # 'clmax_w' : 1.8, # NSEI Maximum lift coefficient of wing airfoil (Lab 02)
+                    'clmax_w' : 1.773, # NSEI Maximum lift coefficient of wing airfoil (DT atual)
                     'k_korn' : 0.94, # NSEI Airfoil technology factor for Korn equation (wave drag)
         
                     'flap_type' : 'double slotted',  # NSEI Flap type
-                    'c_flap_c_wing' : 0.32, # NSEI Fraction of the wing chord occupied by flaps
+                    # 'c_flap_c_wing' : 0.32, # NSEI Fraction of the wing chord occupied by flaps (Lab 02)
+                    'c_flap_c_wing' : 0.28, # NSEI Fraction of the wing chord occupied by flaps (DT atual)
                     'b_flap_b_wing' : 0.66, # NSEI Fraction of the wing span occupied by flaps (including fuselage portion)
                     
                     'slat_type' : 'slat', # NSEI Slat type
@@ -281,7 +297,8 @@ def standard_airplane(name):
                     'rho_fuel' : 804, # Fuel density kg/m3 (This is Jet A-1)
 
                     # 'W0_guess' : 3000000 # Guess for MTOW (PRJ-22)
-                    'W0_guess' : 276276.3394172155*gravity # Guess for MTOW (Lab 02)
+                    # 'W0_guess' : 276276.3394172155*gravity # Guess for MTOW (Lab 02)
+                    'W0_guess' : 276370.71677717514*gravity # Guess for MTOW (DT atual)
                     }
 
     airplane = {'inputs':inputs}
