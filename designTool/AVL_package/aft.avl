@@ -11,7 +11,7 @@ NJ-0502 AFT | Yehudi yb=40% te=0.10 | airfoil_lab03 | CDp=CD0
  382.9341 7.9700 63.6815
 
 #Xref Yref Zref
- 29.9103 0.0 -1.0400
+ 29.259073 0.0 0
 
 # CDp
  0.013280

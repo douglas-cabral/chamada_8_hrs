@@ -103,6 +103,8 @@ def analyze(airplane = None,
         print('xnp [%%MAC]: %.1f'%((xnp-xm_w)/cm_w*100))
         print('xcg_fwd [%%MAC]: %.1f'%((xcg_fwd-xm_w)/cm_w*100))
         print('xcg_aft [%%MAC]: %.1f'%((xcg_aft-xm_w)/cm_w*100))
+        print('xcg_fwd [m]: %f'%(xcg_fwd))
+        print('xcg_aft [m]: %f'%(xcg_aft))
         
         if airplane['inputs']['x_nlg'] is not None:
 
