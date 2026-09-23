@@ -60,6 +60,7 @@ XI_MLG_MIN = 0.50
 XI_MLG_MAX = 1.00
 CLV_MAX = 0.75
 SM_FWD_MAX = 0.30
+SM_AFT_MAX = 0.10
 
 CONSTRAINTS = [
     ('landing',    r'$\Delta S_{wlan} \geq 0$',
@@ -73,7 +74,7 @@ CONSTRAINTS = [
      lambda r: r['SM_aft']/0.05 - 1.0, 'roteiro'),
     ('SM_aft_max', r'$SM_{aft} \leq 0{,}10$',
      r'$1 - SM_{aft}/0{,}10$',
-     lambda r: 1.0 - r['SM_aft']/0.10, 'adicionada'),
+     lambda r: 1.0 - r['SM_aft']/SM_AFT_MAX, 'adicionada'),
     ('nlg_fwd',    r'$f_{nlg,fwd} \leq 0{,}18$',
      r'$1 - f_{nlg,fwd}/0{,}18$',
      lambda r: 1.0 - r['frac_nlg_fwd']/0.18, 'roteiro'),

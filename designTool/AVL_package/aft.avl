@@ -1,6 +1,6 @@
-NJ-0502 AFT | Yehudi yb=40% te=0.10 | airfoil_lab03 | CDp=CD0
+NJ-0502 AFT | DT my_airplane | trapezio | airfoil_lab03 | CDp=CD0
 # Offsets iguais a fwd/aft: wing Z=-2.14 | EH Z=+1.60 | EV Z=+0.25 | nac Z=-5
-# Planta: CR=14.022 CB=5.215 ct=2.004 MAC=7.9700 | Sf/Sa = DT opt
+# Planta TRAPEZIO (sem quebra): CR=10.022 ct=2.004 MAC=6.9041
 #Mach
  0.85
 
@@ -8,10 +8,10 @@ NJ-0502 AFT | Yehudi yb=40% te=0.10 | airfoil_lab03 | CDp=CD0
  0 0 0.0
 
 #Sref Cref Bref
- 382.9341 7.9700 63.6815
+ 382.9341 6.9041 63.6815
 
 #Xref Yref Zref
- 29.259073 0.0 0
+ 29.910066 0.0 0
 
 # CDp
  0.013280
@@ -26,63 +26,54 @@ TRANSLATE
 0.0 0.0 -2.140
 
 SECTION
-17.8545 0.0000 -1.0400 14.0220 -0.000
+17.8545 0.0000 -1.0400 10.0221 -0.000
 AFILE
 airfoil_lab03.dat
 CONTROL
-flap 1.0 0.855 0. 0. 0. +1
+flap 1.0 0.720 0. 0. 0. +1
 
 SECTION
-20.1441 2.9800 -0.8055 11.9614 -0.281
+20.1441 2.9800 -0.8055 9.2717 -0.281
 AFILE
 airfoil_lab03.dat
 CONTROL
 slat -1.0 -0.140 0. 0. 0. +1
 CONTROL
-flap 1.0 0.830 0. 0. 0. +1
+flap 1.0 0.720 0. 0. 0. +1
 
 SECTION
-27.6400 12.7363 -0.0376 5.2151 -1.200
+34.0006 21.0149 0.6139 4.7304 -1.980
 AFILE
 airfoil_lab03.dat
 CONTROL
 slat -1.0 -0.140 0. 0. 0. +1
 CONTROL
-flap 1.0 0.609 0. 0. 0. +1
+flap 1.0 0.720 0. 0. 0. +1
 
 SECTION
-31.0649 17.1940 0.3132 4.4659 -1.620
+34.4899 21.6517 0.6640 4.5701 -2.040
 AFILE
 airfoil_lab03.dat
 CONTROL
 slat -1.0 -0.140 0. 0. 0. +1
 CONTROL
-flap 1.0 0.609 0. 0. 0. +1
+aileron -1.0 0.700 0. 0. 0. -1
 
 SECTION
-34.4899 21.6517 0.6640 3.7168 -2.040
+39.8719 28.6567 1.2153 2.8062 -2.700
 AFILE
 airfoil_lab03.dat
 CONTROL
 slat -1.0 -0.140 0. 0. 0. +1
 CONTROL
-aileron -1.0 0.655 0. 0. 0. -1
-
-SECTION
-38.4041 26.7462 1.0650 2.8606 -2.520
-AFILE
-airfoil_lab03.dat
-CONTROL
-slat -1.0 -0.140 0. 0. 0. +1
-CONTROL
-aileron -1.0 0.655 0. 0. 0. -1
+aileron -1.0 0.700 0. 0. 0. -1
 
 SECTION
 42.3183 31.8408 1.4659 2.0044 -3.000
 AFILE
 airfoil_lab03.dat
 CONTROL
-aileron -1.0 0.655 0. 0. 0. -1
+aileron -1.0 0.700 0. 0. 0. -1
 
 SURFACE
 Stab
@@ -142,7 +133,7 @@ YDUPLICATE
 SCALE
 6.060 1.970 1.970
 TRANSLATE
-19.416 9.920 -5
+19.416 9.920 -5.000
 
 SECTION
  0.0 0.0000 1.0000 1.0 0. 1 0.

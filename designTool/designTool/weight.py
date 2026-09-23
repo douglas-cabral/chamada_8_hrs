@@ -238,7 +238,7 @@ def empty_weight(W0_guess, T0_guess, airplane):
     #Klg = 1.0 #1.0 for low wing, 1.12 for high wing
     #Kws = 0.75*(1+2*taper_w)/(1+taper_w)*b_w*np.tan(sweep_w)/L_f
     #W_f = 0.3280*Kdoor*Klg*(W0_guess*Nz/lb2N)**0.5*(L_f/ft2m)**0.25*(Swet_f/ft2m**2)**0.302*(1+Kws)**0.04*(L_f/D_f)**0.1*lb2N*1.6 #+ 0.0577*(5*91*9.81/lb2N)**0.1*(107*91*9.81/lb2N)**0.393*(Swet_f/ft2m**2)**0.75*lb2N
-    xcg_f = 0.40*L_f
+    xcg_f = 0.45*L_f
 
     # Check if LG is active
     if x_nlg is not None:
@@ -276,7 +276,7 @@ def empty_weight(W0_guess, T0_guess, airplane):
 
     # All else weight
     W_allelse = W_allelse_fact*W0_guess
-    xcg_allelse = 0.46*L_f
+    xcg_allelse = 0.47*L_f
 
     # Empty weight
     W_empty = W_w + W_h + W_v + W_f + W_nlg + W_mlg + W_eng_installed + W_allelse

@@ -9,6 +9,8 @@ Lei do flap/aileron (areas = otimizacao DT):
 Edite YB_FRAC e TE_FRAC abaixo e rode o script.
   Gera: resultados/caso_manual_quebra.json
         resultados/planta_caso_manual.png   (atual vs caso manual)
+        AVL_package/teste_quebra_fwd.avl
+        AVL_package/teste_quebra_aft.avl
 """
 import copy
 import json
@@ -24,16 +26,18 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
 import avl_check as ac
+import _write_avl_reopt as wav
 from designTool.analyze import analyze
 from designTool.geometry import change_sweep
+from designTool.standard_airplane import standard_airplane
 
 RESDIR = ac.RESDIR
 FINAL = os.path.join(RESDIR, "final_design_dt.json")
 GAP = 0.05
 
 # ============ EDITE AQUI ============
-YB_FRAC = 0.40    # y_b / (b/2)
-TE_FRAC = 0.10    # enflech. BF interno / BA
+YB_FRAC = 0.30    # y_b / (b/2)  0.40
+TE_FRAC = 0.05    # enflech. BF interno / BA  0.10
 
 # Areas SEMPRE = otimizacao DT (Sf_ref, Sa_ref). Abaixo so redistribui corda/vao.
 #
@@ -170,11 +174,45 @@ def draw_case(ax, ap, cfg, title, col, zoom=False):
             bbox=dict(boxstyle="round,pad=0.35", fc="white", ec="0.7", alpha=0.92))
 
 
+def write_teste_avl(ap, man):
+    """Sobrescreve teste_quebra_fwd/aft.avl com a quebra manual atual."""
+    P = ac.planform(ap, man["yb"], CR=man["CR"], te_frac=man["te"])
+    P["Y_B"] = man["yb"]
+    I = ap["inputs"]
+
+    def hinge_flap(y):
+        if y <= man["yb"] + 1e-9:
+            return 1.0 - man["c_abs"] / P["ch"](y)
+        return 1.0 - man["k_cf"]
+
+    F = dict(
+        ys=I["D_f"] / 2.0, yb=man["yb"], yf=man["yf"], ya=man["ya"],
+        YS=I["b_slat_b_wing"] * P["L"],
+        hinge_flap=hinge_flap,
+        hinge_ail=1.0 - man["ca"],
+        hinge_slat=-I["c_slat_c_wing"],
+    )
+    CDp = wav.cruise_cd0(ap)
+    xf = float(ap["balance"]["xcg_fwd"])
+    xa = float(ap["balance"]["xcg_aft"])
+    print("CG DT (my_airplane): xcg_fwd=%.6f m  xcg_aft=%.6f m" % (xf, xa))
+    for tag, xref, name in (
+        ("FWD", xf, "teste_quebra_fwd.avl"),
+        ("AFT", xa, "teste_quebra_aft.avl"),
+    ):
+        title = ("NJ-0502 %s | teste quebra yb=%.0f%% te=%.2f | "
+                 "airfoil_lab03 | Cref=MAC_DT" % (tag, 100 * man["ybf"], man["te"]))
+        path = os.path.join(ac.AVLDIR, name)
+        wav.write_avl(path, tag, ap, P, F, xref, CDp, title=title)
+        print("%s  Xref=%.6f  Cref=%.4f  -> %s" % (
+            name, xref, ap["geometry"]["cm_w"], path))
+
+
 def main():
     fin = json.load(open(FINAL, encoding="utf-8"))
-    I = copy.deepcopy(fin["inputs"])
-    ap = {"inputs": I}
-    analyze(ap, False, False)
+    ap = standard_airplane("my_airplane")
+    analyze(ap, print_log=False, plot=False)
+    I = ap["inputs"]
     G = ap["geometry"]
     L = float(G["b_w"] / 2)
     ct = float(G["ct_w"])
@@ -386,6 +424,8 @@ def main():
              man["ca"], 100 * man["ya"] / L))
     print("        xi_pin=%.3f  CR=%.2f  CB=%.2f"
           % (man["xi_pin"], man["CR"], man["CB"]))
+
+    write_teste_avl(ap, man)
 
     out_json = os.path.join(RESDIR, "caso_manual_quebra.json")
     json.dump(dict(

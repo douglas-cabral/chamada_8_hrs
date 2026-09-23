@@ -151,3 +151,196 @@ def report(tag, model, res, r, dv_names):
           % (r['SM_aft'], r['SM_fwd'], r['CLv'], r['tank_excess'],
              r['wheel_span']))
     print()
+
+
+def _fuse_stations(ap):
+    I = ap['inputs']
+    L_f, D_f = I['L_f'], I['D_f']
+    xts = I['x_tailstrike'] / L_f
+    xx = np.array([0.0, 1.24/41.72, 3.54/41.72, 7.55/41.72, xts, 1.0])
+    hh = np.array([0.0, 2.27/4.0, 3.56/4.0, 1.0, 1.0, 1.07/4.0]) * D_f
+    ww = np.array([0.0, 1.83/4.0, 3.49/4.0, 1.0, 1.0, 0.284/4]) * D_f
+    s = np.linspace(0.0, 1.0, 80)
+    x = s * L_f
+    h = np.interp(s, xx, hh)
+    w = np.interp(s, xx, ww)
+    return x, h, w
+
+
+def _draw_case(ax, ap, view, color, ls, lw, label=None, alpha=1.0, fill=None):
+    """Contorno 2D de um aviao DT. view: 'top' | 'side' | 'front'."""
+    I, G = ap['inputs'], ap['geometry']
+    x, h, w = _fuse_stations(ap)
+    first = {'label': label}
+
+    def ln(xs, ys, **kw):
+        ax.plot(xs, ys, color=color, ls=ls, lw=lw, alpha=alpha, **first, **kw)
+        first.pop('label', None)
+
+    def poly(xs, ys, fa=0.18):
+        if fill:
+            ax.fill(xs, ys, facecolor=fill, edgecolor=color, lw=lw,
+                    ls=ls, alpha=fa, zorder=2)
+
+    if view == 'top':
+        ln(x, w/2)
+        ln(x, -w/2)
+        xr, cr, xt, yt, ct = I['xr_w'], G['cr_w'], G['xt_w'], G['yt_w'], G['ct_w']
+        wx = [xr, xt, xt + ct, xr + cr, xr]
+        wy = [0.0, yt, yt, 0.0, 0.0]
+        poly(wx, wy)
+        poly(wx, [-v for v in wy])
+        ln(wx, wy)
+        ln(wx, [-v for v in wy])
+        xrh, crh, xth, yth, cth = G['xr_h'], G['cr_h'], G['xt_h'], G['yt_h'], G['ct_h']
+        hx = [xrh, xth, xth + cth, xrh + crh, xrh]
+        hy = [0.0, yth, yth, 0.0, 0.0]
+        ln(hx, hy)
+        ln(hx, [-v for v in hy])
+        xn, yn, Ln, Dn = I['x_n'], I['y_n'], I['L_n'], I['D_n']
+        nx = [xn, xn + Ln, xn + Ln, xn, xn]
+        ny = [yn - Dn/2, yn - Dn/2, yn + Dn/2, yn + Dn/2, yn - Dn/2]
+        poly(nx, ny, fa=0.35)
+        poly(nx, [-v for v in ny], fa=0.35)
+        ln(nx, ny)
+        ln(nx, [-v for v in ny])
+        if I['x_mlg'] is not None:
+            ax.plot(I['x_mlg'], I['y_mlg'], 's', color=color, ms=5, alpha=alpha)
+            ax.plot(I['x_mlg'], -I['y_mlg'], 's', color=color, ms=5, alpha=alpha)
+
+    elif view == 'side':
+        ln(x, h/2)
+        ln(x, -h/2)
+        xr, cr, zr = I['xr_w'], G['cr_w'], I['zr_w']
+        xt, ct, zt = G['xt_w'], G['ct_w'], G['zt_w']
+        ln([xr, xt, xt + ct, xr + cr, xr], [zr, zt, zt, zr, zr])
+        xrh, crh, zrh = G['xr_h'], G['cr_h'], I['zr_h']
+        xth, cth, zth = G['xt_h'], G['ct_h'], G['zt_h']
+        ln([xrh, xth, xth + cth, xrh + crh, xrh], [zrh, zth, zth, zrh, zrh])
+        xrv, crv, zrv = G['xr_v'], G['cr_v'], I['zr_v']
+        xtv, ctv, ztv = G['xt_v'], G['ct_v'], G['zt_v']
+        ln([xrv, xtv, xtv + ctv, xrv + crv, xrv], [zrv, ztv, ztv, zrv, zrv])
+        xn, zn, Ln, Dn = I['x_n'], I['z_n'], I['L_n'], I['D_n']
+        nx = [xn, xn + Ln, xn + Ln, xn, xn]
+        nz = [zn - Dn/2, zn - Dn/2, zn + Dn/2, zn + Dn/2, zn - Dn/2]
+        poly(nx, nz, fa=0.35)
+        ln(nx, nz)
+        if I['x_nlg'] is not None:
+            ax.plot([I['x_nlg'], I['x_nlg']], [0.0, I['z_lg']],
+                    color=color, ls=ls, lw=lw, alpha=alpha)
+            ax.plot([I['x_mlg'], I['x_mlg']], [I['zr_w'], I['z_lg']],
+                    color=color, ls=ls, lw=lw, alpha=alpha)
+
+    else:
+        th = np.linspace(0, 2*np.pi, 80)
+        ln(0.5*I['D_f']*np.cos(th), 0.5*I['D_f']*np.sin(th))
+        yt, zr, zt = G['yt_w'], I['zr_w'], G['zt_w']
+        ln([-yt, 0.0, yt], [zt, zr, zt])
+        yth, zrh, zth = G['yt_h'], I['zr_h'], G['zt_h']
+        ln([-yth, 0.0, yth], [zth, zrh, zth])
+        ln([0.0, 0.0], [I['zr_v'], G['zt_v']])
+        yn, zn, Dn = I['y_n'], I['z_n'], I['D_n']
+        ln(yn + 0.5*Dn*np.cos(th), zn + 0.5*Dn*np.sin(th))
+        ln(-yn + 0.5*Dn*np.cos(th), zn + 0.5*Dn*np.sin(th))
+        if I['x_mlg'] is not None:
+            ax.plot(I['y_mlg'], I['z_lg'], 's', color=color, ms=5, alpha=alpha)
+            ax.plot(-I['y_mlg'], I['z_lg'], 's', color=color, ms=5, alpha=alpha)
+
+
+def plot_compare(ap_old, ap_new, path=None, r_old=None, r_new=None, show=True):
+    """Tres vistas: cinza = atual (my_airplane), azul = nova otimizacao."""
+    import matplotlib.pyplot as plt
+
+    if path is None:
+        path = os.path.join(RESDIR, "reopt_vs_atual.png")
+    g = oc.gravity
+    w_old = (r_old or oc.extract(ap_old))['W0'] / g
+    w_new = (r_new or oc.extract(ap_new))['W0'] / g
+    sm_old = (r_old or oc.extract(ap_old))['SM_aft']
+    sm_new = (r_new or oc.extract(ap_new))['SM_aft']
+
+    fig, axes = plt.subplots(1, 3, figsize=(13.6, 4.6))
+    views = (
+        ('top', 'Superior (x–y)', 'x [m]', 'y [m]'),
+        ('side', 'Lateral (x–z)', 'x [m]', 'z [m]'),
+        ('front', 'Frontal (y–z)', 'y [m]', 'z [m]'),
+    )
+    for ax, (view, title, xlab, ylab) in zip(axes, views):
+        _draw_case(ax, ap_old, view, color='0.35', ls='--', lw=1.7, fill='0.55',
+                   label='atual  W0=%.0f kgf  SM_aft=%.1f%%' % (w_old, 100*sm_old))
+        _draw_case(ax, ap_new, view, color='#1f4e8c', ls='-', lw=2.0, fill='#4c7fd0',
+                   label='nova   W0=%.0f kgf  SM_aft=%.1f%%' % (w_new, 100*sm_new))
+        ax.set_aspect('equal', adjustable='box')
+        ax.grid(True, alpha=0.28)
+        ax.set_title(title)
+        ax.set_xlabel(xlab)
+        ax.set_ylabel(ylab)
+    axes[0].legend(loc='upper left', fontsize=8, framealpha=0.92)
+    fig.suptitle('Otimizacao (nacele livre) vs configuracao atual', fontsize=12)
+    fig.tight_layout()
+    fig.savefig(path, dpi=160)
+    print("vistas:", path)
+    if show:
+        plt.show()
+    else:
+        plt.close(fig)
+    return path
+
+
+if __name__ == "__main__":
+    # Partida = my_airplane (standard_airplane). SLSQP trapezio + nacele livre.
+    #   python opt_nac.py              -> otimiza e gera as vistas
+    #   python opt_nac.py --plot-only  -> so compara o ultimo JSON com o atual
+    import json
+    os.makedirs(RESDIR, exist_ok=True)
+    json_path = os.path.join(RESDIR, "reopt_nacele_livre.json")
+    plot_only = "--plot-only" in sys.argv
+
+    if plot_only:
+        if not os.path.isfile(json_path):
+            raise SystemExit("nao achei %s — rode python opt_nac.py primeiro" % json_path)
+        data = json.load(open(json_path, encoding="utf-8"))
+        ap_new = oc.run_designTool(data["inputs"])
+        r_new = oc.extract(ap_new)
+    else:
+        tag = "nacele livre (SLSQP trapezio)"
+        model, res, r_new = solve(tag)
+        report(tag, model, res, r_new, oc.DV_NAMES)
+
+        def _jsonable(o):
+            if isinstance(o, dict):
+                return {k: _jsonable(v) for k, v in o.items()}
+            if isinstance(o, (list, tuple)):
+                return [_jsonable(v) for v in o]
+            if isinstance(o, (np.bool_, bool)):
+                return bool(o)
+            if isinstance(o, (np.floating, float)):
+                return float(o)
+            if isinstance(o, (np.integer, int)):
+                return int(o)
+            return o
+
+        out = {
+            "success": bool(res.success),
+            "message": res.message,
+            "n_objfun": model.n_objfun,
+            "W0_kgf": float(r_new["W0"] / oc.gravity),
+            "x": {n: float(v) for n, v in zip(oc.DV_NAMES, model.to_physical(res.x))},
+            "SM_aft": float(r_new["SM_aft"]),
+            "SM_fwd": float(r_new["SM_fwd"]),
+            "xi_mlg": float(r_new["xi_mlg"]),
+            "inputs": _jsonable(model.build_inputs(res.x)),
+        }
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(out, f, indent=2)
+        print("gravado:", json_path)
+        ap_new = oc.run_designTool(model.build_inputs(res.x))
+
+    ap_old = oc.run_designTool(oc.get_baseline())
+    r_old = oc.extract(ap_old)
+    print("DT atual (my_airplane)  W0=%.0f kgf  S_w=%.2f  AR=%.3f  xr_w=%.3f  x_n=%.3f  y_n=%.3f  SM_fwd=%.1f%%  SM_aft=%.1f%%"
+          % (r_old["W0"] / oc.gravity, r_old["S_w"], r_old["b_w"] ** 2 / r_old["S_w"],
+             ap_old["inputs"]["xr_w"], ap_old["inputs"]["x_n"], ap_old["inputs"]["y_n"],
+             100.0 * r_old["SM_fwd"], 100.0 * r_old["SM_aft"]))
+    plot_compare(ap_old, ap_new, r_old=r_old, r_new=r_new, show=False)
+
