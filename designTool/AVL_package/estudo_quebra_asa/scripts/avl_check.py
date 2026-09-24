@@ -19,7 +19,7 @@ import opt_nac as on  # noqa: F401  (path Lab 02 + nacele livre)
 import opt_common as oc
 from designTool.geometry import change_sweep
 
-TWIST_TIP = -3.0
+TWIST_TIP = 0.0
 
 
 def planform(ap, Y_B, CR=None, te_frac=None):

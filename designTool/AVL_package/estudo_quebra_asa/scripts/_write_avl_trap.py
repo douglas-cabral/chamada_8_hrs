@@ -16,7 +16,7 @@ from designTool.auxiliary import atmosphere
 
 RESDIR = ac.RESDIR
 AVLDIR = ac.AVLDIR
-TWIST_TIP = -3.0
+TWIST_TIP = 0.0
 WING_DZ = -2.140
 EH_DZ = 1.600
 EV_DZ = 0.250

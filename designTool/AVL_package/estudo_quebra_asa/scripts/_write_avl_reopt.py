@@ -20,7 +20,7 @@ JSON_PATH = os.path.join(RESDIR, "reopt_nacele_livre.json")
 
 YB_FRAC = 0.40
 TE_FRAC = 0.10
-TWIST_TIP = -3.0
+TWIST_TIP = 0.0
 GAP = 0.05
 AIL_YA_FRAC = 0.75
 WING_DZ = -2.140
