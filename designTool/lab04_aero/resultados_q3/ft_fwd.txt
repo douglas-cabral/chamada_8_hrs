@@ -1,0 +1,78 @@
+Vortex Lattice Output -- Total Forces
+
+ Configuration: NJ-0502 FWD | DT my_airplane | trapezio | airfoil_lab03 | CD
+     # Surfaces =   7
+     # Strips   = 188
+     # Vortices =1936
+
+  Sref =  382.93       Cref =  6.9041       Bref =  63.681    
+  Xref =  28.751       Yref =  0.0000       Zref =  0.0000    
+
+ Standard axis orientation,  X fwd, Z down         
+
+ Run case:  -unnamed-                              
+
+  Alpha =   0.17538     pb/2V =  -0.00000     p'b/2V =  -0.00000
+  Beta  =   0.00000     qc/2V =   0.00000
+  Mach  =     0.850     rb/2V =  -0.00000     r'b/2V =  -0.00000
+
+  CXtot =  -0.01937     Cltot =   0.00000     Cl'tot =   0.00000
+  CYtot =  -0.00008     Cmtot =  -0.00000
+  CZtot =  -0.47026     Cntot =   0.00003     Cn'tot =   0.00003
+
+  CLtot =   0.47020
+  CDtot =   0.02081
+  CDvis =   0.01328     CDind = 0.0075259
+  CLff  =   0.46167     CDff  = 0.0095259    | Trefftz
+  CYff  =  -0.00000         e =    0.6725    | Plane  
+
+   flap            =   0.00000
+   slat            =   0.00000
+   aileron         =   0.00000
+   elevator        =  -0.00250
+   rudder          =   0.00000
+
+   it              =  -3.42867
+ ---------------------------------------------------------------
+
+ Operation of run case 1/1:   -unnamed-                              
+ ==========================================================
+
+  variable          constraint              
+  ------------      ------------------------
+  A lpha        ->  CL          =  0.4702         
+  B eta         ->  beta        =   0.000         
+  R oll  rate   ->  pb/2V       =   0.000         
+  P itch rate   ->  qc/2V       =   0.000         
+  Y aw   rate   ->  rb/2V       =   0.000         
+  D1  flap      ->  flap        =   0.000         
+  D2  slat      ->  slat        =   0.000         
+  D3  aileron   ->  aileron     =   0.000         
+  D4  elevator  ->  Cm pitchmom =   0.000         
+  D5  rudder    ->  rudder      =   0.000         
+  ------------      ------------------------
+
+  C1  set level or banked  horizontal flight constraints
+  C2  set steady pitch rate (looping) flight constraints
+  M odify parameters                                    
+
+ "#" select  run case          L ist defined run cases   
+  +  add new run case          S ave run cases to file   
+  -  delete  run case          F etch run cases from file
+  N ame current run case       W rite forces to file     
+
+ eX ecute run case             I nitialize variables     
+
+  G eometry plot               T refftz Plane plot       
+
+  ST  stability derivatives    FT  total   forces        
+  SB  body-axis derivatives    FN  surface forces        
+  RE  reference quantities     FS  strip   forces        
+  DE  design changes           FE  element forces        
+  O ptions                     FB  body forces           
+                               HM  hinge moments         
+                               VM  strip shear,moment    
+
+ .OPER (case 1/1)   c>  
+ AVL   c>  
+ AVL   c>  
