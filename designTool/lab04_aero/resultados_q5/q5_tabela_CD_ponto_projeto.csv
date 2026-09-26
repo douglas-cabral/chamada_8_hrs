@@ -1,0 +1,5 @@
+configuracao,CD_AVL,alpha_deg,delta_e_deg,CD_designTool,dif_percentual
+fwd_livre,0.020810,0.1752,0.0000,0.021832,-4.68
+aft_livre,0.020230,0.0363,0.0000,0.021832,-7.34
+fwd_trim,0.020810,0.1754,-0.0025,0.021832,-4.68
+aft_trim,0.020230,0.0363,0.0000,0.021832,-7.34

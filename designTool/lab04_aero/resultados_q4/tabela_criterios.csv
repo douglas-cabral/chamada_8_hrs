@@ -1,0 +1,13 @@
+caso,criterio,coluna_fs,plano_clmax,alpha_max_deg,CLmax,delta_e_deg,eta_estol
+fwd_livre,roteiro,cl_norm,corrente,5.983,0.8640,0.000,0.9068
+fwd_livre,normal,cl_norm,normal,7.242,0.9736,0.000,0.8929
+fwd_livre,corrente,cl,corrente,11.481,1.3342,0.000,0.9068
+fwd_trim,roteiro,cl_norm,corrente,5.987,0.8536,-1.947,0.9068
+fwd_trim,normal,cl_norm,normal,7.247,0.9582,-2.881,0.8929
+fwd_trim,corrente,cl,corrente,11.492,1.3039,-5.875,0.9068
+aft_livre,roteiro,cl_norm,corrente,5.979,0.8769,0.000,0.9068
+aft_livre,normal,cl_norm,normal,7.238,0.9863,0.000,0.8929
+aft_livre,corrente,cl,corrente,11.476,1.3466,0.000,0.9068
+aft_trim,roteiro,cl_norm,corrente,5.977,0.8821,0.967,0.9068
+aft_trim,normal,cl_norm,normal,7.236,0.9901,0.704,0.8929
+aft_trim,corrente,cl,corrente,11.476,1.3466,0.011,0.9068

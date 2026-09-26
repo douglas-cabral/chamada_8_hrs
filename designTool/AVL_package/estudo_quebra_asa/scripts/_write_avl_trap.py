@@ -18,6 +18,9 @@ RESDIR = ac.RESDIR
 AVLDIR = ac.AVLDIR
 TWIST_TIP = 0.0
 WING_DZ = -2.140
+# incidencia da asa em relacao a fuselagem, escolhida no item 3 do Lab 04 para
+# a fuselagem voar nivelada no ponto de projeto (cartao ANGLE da superficie)
+WING_ANGLE = 4.5
 EH_DZ = 1.600
 EV_DZ = 0.250
 NAC_Z = -5.0
@@ -99,6 +102,8 @@ def write_avl(path, header, ap, Xref, CDp):
     w("0.0")
     w("TRANSLATE")
     w("0.0 0.0 %.3f" % WING_DZ)
+    w("ANGLE")
+    w("%.1f" % WING_ANGLE)
     w("")
     for y in stations(I, G):
         c = float(ch(y))
@@ -135,6 +140,8 @@ def write_avl(path, header, ap, Xref, CDp):
         w("%.4f %.4f %.4f %.4f 0.0" % (x, y, z, c))
         w("CONTROL")
         w("elevator 1.0 0.650 0. 0. 0. +1")
+        w("DESIGN")            # variavel it do menu Design Changes (Lab 04)
+        w("it 1.0")
         w("")
     w("SURFACE")
     w("Fin")

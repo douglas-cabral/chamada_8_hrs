@@ -51,3 +51,93 @@ t               (plano de Trefftz; h exporta plot.ps)
 Uso: `python q3_incidencia_eh.py` (Windows, por causa do `avl337.exe`).
 
 `resultados_q3/`: `trefftz_avl_<caso>.png` (figura do AVL, para o relatório), `trefftz_avl_<caso>_escuro.png`, `trefftz_<caso>.png` (redesenho a partir do `fs`), `q3_incidencia_eh.csv`, `ft_<caso>.txt`, `fs_<caso>.txt` e o `.ps` original.
+
+## Item 4: método da seção crítica (CLmax de asa limpa)
+
+Condição: V2 = 1,2 Vs de decolagem ao nível do mar (M = 0,253, Re_MAC = 4,0e7),
+que é o mesmo par (Re, M) em que o cl_max do perfil foi levantado no Lab 03.
+Asa limpa (flap, slat e aileron neutros), `it` do item 3.
+
+O limite de cl_max varia com a envergadura, porque a corda cai de 10,02 m na
+raiz a 2,00 m na ponta: o XFOIL dá **1,783 na raiz e 1,526 na ponta**.
+O critério é o do roteiro (passo 14 da Tab. 3): comparar a coluna `cl_norm` do
+comando `fs` — o cl da seção no plano normal, igual a `cl`/cos²Λ — com esse
+limite.
+
+| Caso | i_t | α_max (fuselagem) | **C_Lmax** | δe | η do estol |
+|---|---|---|---|---|---|
+| CG dianteiro, sem trimagem | −3,429° | 5,98° | 0,864 | +0,00° | 0,907 |
+| CG dianteiro, com trimagem | −3,429° | 5,99° | **0,854** | −1,95° | 0,907 |
+| CG traseiro, sem trimagem | −1,959° | 5,98° | 0,877 | +0,00° | 0,907 |
+| CG traseiro, com trimagem | −1,959° | 5,98° | 0,882 | +0,97° | 0,907 |
+
+**Atenção:** com o `ANGLE 4.5` do item 3, o α do AVL é o ângulo da *fuselagem*;
+a asa vê α + 4,5°, ou seja, 10,48° no estol.
+
+**O estol começa em η = 0,91, dentro da faixa do aileron** (η 0,68 à ponta), e a
+razão cl/cl_max fica acima de 0,97 em toda a faixa 0,79 ≤ η ≤ 0,93 — separação
+abrupta e sem aviso. Causa: afilamento 0,2 com torção nula. Recomendação:
+3–4° de washout.
+
+O C_Lmax obtido é 68% do `CLmax_clean = 0,9·cl_max·cosΛ = 1,304` do designTool.
+A tabela de sensibilidade (`resultados_q4/tabela_criterios.csv`) mostra que o
+valor do designTool fica no extremo otimista da faixa do método.
+
+## Item 5: polares de arrasto
+
+Quatro polares em M = 0,85 e h = 10 668 m, de C_L = −0,5 até o C_Lmax do item 4.
+
+| Configuração | α | δe | C_D (AVL) | C_D (designTool) | dif. |
+|---|---|---|---|---|---|
+| CG dianteiro, sem deflexões | 0,18° | +0,00° | 0,02081 | 0,02183 | −4,7% |
+| CG traseiro, sem deflexões | 0,04° | +0,00° | 0,02023 | 0,02183 | −7,3% |
+| CG dianteiro, compensada | 0,18° | +0,00° | 0,02081 | 0,02183 | −4,7% |
+| CG traseiro, compensada | 0,04° | +0,00° | 0,02023 | 0,02183 | −7,3% |
+
+Os C_D no ponto de projeto reproduzem exatamente os do item 3 (0,02081 e
+0,02023), o que serve de verificação cruzada entre os dois scripts. A diferença
+para o designTool está toda no arrasto induzido e de onda — o C_D0 é o mesmo por
+construção (campo `# CDp`), e o AVL, sendo potencial linear, não modela onda.
+
+Ajuste da Tab. 7 do enunciado (polar não trimada de CG traseiro, caso 5.b):
+**C_D0 = 0,02010, C_Dα = 0,18763/rad, C_Dα² = 1,48578/rad², R² = 0,99999**.
+Como α é o ângulo da fuselagem e a asa está a 4,5°, α = 0 já é praticamente o
+ponto de projeto: **esse C_D0 não é o arrasto parasita**, e os três coeficientes
+só fazem sentido juntos.
+
+## Scripts dos itens 4 e 5
+
+| Arquivo | Função |
+| --- | --- |
+| `avl_tools.py` | driver do `avl337.exe` em batch; leitores de `ft`, `fs`, `st`, `sb` |
+| `ponto_projeto.py` | ponto de projeto (o mesmo do item 3), `it` lido de `resultados_q3/`, polar do designTool e condição de baixa velocidade |
+| `xfoil_perfil.py` | `cl_max(Re)` do perfil do Lab 03, nos planos da corrente livre e normal ao bordo de ataque |
+| `q4_secao_critica.py` | item 4 |
+| `q5_polares.py` | item 5 |
+| `q4_secao_critica.tex`, `q5_polares.tex`, `main.tex`, `compila.py` | relatório (tabelas e figuras entram por `\input`; os números do texto vêm de `tex_q*/macros.tex`, gerado pelos scripts) |
+
+Ordem de execução:
+
+```bash
+python ponto_projeto.py     # resultados_comum/ponto_projeto.json
+python xfoil_perfil.py      # resultados_comum/clmax_perfil_Re*.json  (~10 min)
+python q4_secao_critica.py
+python q5_polares.py
+python compila.py           # relatorio.pdf
+```
+
+Os dois últimos aceitam `--tex`, que refaz só CSV, tabelas e figuras a partir do
+JSON já gravado, sem chamar o AVL. A pasta de trabalho `_avl_tmp/` leva o PID no
+nome, então duas execuções simultâneas não se atrapalham.
+
+`AVL_package/estudo_quebra_asa/scripts/_write_avl_trap.py` (o gerador dos
+`fwd.avl`/`aft.avl`) foi atualizado para emitir o `ANGLE 4.5` e o `DESIGN it`,
+que antes só existiam nos arquivos editados à mão e se perderiam numa
+regeração.
+
+## O que ainda falta da Tarefa 04
+
+Itens 1 (texto de apresentação dos `.avl`), 2, 6, 7 e 8, e a Seção 3 (derivadas
+de estabilidade). Os dados dos itens 6 e 7 já saem em
+`resultados_q5/polar_*.csv` (colunas `alpha_deg` e `delta_e_deg`), e
+`avl_tools.read_derivs` já lê as saídas `st`/`sb` da Seção 3.

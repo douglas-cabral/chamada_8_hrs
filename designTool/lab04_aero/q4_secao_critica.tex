@@ -1,0 +1,275 @@
+% =====================================================================
+% Lab 04 --- Item 2.4: metodo da secao critica
+% Incluido por main.tex. Tabelas em tex_q4/ e figuras em
+% resultados_q4/ (mesmo nivel que este arquivo e o main.tex).
+% Codigos em secao_critica/.
+% =====================================================================
+\input{tex_q4/macros}
+
+\section{Item 4 --- Método da seção crítica e $C_{L\,max}$ de asa limpa}
+\label{sec:secao-critica}
+
+\subsection{Condição de voo e dados de entrada}
+
+O estudo é feito na condição de baixa velocidade pedida pelo enunciado. Em vez
+do valor genérico $M=0{,}2$ do roteiro, adotou-se a velocidade de segurança de
+decolagem da própria aeronave,
+\begin{equation}
+  V_2 = 1{,}2\,V_s = \scVdois~\mathrm{m/s}
+  \quad\Longrightarrow\quad
+  M = \scMach,
+  \qquad
+  Re_{\mathrm{MAC}} = \scRemac \times 10^{7},
+\end{equation}
+ao nível do mar, calculada com $W_0$ e o $C_{L\,max}$ de decolagem do
+\code{designTool}. A escolha não é estética: é exatamente o par $(Re, M)$ em que
+o $c_{\ell\,max}$ do perfil otimizado foi levantado no XFOIL durante o Lab~03,
+de modo que o limite usado aqui é o mesmo daquele relatório e não há
+inconsistência de condição entre as duas tarefas. A diferença em relação a
+$M=0{,}2$ é irrelevante para o AVL, que só usa o Mach na correção de
+Prandtl--Glauert.
+
+Todas as superfícies de alta sustentação ficam neutras (asa limpa: \code{flap},
+\code{slat} e \code{aileron} em zero). A incidência de empenagem é a determinada
+no item~3, $i_t = \scItFwd^\circ$ para o arquivo \code{fwd.avl} e
+$i_t = \scItAft^\circ$ para o \code{aft.avl}.
+
+\paragraph{Atenção ao referencial de $\alpha$.}
+Desde o item~3 a superfície \code{Wing} dos arquivos \code{.avl} carrega o
+cartão \code{ANGLE} com $i_w = \scIw^\circ$, escolhido para a fuselagem voar
+nivelada no ponto de projeto. Com isso o $\alpha$ que o AVL reporta é o
+\textbf{ângulo da fuselagem}, não o da asa: a asa vê $\alpha + i_w$. Todos os
+$\alpha_{max}$ desta seção estão no referencial da fuselagem --- que é o que
+interessa para \emph{tailstrike} e para a atitude de aproximação --- e o ângulo
+de ataque visto pela asa no estol é
+$\alpha_{max} + \scIw^\circ = \scAlphaAsa^\circ$.
+
+\subsection{Limite de $c_{\ell\,max}$ ao longo da envergadura}
+
+A asa da NJ-0502 tem afilamento $\lambda = \scAfilamento$, com corda de
+\scCordaRaiz~m na raiz e \scCordaPonta~m na ponta. O Reynolds local varia
+portanto por um fator de cinco, e o $c_{\ell\,max}$ do perfil não pode ser
+tratado como constante. Rodou-se o XFOIL (mesmo tratamento de painéis do
+Lab~03: \code{PPAR} com $T=0{,}45$ e $N=200$) para sete valores de corda,
+obtendo-se
+\begin{equation}
+  c_{\ell\,max} = \scClmaxRaiz \ \text{na raiz}
+  \qquad\longrightarrow\qquad
+  c_{\ell\,max} = \scClmaxPonta \ \text{na ponta},
+\end{equation}
+conforme a Tab.~\ref{tab:clmax-perfil} e a Fig.~\ref{fig:clmax-perfil}. Note-se
+que o valor na MAC reproduz o $c_{\ell\,max}$ do Lab~03 e é coerente com o
+\code{clmax\_w} $=\scClmaxDT$ usado como entrada do \code{designTool}.
+
+\begin{table}[H]
+\centering
+\caption{$c_{\ell\,max}$ do perfil \code{airfoil\_lab03.dat} em função da corda
+local (XFOIL, $M=\scMach$). A coluna $\eta$ indica a estação da asa
+trapezoidal com aquela corda.}
+\label{tab:clmax-perfil}
+\input{tex_q4/tab_clmax_perfil.tex}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.66\textwidth]{resultados_q4/clmax_perfil_Re.png}
+\caption{$c_{\ell\,max}$ do perfil em função do Reynolds, nos dois planos de
+referência discutidos na Seção~\ref{sec:sc-criterio}.}
+\label{fig:clmax-perfil}
+\end{figure}
+
+\subsection{Critério de estol e leitura das colunas do AVL}
+\label{sec:sc-criterio}
+
+O comando \code{fs} do AVL imprime, para cada faixa, duas colunas de
+coeficiente de sustentação de seção: \code{cl}, referida à corda e à pressão
+dinâmica da corrente livre, e \code{cl\_norm}, referida ao plano normal ao bordo
+de ataque. Verificou-se numericamente que a razão entre as duas é praticamente
+constante ao longo da envergadura (entre \scRazaoColunasMin{} e
+\scRazaoColunasMax{}, mediana \scRazaoColunas) e coincide, a menos de $0{,}2\%$,
+com $1/\cos^{2}\Lambda = 1/\cos^{2}\scSweep^\circ = \scInvCosDois$; ou seja,
+\begin{equation}
+  c_\ell^{\,norm} = \frac{c_\ell}{\cos^{2}\Lambda},
+  \label{eq:clnorm}
+\end{equation}
+a menos de uma pequena correção de diedro. O passo~14 da Tab.~3 do enunciado
+manda comparar \code{cl\_norm} com o $c_{\ell\,max}$ do perfil, e é esse o
+critério adotado como resultado oficial.
+
+Vale registrar que a Eq.~\eqref{eq:clnorm} é apenas metade da teoria de
+enflechamento simples: se o carregamento é levado ao plano normal, o perfil
+também deveria ser --- com $t/c$ dividido por $\cos\Lambda$,
+$M_n = M\cos\Lambda$ e $Re_n = Re\cos\Lambda$. Por isso a
+Tab.~\ref{tab:criterios} traz, além do resultado oficial, duas leituras
+alternativas que limitam a incerteza do método:
+
+\begin{description}
+  \item[\emph{roteiro}] $c_\ell^{\,norm}$ contra o $c_{\ell\,max}$ do perfil da
+  corrente livre, no $Re$ local --- \textbf{resultado oficial};
+  \item[\emph{coerente}] $c_\ell^{\,norm}$ contra o $c_{\ell\,max}$ do perfil do
+  plano normal, em $M_n$ e $Re_n$;
+  \item[\emph{sem correção}] $c_\ell$ contra o $c_{\ell\,max}$ do perfil da
+  corrente livre --- ignora o enflechamento e serve de limite superior.
+\end{description}
+
+Para cada um dos quatro casos rodou-se uma única sessão do AVL com uma
+varredura de $\alpha$ de $4^\circ$ a $20^\circ$ em passos de $0{,}5^\circ$;
+interpolou-se linearmente o $\alpha$ em que $\max_y (c_\ell/c_{\ell\,max})$
+cruza a unidade e o AVL foi reexecutado nesse ângulo para ler $C_{L\,max}$ e
+$\delta_e$ exatos. A Fig.~\ref{fig:deteccao} mostra esse cruzamento.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.66\textwidth]{resultados_q4/deteccao_estol.png}
+\caption{Detecção do estol: carregamento máximo da seção em função de $\alpha$
+para os três critérios, no caso de CG traseiro com trimagem.}
+\label{fig:deteccao}
+\end{figure}
+
+\subsection{Resultados}
+
+A Tab.~\ref{tab:secao-critica} reúne os quatro casos pedidos pelo enunciado. As
+distribuições de sustentação na condição de estol estão na
+Fig.~\ref{fig:cl-y-estol}, com a curva de limite de $c_{\ell\,max}$ sobreposta,
+e a Fig.~\ref{fig:razao} mostra o grau de carregamento
+$c_\ell/c_{\ell\,max}$ de cada seção.
+
+\begin{table}[H]
+\centering
+\caption{$\alpha_{max}$, $C_{L\,max}$ e deflexão de profundor de asa limpa em
+baixa velocidade ($M=\scMach$), pelo método da seção crítica. A última coluna dá
+a estação $\eta=y/(b/2)$ em que o estol começa.}
+\label{tab:secao-critica}
+\input{tex_q4/tab_secao_critica.tex}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{resultados_q4/cl_y_estol.png}
+\caption{Distribuições de $c_\ell$ (coluna \code{cl\_norm}) na condição de
+estol, para as duas posições de CG, com e sem trimagem. A linha tracejada é o
+limite $c_{\ell\,max}(Re_{local})$ do perfil; o círculo marca a seção crítica.}
+\label{fig:cl-y-estol}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.72\textwidth]{resultados_q4/razao_cl_clmax.png}
+\caption{Grau de carregamento das seções na condição de estol. O estol começa
+onde a curva toca a unidade.}
+\label{fig:razao}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Sensibilidade do $C_{L\,max}$ à leitura do critério de estol (casos
+trimados). O valor do \code{designTool} é a correlação empírica
+$0{,}9\,c_{\ell\,max}\cos\Lambda$ usada em \code{aerodynamics.py}.}
+\label{tab:criterios}
+\input{tex_q4/tab_criterios.tex}
+\end{table}
+
+\subsection{Discussão}
+
+\paragraph{Efeito da posição de CG e da trimagem.}
+O $\alpha_{max}$ é praticamente o mesmo nos quatro casos
+($\approx \scAlphaAftTrim^\circ$, com variação inferior a $0{,}02^\circ$ entre
+eles), o que era esperado: o
+estol é ditado pela distribuição de sustentação da asa, que depende de $\alpha$
+e quase não sente o profundor. O que muda é o $C_{L\,max}$ da \emph{aeronave}.
+Sem trimagem, a empenagem com $i_t$ negativo já produz uma carga para baixo
+fixa, e o CG traseiro dá $C_{L\,max}=\scCLmaxAftLivre$ contra
+$\scCLmaxFwdLivre$ do CG dianteiro --- a diferença vem inteiramente do $i_t$
+menos negativo que o CG traseiro permite ($\scItAft^\circ$ contra
+$\scItFwd^\circ$).
+
+Com a restrição de trimagem, o profundor tem de gerar o momento que falta para
+$C_M=0$ no ângulo de estol, e aí os dois CGs se comportam de forma oposta:
+
+\begin{itemize}
+  \item no \textbf{CG dianteiro} a aeronave ainda está com o nariz pesado no
+  ângulo de estol; o profundor sobe ($\delta_e = \scDeFwdTrim^\circ$), acrescenta
+  carga descendente na empenagem e o $C_{L\,max}$ \emph{cai} de
+  $\scCLmaxFwdLivre$ para $\scCLmaxFwdTrim$;
+  \item no \textbf{CG traseiro} o sinal se inverte: a margem estática é pequena
+  e, com $i_t$ pouco negativo, sobra momento de cabrar no estol. O profundor
+  desce ($\delta_e = \scDeAftTrim^\circ$), acrescenta sustentação, e o
+  $C_{L\,max}$ \emph{sobe} de $\scCLmaxAftLivre$ para $\scCLmaxAftTrim$.
+\end{itemize}
+
+Vale notar que essa inversão é consequência direta da escolha de $i_w$ feita no
+item~3: com a asa a $\scIw^\circ$ e o $i_t$ reajustado, o ângulo de estol caiu
+para perto de $6^\circ$ de fuselagem e o equilíbrio de momentos ali mudou de
+lado no CG traseiro. \textbf{O caso crítico para o dimensionamento é o CG
+dianteiro com trimagem}, com $C_{L\,max} = \scCLmaxFwdTrim$ --- é esse o valor
+que deve alimentar as contas de velocidade de estol, comprimento de pista e
+distância de pouso.
+
+\paragraph{Onde o estol começa: o ponto fraco do projeto.}
+Nos quatro casos a seção crítica fica em $\eta = \scEtaAftTrim$, isto é,
+\textbf{dentro da faixa do aileron}, que vai de $\eta=\scEtaAil$ à ponta. Isso é
+inadequado: o estol começa justamente onde está a superfície de controle de
+rolamento, com três consequências ruins:
+\begin{enumerate}
+  \item perda de autoridade de rolamento no momento em que ela é mais
+  necessária, com risco de rolamento assimétrico se a separação começar antes
+  em uma semi-asa;
+  \item ausência de aviso de estol aerodinâmico --- a esteira separada não passa
+  pela empenagem nem pela fuselagem, de modo que não há \emph{buffet} natural
+  para avisar o piloto;
+  \item tendência de momento de arfagem para cima (\emph{pitch-up}): a perda de
+  sustentação na ponta de uma asa enflechada ocorre atrás do CG, o que agrava o
+  estol em vez de aliviá-lo.
+\end{enumerate}
+
+Pior: a Fig.~\ref{fig:razao} mostra que a razão $c_\ell/c_{\ell\,max}$ fica
+acima de $0{,}97$ em toda a faixa
+$\scEtaPlatIni \leq \eta \leq \scEtaPlatFim$. Não se trata de uma seção isolada
+tocando o limite, mas de um quinto externo de semi-asa inteiro a menos de 3\%
+do estol --- o que significa separação abrupta e ao mesmo tempo em toda essa
+extensão, em vez da propagação gradual que dá aviso ao piloto.
+
+A causa é geométrica e está clara na Fig.~\ref{fig:razao}: o afilamento
+$\lambda = \scAfilamento$ é muito agressivo (o usual em transportes é
+$0{,}25$--$0{,}35$) e os modelos AVL do grupo têm \textbf{torção nula}. A
+combinação empurra o carregamento para fora --- na seção crítica
+$c_\ell/C_L = \scFatorCarga$ --- e, como o Reynolds local na ponta é cinco vezes
+menor que na raiz, o limite de $c_{\ell\,max}$ ainda cai de $\scClmaxRaiz$ para
+$\scClmaxPonta$ exatamente onde a carga é maior. Os dois efeitos se somam na
+direção errada.
+
+A correção clássica é torção geométrica negativa (\emph{washout}) de
+$3^\circ$ a $4^\circ$ na ponta, que redistribui a carga para dentro e desloca a
+seção crítica para $\eta \approx 0{,}4$--$0{,}6$. Vale notar que o \code{slat}
+projetado vai até $\eta = \scEtaSlat$ e, portanto, protege a região crítica nas
+configurações de decolagem e pouso; o problema descrito aqui é da
+\textbf{asa limpa}, que é a condição de estol em cruzeiro e em manobra. A
+recomendação para o grupo é reintroduzir torção nos arquivos \code{.avl} e no
+\code{designTool} antes de fechar o projeto.
+
+\paragraph{Comparação com o \code{designTool}.}
+O \code{designTool} estima o $C_{L\,max}$ de asa limpa pela correlação empírica
+$C_{L\,max} = 0{,}9\,c_{\ell\,max}\cos\Lambda = \scCLmaxDT$. O método da seção
+crítica, com o critério do roteiro, dá \scRazaoDT\% desse valor. A discrepância
+não é erro de conta: ela mede a distância entre uma correlação calibrada para
+asas bem torcidas e a asa que o grupo realmente desenhou. A
+Tab.~\ref{tab:criterios} mostra que a leitura sem correção de enflechamento
+($C_{L\,max} = \scCLmaxCorrAftTrim$) fica do outro lado do valor do
+\code{designTool}, e a versão coerente da teoria de enflechamento simples
+($\scCLmaxNormAftTrim$) fica entre as duas. Ou seja: o valor do
+\code{designTool} está dentro da faixa de incerteza do método, mas no extremo
+otimista dela. Como todo o dimensionamento de pista depende do $C_{L\,max}$,
+convém tratar $\scCLmaxFwdTrim$ como o valor conservador de projeto e refazer a
+restrição de pouso do Lab~02 com ele, além de adotar a torção discutida acima.
+
+\paragraph{Limitações do modelo.}
+Três simplificações devem ser lembradas na leitura dos números: (i) o AVL é um
+método de painéis potencial e não modela separação --- o método da seção crítica
+é um critério externo aplicado sobre um campo linear, e por isso superestima a
+sustentação perto do estol; (ii) os arquivos \code{.avl} usam um único
+\code{AFILE} em todas as estações, enquanto a asa real varia de
+$t/c=\scTcRaiz$ na raiz a $\scTcPonta$ na ponta, de forma que o limite de
+$c_{\ell\,max}$ na ponta é provavelmente otimista; (iii) o $c_{\ell\,max}$ do
+XFOIL para este perfil tem incerteza numérica da ordem de $\pm 0{,}03$ (medida
+no Lab~03 variando painéis e passo de $\alpha$), o que se traduz em cerca de
+$\pm 0{,}015$ no $C_{L\,max}$ da aeronave.

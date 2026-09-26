@@ -1,0 +1,5 @@
+caso,CG,trimado,it_deg,alpha_max_deg,CLmax,delta_e_deg,y_estol_m,eta_estol,cl_norm_estol,clmax_local
+fwd_livre,fwd,False,-3.43,5.983,0.8640,0.000,28.873,0.9068,1.5984,1.5985
+fwd_trim,fwd,True,-3.43,5.987,0.8536,-1.947,28.873,0.9068,1.5985,1.5985
+aft_livre,aft,False,-1.96,5.979,0.8769,0.000,28.873,0.9068,1.5985,1.5985
+aft_trim,aft,True,-1.96,5.977,0.8821,0.967,28.873,0.9068,1.5985,1.5985

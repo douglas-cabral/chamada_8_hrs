@@ -1,0 +1,9 @@
+# pastas de trabalho dos drivers (recriadas a cada execucao)
+_avl_tmp/
+_xfoil_tmp/
+# arvore achatada montada por compila.py
+build/
+# logs de execucao
+**/_log_*.txt
+__pycache__/
+*.pyc
