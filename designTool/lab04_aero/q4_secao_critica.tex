@@ -5,6 +5,9 @@
 % Codigos em secao_critica/.
 % =====================================================================
 \input{tex_q4/macros}
+% macros do estudo de torcao (q4_washout.py); usadas tambem no item 5, por
+% isso o arquivo e escrito com \providecommand e pode ser lido duas vezes
+\input{tex_washout/macros}
 
 \section{Item 4 --- Método da seção crítica e $C_{L\,max}$ de asa limpa}
 \label{sec:secao-critica}
@@ -238,14 +241,13 @@ menor que na raiz, o limite de $c_{\ell\,max}$ ainda cai de $\scClmaxRaiz$ para
 $\scClmaxPonta$ exatamente onde a carga é maior. Os dois efeitos se somam na
 direção errada.
 
-A correção clássica é torção geométrica negativa (\emph{washout}) de
-$3^\circ$ a $4^\circ$ na ponta, que redistribui a carga para dentro e desloca a
-seção crítica para $\eta \approx 0{,}4$--$0{,}6$. Vale notar que o \code{slat}
-projetado vai até $\eta = \scEtaSlat$ e, portanto, protege a região crítica nas
-configurações de decolagem e pouso; o problema descrito aqui é da
-\textbf{asa limpa}, que é a condição de estol em cruzeiro e em manobra. A
-recomendação para o grupo é reintroduzir torção nos arquivos \code{.avl} e no
-\code{designTool} antes de fechar o projeto.
+A correção clássica é torção geométrica negativa (\emph{washout}), que
+descarrega a ponta e traz a seção crítica para dentro. A
+Seção~\ref{sec:washout} quantifica esse remédio com o próprio AVL e propõe um
+valor de projeto. Vale notar que o \code{slat} projetado vai até
+$\eta = \scEtaSlat$ e, portanto, protege a região crítica nas configurações de
+decolagem e pouso; o problema descrito aqui é da \textbf{asa limpa}, que é a
+condição de estol em cruzeiro e em manobra.
 
 \paragraph{Comparação com o \code{designTool}.}
 O \code{designTool} estima o $C_{L\,max}$ de asa limpa pela correlação empírica
@@ -273,3 +275,166 @@ $c_{\ell\,max}$ na ponta é provavelmente otimista; (iii) o $c_{\ell\,max}$ do
 XFOIL para este perfil tem incerteza numérica da ordem de $\pm 0{,}03$ (medida
 no Lab~03 variando painéis e passo de $\alpha$), o que se traduz em cerca de
 $\pm 0{,}015$ no $C_{L\,max}$ da aeronave.
+
+\subsection{Torção geométrica: quanto é preciso e quanto custa}
+\label{sec:washout}
+
+\paragraph{O que foi feito.}
+Os dois defeitos apontados acima ($C_{L\,max}$ baixo e seção crítica dentro
+da faixa do aileron) têm a mesma origem e a mesma solução. Para dimensioná-lo,
+o estudo repetiu toda a cadeia dos itens 3 a 5 para uma torção linear de
+$0^\circ$ na raiz a $\varepsilon_t$ na ponta, com $\varepsilon_t$ varrido em
+\woLista{} (\code{q4\_washout.py}). Torcer a asa não é uma mudança local: para
+cada $\varepsilon_t$ foi preciso
+
+\begin{enumerate}
+  \item \textbf{recalcular o $i_t$} pelo método do item~3, porque a torção muda
+  o ângulo de sustentação nula e o momento de arfagem da asa. Manter o $i_t$
+  antigo misturaria o efeito do washout com um erro de trimagem, e o efeito não
+  é pequeno: o $i_t$ do CG dianteiro sobe de $\woItFwdZero^\circ$ com asa reta
+  para $\woItFwdEsc^\circ$ com $\varepsilon_t = \woEsc^\circ$;
+  \item \textbf{reler o ponto de projeto} de cruzeiro com esse $i_t$, para
+  medir o preço da torção em arrasto (Seção~\ref{sec:washout-polar});
+  \item \textbf{refazer o método da seção crítica} nos quatro casos, em baixa
+  velocidade.
+\end{enumerate}
+
+O $\alpha$ de estol de cada caso sai de um modelo linear montado com duas
+corridas do AVL ($\alpha = 0^\circ$ e $12^\circ$) e é depois corrigido por
+Newton sobre o resultado real, até $|\max_y(c_\ell/c_{\ell\,max}) - 1| <
+2\times10^{-4}$. A correção é necessária porque o AVL não é exatamente linear
+em $\alpha$ --- a direção da corrente livre gira com o ângulo de ataque --- e o
+desvio do modelo linear chega a \woErroLin{} em $C_{L\,max}$, o que deslocaria
+a terceira casa decimal dos resultados.
+
+\paragraph{O critério de escolha.}
+O valor de projeto não pode sair do gosto do projetista: ele é amarrado ao
+requisito de decolagem do próprio \code{designTool} (\code{performance.py}),
+\begin{equation}
+  C_{L\,max,TO} \;\geq\; \frac{0{,}2387}{\sigma}
+  \frac{W_0/S_w}{(T_0/W_0)\,s_{TO}} = \woReqTO,
+  \label{eq:req-to}
+\end{equation}
+com $W_0/S_w = \woWS$~N/m$^2$, $T_0/W_0 = \woTW$ e pista de \woPista~m. O
+$C_{L\,max}$ de decolagem é lido como o $C_{L\,max}$ de asa limpa medido aqui
+mais o incremento de flap e slat que o \code{designTool} calcula pelo Raymer,
+$\Delta C_{L\,max} = \woDeltaTO$. A asa limpa precisa, portanto, entregar
+$\woCleanNecTO$ --- contra os $\woCLmaxZero$ que a asa sem torção entrega. O
+pouso não é crítico: pelo Torenbeek ele exige $C_{L\,max,LD} \geq \woReqLD$, ou
+seja, apenas $\woCleanNecLD$ de asa limpa, que a aeronave já cumpre com folga.
+
+\begin{table}[H]
+\centering
+\caption{Varredura de torção. Todas as colunas são do caso dimensionante (CG
+dianteiro com trimagem), exceto $C_D$ e $e$, lidos no ponto de projeto de
+cruzeiro com o $i_t$ reajustado. A coluna ``planalto'' dá a faixa de $\eta$ em
+que $c_\ell/c_{\ell\,max} > 0{,}97$.}
+\label{tab:washout}
+\input{tex_washout/tab_washout.tex}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{resultados_washout/washout_varredura.png}
+\caption{Efeito da torção geométrica. (a) $C_{L\,max}$ dos quatro casos contra
+o que a decolagem exige; (b) posição da seção crítica e largura do planalto de
+carga, contra o início do aileron; (c) preço no cruzeiro. A linha vertical
+verde marca o valor escolhido.}
+\label{fig:washout-varredura}
+\end{figure}
+
+\paragraph{Resultados.}
+O ganho é quase linear, cerca de $0{,}031$ de $C_{L\,max}$ por grau de torção,
+e vem acompanhado de um aumento igualmente linear do ângulo de estol: de
+$\woAlphaZero^\circ$ de fuselagem com asa reta para $\woAlphaEsc^\circ$ com
+$\varepsilon_t = \woEsc^\circ$. Aplicando a
+Eq.~\eqref{eq:req-to}, a menor torção da varredura que fecha o requisito de
+decolagem é $\varepsilon_t = \woEsc^\circ$, que dá
+$C_{L\,max} = \woCLmaxEsc$ de asa limpa ($\woGanhoPct$\% a mais) e
+$C_{L\,max,TO} = \woTOEsc$, com folga de $\woFolgaEsc$ sobre o requisito. É
+esse o valor adotado. Interpolando continuamente, a folga se anula em
+$\varepsilon_t = \woCont^\circ$.
+
+\begin{table}[H]
+\centering
+\caption{$C_{L\,max}$ de asa limpa disponível e folga sobre o requisito de
+decolagem da Eq.~\eqref{eq:req-to}, somando o $\Delta C_{L\,max} = \woDeltaTO$
+de flap e slat do \code{designTool}.}
+\label{tab:washout-requisito}
+\input{tex_washout/tab_washout_requisito.tex}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Os quatro casos do item~4 refeitos com $\varepsilon_t = \woEsc^\circ$.
+O $i_t$ usado é o reajustado: $\woItFwdEsc^\circ$ (dianteiro) e
+$\woItAftEsc^\circ$ (traseiro).}
+\label{tab:washout-casos}
+\input{tex_washout/tab_washout_casos.tex}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{resultados_washout/washout_distribuicoes.png}
+\caption{Distribuição de sustentação na condição de estol (esquerda) e grau de
+carregamento (direita) para vários valores de torção, no caso dimensionante. O
+círculo marca a seção crítica.}
+\label{fig:washout-dist}
+\end{figure}
+
+\paragraph{O que a torção resolve e o que ela não resolve.}
+A Fig.~\ref{fig:washout-dist} mostra o mecanismo com clareza: a torção tira
+carga da ponta e a devolve à raiz, de modo que a asa precisa de mais $\alpha$
+para que a primeira seção encoste no seu $c_{\ell\,max}$. O ganho de
+$C_{L\,max}$ e o recuo da seção crítica de $\eta = \woEtaZero$ para
+$\eta = \woEtaEsc$ são reais, mas vêm com um efeito colateral que a varredura
+deixa evidente e que não pode ser omitido.
+
+Olhando o painel da direita da Fig.~\ref{fig:washout-dist}, a curva de
+$c_\ell/c_{\ell\,max}$ fica \textbf{mais achatada} à medida que se torce a asa:
+a faixa que opera a menos de 3\% do estol \emph{aumenta} de
+$\woPlatZeroIni \leq \eta \leq \woPlatZeroFim$ para
+$\woPlatEscIni \leq \eta \leq \woPlatEscFim$, ou seja, de um quinto para mais
+de um terço da semi-asa. Isso é a consequência inevitável de perseguir o
+$C_{L\,max}$ máximo: o ótimo de sustentação é a distribuição de \emph{margem
+uniforme}, em que todas as seções chegam ao limite ao mesmo tempo --- e é
+exatamente essa a distribuição que dá o estol mais abrupto. Aumentar o
+$C_{L\,max}$ e suavizar o estol são objetivos \textbf{conflitantes}, e a
+Fig.~\ref{fig:washout-varredura} mostra que a torção compra o primeiro à custa
+do segundo.
+
+Há um segundo limite. Mesmo com $\varepsilon_t = \woEsc^\circ$ a seção crítica
+continua \emph{dentro} da faixa do aileron, que começa em
+$\eta = \woEtaAil$: a Fig.~\ref{fig:washout-varredura}(b) mostra que o $\eta$ do
+estol cai em degraus e não chega a $\woEtaAil$ em nenhum ponto da varredura.
+Tirar o estol de baixo do aileron exigiria mexer no afilamento --- hoje
+$\lambda = \scAfilamento$, contra os $0{,}25$--$0{,}35$ usuais em transportes
+--- ou reduzir a envergadura do aileron, e não apenas torcer a asa. A torção é
+condição necessária, não suficiente.
+
+Vale registrar ainda o efeito sobre a trimagem no estol: o profundor
+necessário no CG dianteiro passa de $\scDeFwdTrim^\circ$ para
+$\woDeEscFwdTrim^\circ$, porque o estol agora ocorre a $\woAlphaEsc^\circ$ de
+fuselagem em vez de $\woAlphaZero^\circ$ e o avião está muito mais cabrado. Essa
+deflexão ainda é modesta, mas é um dado a acompanhar quando a Seção~3 fechar as
+derivadas de controle.
+
+Há ainda uma ressalva de método. A folga da Tab.~\ref{tab:washout-requisito}
+mistura duas fontes: o $C_{L\,max}$ limpo vem do AVL com o método da seção
+crítica, que é conservador, enquanto o $\Delta C_{L\,max}$ de alta sustentação
+vem de uma correlação empírica. Exigir uma margem de \woMargem\% sobre a
+Eq.~\eqref{eq:req-to} levaria a $\varepsilon_t = \woContAlvo^\circ$, o que não é
+um valor de projeto realista para um transporte. A leitura correta não é ``a
+asa precisa de $10^\circ$ de torção'', e sim: \textbf{com a leitura conservadora
+do item~4, a margem de decolagem do projeto é apertada}, e o caminho para
+recuperá-la passa também pelo dimensionamento de flap e slat e pela carga
+alar --- não só pela torção.
+
+\paragraph{Recomendação.}
+Adotar $\varepsilon_t = \woEsc^\circ$ de torção linear na ponta, refletindo a
+mudança (i) nos arquivos \code{fwd.avl} e \code{aft.avl}, no campo \code{Ainc}
+das seções da \code{Wing}; (ii) no $i_t$ do item~3, que passa a
+$\woItFwdEsc^\circ$ e $\woItAftEsc^\circ$; e (iii) no \code{designTool}, cuja
+correlação $C_{L\,max} = 0{,}9\,c_{\ell\,max}\cos\Lambda = \woCleanDT$ é
+calibrada justamente para asas torcidas e só passa a fazer sentido depois dessa
+mudança. O preço em cruzeiro é discutido na Seção~\ref{sec:washout-polar}.

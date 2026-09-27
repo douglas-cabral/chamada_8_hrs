@@ -16,6 +16,8 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 BUILD_DIR = os.path.join(_HERE, 'build')
 # (arquivo .tex incluido pelo main, sufixo das pastas tex_/resultados_)
 SECOES = [('q4_secao_critica', 'q4'), ('q5_polares', 'q5')]
+# pastas usadas por mais de uma secao (o estudo de washout entra nos itens 4 e 5)
+PASTAS_EXTRA = ['tex_washout', 'resultados_washout']
 
 
 def monta_build():
@@ -38,6 +40,12 @@ def monta_build():
                 shutil.copytree(pasta, os.path.join(BUILD_DIR,
                                                     prefixo + sufixo))
         print('  secao copiada: %s' % secao)
+
+    for pasta in PASTAS_EXTRA:
+        origem = os.path.join(_HERE, pasta)
+        if os.path.isdir(origem):
+            shutil.copytree(origem, os.path.join(BUILD_DIR, pasta))
+            print('  pasta copiada: %s' % pasta)
 
 
 def compila():

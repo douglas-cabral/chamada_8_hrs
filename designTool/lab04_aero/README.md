@@ -76,12 +76,62 @@ a asa vê α + 4,5°, ou seja, 10,48° no estol.
 
 **O estol começa em η = 0,91, dentro da faixa do aileron** (η 0,68 à ponta), e a
 razão cl/cl_max fica acima de 0,97 em toda a faixa 0,79 ≤ η ≤ 0,93 — separação
-abrupta e sem aviso. Causa: afilamento 0,2 com torção nula. Recomendação:
-3–4° de washout.
+abrupta e sem aviso. Causa: afilamento 0,2 com torção nula.
 
 O C_Lmax obtido é 68% do `CLmax_clean = 0,9·cl_max·cosΛ = 1,304` do designTool.
 A tabela de sensibilidade (`resultados_q4/tabela_criterios.csv`) mostra que o
 valor do designTool fica no extremo otimista da faixa do método.
+
+## Estudo de torção geométrica (washout) — entra nos itens 4 e 5
+
+`q4_washout.py` varre torção linear de 0° na raiz a −1°…−8° na ponta. Para cada
+valor **refaz a cadeia inteira**: recalcula o `it` do item 3 (a torção muda o
+ângulo de sustentação nula e o momento da asa), relê o ponto de projeto de
+cruzeiro e refaz o método da seção crítica nos quatro casos. O α de estol vem de
+um modelo linear (α = 0° e 12°) corrigido por Newton sobre o AVL real, até
+|max(cl/cl_max) − 1| < 2e−4 — o AVL não é exatamente linear em α.
+
+| ε_t | i_t (fwd) | α_max | **C_Lmax** | η do estol | planalto η | C_D cruzeiro | e |
+|---|---|---|---|---|---|---|---|
+| 0° | −3,430° | 5,99° | 0,854 | 0,907 | 0,79–0,93 | 0,02081 | 0,673 |
+| −2° | −2,771° | 7,42° | 0,926 | 0,846 | 0,75–0,93 | 0,02020 | 0,757 |
+| −3° | −2,444° | 8,08° | 0,958 | 0,846 | 0,73–0,92 | **0,02009** | 0,788 |
+| −5° | −1,792° | 9,41° | 1,021 | 0,773 | 0,65–0,91 | 0,02022 | **0,818** |
+| **−7°** | **−1,143°** | **10,61°** | **1,074** | **0,773** | **0,50–0,88** | **0,02084** | **0,798** |
+| −8° | −0,819° | 11,20° | 1,100 | 0,733 | 0,45–0,86 | 0,02133 | 0,771 |
+
+**Critério de escolha:** o requisito de decolagem do próprio designTool,
+`CLmaxTO ≥ 0,2387·(W0/S)/(σ·(T0/W0)·s_TO) = 1,988`. Somando o ΔCLmax = 0,921 de
+flap+slat do Raymer, a asa limpa precisa de **1,066** — a asa reta entrega 0,854.
+O pouso não é crítico (Torenbeek exige só 0,728 de asa limpa).
+
+**Escolhido: ε_t = −7°** (menor da lista que fecha o requisito; contínuo: −6,7°).
+Uma margem de 5% exigiria −9,9°, que não é realista — a leitura mistura o C_Lmax
+conservador do AVL com um Δ empírico, e o recado é que **a margem de decolagem do
+projeto é apertada**, não que a asa precisa de 10° de torção.
+
+Três achados que valem para o relatório:
+
+1. **A torção paga por si até ~−3°.** O C_D de cruzeiro *cai* 3,5% (mínimo
+   0,02009 em −3°) e o e sobe de 0,673 para 0,818 (máximo em −5°): com λ = 0,2 e
+   torção nula o carregamento está longe do elíptico. Em −7° o C_D volta ao valor
+   da asa reta (+0,1% no CG dianteiro) — a torção necessária é **grátis em
+   cruzeiro**.
+2. **O CG traseiro perde a vantagem** (+3,9% de C_D). Ela vinha só da menor carga
+   descendente na EH; com a torção o `it` do CG traseiro cruza zero entre −5° e
+   −6° e a empenagem passa a sustentar, e aí o arrasto induzido dela mesma anula
+   o alívio na asa.
+3. **O planalto de carga alarga** (0,79–0,93 → 0,50–0,88). Maximizar C_Lmax e
+   suavizar o estol são objetivos conflitantes: o ótimo de sustentação é a margem
+   uniforme, que é justamente o estol mais abrupto. E mesmo em −8° a seção crítica
+   não sai da faixa do aileron — isso exige mexer no afilamento, não na torção.
+
+**Pendência:** adotar a torção obriga a rever o `i_w` do item 3. Com −7° a
+fuselagem deixa de voar nivelada no ponto de projeto (α = 2,04° em vez de 0,18°),
+o que pediria `ANGLE` de cerca de 6,5°.
+
+Saídas em `resultados_washout/` e `tex_washout/`. Os `.avl` torcidos são gerados
+e apagados dentro da execução; `fwd.avl` e `aft.avl` não são tocados.
 
 ## Item 5: polares de arrasto
 
@@ -114,6 +164,7 @@ só fazem sentido juntos.
 | `xfoil_perfil.py` | `cl_max(Re)` do perfil do Lab 03, nos planos da corrente livre e normal ao bordo de ataque |
 | `q4_secao_critica.py` | item 4 |
 | `q5_polares.py` | item 5 |
+| `q4_washout.py` | estudo de torção geométrica; alimenta as seções finais dos itens 4 e 5 |
 | `q4_secao_critica.tex`, `q5_polares.tex`, `main.tex`, `compila.py` | relatório (tabelas e figuras entram por `\input`; os números do texto vêm de `tex_q*/macros.tex`, gerado pelos scripts) |
 
 Ordem de execução:
@@ -123,11 +174,12 @@ python ponto_projeto.py     # resultados_comum/ponto_projeto.json
 python xfoil_perfil.py      # resultados_comum/clmax_perfil_Re*.json  (~10 min)
 python q4_secao_critica.py
 python q5_polares.py
+python q4_washout.py        # depende de resultados_q5/ (~25 min)
 python compila.py           # relatorio.pdf
 ```
 
-Os dois últimos aceitam `--tex`, que refaz só CSV, tabelas e figuras a partir do
-JSON já gravado, sem chamar o AVL. A pasta de trabalho `_avl_tmp/` leva o PID no
+Os três últimos scripts de análise aceitam `--tex`, que refaz só CSV, tabelas e
+figuras a partir do JSON já gravado, sem chamar o AVL. A pasta de trabalho `_avl_tmp/` leva o PID no
 nome, então duas execuções simultâneas não se atrapalham.
 
 `AVL_package/estudo_quebra_asa/scripts/_write_avl_trap.py` (o gerador dos

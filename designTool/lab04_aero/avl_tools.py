@@ -143,11 +143,14 @@ def read_fs(path_or_text):
             cur, rows = m.group(1).strip(), []
             continue
         f = line.split()
-        if cur is not None and len(f) == len(FS_COLS):
+        # com cl de faixa proximo de zero o AVL deixa a ultima coluna
+        # (C.P.x/c) em branco; a linha vem com uma coluna a menos
+        if cur is not None and len(FS_COLS) - 1 <= len(f) <= len(FS_COLS):
             try:
-                rows.append([float(v) for v in f])
+                v = [float(x) for x in f]
             except ValueError:
-                pass
+                continue
+            rows.append(v + [float('nan')]*(len(FS_COLS) - len(v)))
     flush()
     return surfaces
 

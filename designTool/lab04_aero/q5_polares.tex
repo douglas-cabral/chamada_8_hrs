@@ -5,6 +5,9 @@
 % Codigos em polares/.
 % =====================================================================
 \input{tex_q5/macros}
+% macros do estudo de torcao (q4_washout.py); escritas com \providecommand,
+% de modo que ler o arquivo aqui e no item 4 e inofensivo
+\input{tex_washout/macros}
 
 \section{Item 5 --- Polares de arrasto}
 \label{sec:polares}
@@ -162,3 +165,109 @@ condições de voo realizáveis em cruzeiro. Os arquivos
 \code{resultados\_q5/polar\_*.csv} guardam $\alpha$, $\delta_e$ e $C_M$ de
 cada ponto, o que permite refazer as curvas em outra condição sem rodar o AVL
 de novo.
+
+\subsection{Quanto custa, na polar, a torção proposta no item~4}
+\label{sec:washout-polar}
+
+A Seção~\ref{sec:washout} concluiu que a asa precisa de
+$\varepsilon_t = \woEsc^\circ$ de torção para fechar o requisito de decolagem.
+Uma recomendação de estol só é defensável se vier acompanhada da conta do
+cruzeiro, e é isso que esta seção faz: as quatro polares foram refeitas com a
+asa torcida e com o $i_t$ reajustado ($\woItFwdEsc^\circ$ e
+$\woItAftEsc^\circ$, contra $\woItFwdZero^\circ$ e $\woItAftZero^\circ$ da asa
+reta), e comparadas ponto a ponto com as da Fig.~\ref{fig:polar}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{resultados_washout/washout_polares.png}
+\caption{Polares com e sem torção, nas quatro configurações. À direita, o
+detalhe em torno do ponto de projeto; os círculos marcam $C_L = \poCLproj$.}
+\label{fig:washout-polar}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{$C_D$ e eficiência no ponto de projeto, com e sem torção. A coluna de
+$\alpha$ é a da asa torcida.}
+\label{tab:washout-polar}
+\input{tex_washout/tab_washout_polar.tex}
+\end{table}
+
+\paragraph{A torção não é um custo: em doses moderadas ela paga por si.}
+O resultado mais útil da varredura não está no valor escolhido, e sim no
+formato da curva (Fig.~\ref{fig:washout-varredura}c). O arrasto induzido de
+cruzeiro \emph{cai} com os primeiros graus de torção e só volta a subir depois:
+o mínimo fica em $\varepsilon_t = \woWCDMin^\circ$, com
+$C_D = \woCDMin$ contra $\woCDZero$ da asa reta --- uma redução de
+\woCDMinPct\%. O motivo é o mesmo defeito apontado no item~4: com
+$\lambda = \scAfilamento$ e torção nula, o carregamento da asa é empurrado
+demais para fora e fica longe do elíptico. O fator de Oswald do AVL sobe de
+$\woEZero$ com asa reta para o máximo de $\woEMax$ em
+$\varepsilon_t = \woWEMax^\circ$. Ou seja: \textbf{a asa atual não está nem
+perto do ótimo de arrasto induzido}, e a mesma torção que o item~4 pede por
+causa do estol também melhora o cruzeiro.
+
+O valor recomendado, $\woEsc^\circ$, fica além do mínimo de arrasto, e por isso
+a economia já foi devolvida: no CG dianteiro o $C_D$ do ponto de projeto passa
+de $\woCDPolZeroFwdTrim$ para $\woCDPolFwdTrim$, uma diferença de
+$\woCDPolDifFwdTrim$\% --- dentro do ruído. A torção necessária para a
+decolagem é, portanto, \textbf{essencialmente gratuita em cruzeiro no CG
+dianteiro}, e ainda deixa $e = \woEEsc$ contra $\woEZero$.
+
+\paragraph{O CG traseiro perde a vantagem.}
+A exceção está no CG traseiro, que piora $\woCDPolDifAftTrim$\% (de
+$\woCDPolZeroAftTrim$ para $\woCDPolAftTrim$) e cuja eficiência cai de
+$\poEffAftLivre$ para $\woEfPolAftLivre$. A explicação está no $i_t$. Como
+mostrado na Seção~\ref{sec:polares}, a vantagem do CG traseiro em cruzeiro vem
+inteiramente da menor carga descendente na empenagem. Torcer a asa muda o
+momento de arfagem e empurra os dois $i_t$ para cima em cerca de
+$2{,}3^\circ$; o do CG traseiro cruza o zero entre $-5^\circ$ e $-6^\circ$ de
+torção e passa a $\woItAftEsc^\circ$, isto é, a empenagem deixa de descarregar
+e passa a sustentar. A partir daí o alívio na asa não compensa mais o arrasto
+induzido da própria empenagem, que tem alongamento muito menor --- e as duas
+curvas de $C_{D,i}$ se cruzam praticamente onde o $i_t$ do CG traseiro se anula
+(\code{resultados\_washout/q4\_washout.json}). \textbf{A vantagem aerodinâmica
+de voar com o CG atrás existe enquanto a empenagem estiver descarregando; ela
+não é infinita.}
+
+\paragraph{A torção aparece onde importa: no $C_L$ alto.}
+O painel esquerdo da Fig.~\ref{fig:washout-polar} mostra que as duas famílias
+de curvas se cruzam pouco acima do ponto de projeto. Abaixo desse $C_L$ a asa
+reta é ligeiramente melhor; acima dele --- subida, manobra, espera --- a asa
+torcida é claramente melhor, além de ir muito mais longe, até
+$C_L = \woCLmaxEscAftLivre$ contra $\poCLmaxAftLivre$. Como a aeronave passa a
+maior parte do tempo em cruzeiro perto do ponto de projeto, onde as curvas
+praticamente coincidem, e como os requisitos críticos (decolagem, subida com
+motor inoperante) estão na região de $C_L$ alto, o balanço é favorável à asa
+torcida.
+
+\paragraph{Consequência sobre o item~3: o $i_w$ precisa ser revisto.}
+Um efeito colateral merece registro. A incidência de asa $i_w = \poIw^\circ$ foi
+escolhida no item~3 para a fuselagem voar nivelada no ponto de projeto, e com
+asa reta ela cumpre esse papel ($\alpha = \poAlphaFwdLivre^\circ$). Com
+$\varepsilon_t = \woEsc^\circ$ a asa perde sustentação a um dado $\alpha$ e a
+aeronave passa a voar com $\alpha = \woAlphaPolFwdTrim^\circ$ de fuselagem no
+mesmo $C_L$ (Tab.~\ref{tab:washout-polar}). Adotar a torção obriga, portanto, a
+refazer também a escolha de $i_w$ --- provavelmente subindo-o para cerca de
+$6{,}5^\circ$ --- sob pena de a fuselagem voar cabrada em cruzeiro, com o
+arrasto e o desconforto de cabine que isso traz. É a mesma cadeia de
+acoplamento dos itens 3 a 5 percorrida em sentido inverso.
+
+\paragraph{O ajuste da Tab.~7 muda de valor, não de natureza.}
+Refazendo o ajuste $C_D = C_{D0} + C_{D\alpha}\alpha + C_{D\alpha^2}\alpha^2$
+sobre a polar não trimada de CG traseiro com a asa torcida
+(Tab.~\ref{tab:washout-ajuste}), o termo constante cai de $\woFitCDzeroQ$ para
+$\woFitCDzero$ e o linear, de $\woFitCDaQ$ para $\woFitCDa$/rad, com o mesmo
+$R^2$ de $\woFitRdois$. A queda não significa menos arrasto: pela mesma razão
+discutida acima, $\alpha = 0$ agora corresponde a um $C_L$ menor que o do ponto
+de projeto, e o ajuste apenas acompanha o deslocamento da origem. É mais uma
+razão para transcrever os três coeficientes juntos para a Seção~3, e para
+refazer este ajuste se a torção e o $i_w$ forem de fato adotados.
+
+\begin{table}[H]
+\centering
+\caption{Ajuste quadrático da polar não trimada de CG traseiro, com e sem
+torção. O $\alpha$ é sempre o da fuselagem.}
+\label{tab:washout-ajuste}
+\input{tex_washout/tab_washout_ajuste.tex}
+\end{table}
