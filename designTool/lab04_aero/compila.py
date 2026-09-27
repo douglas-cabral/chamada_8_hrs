@@ -15,7 +15,8 @@ import sys
 _HERE = os.path.dirname(os.path.abspath(__file__))
 BUILD_DIR = os.path.join(_HERE, 'build')
 # (arquivo .tex incluido pelo main, sufixo das pastas tex_/resultados_)
-SECOES = [('q4_secao_critica', 'q4'), ('q5_polares', 'q5')]
+SECOES = [('q4_secao_critica', 'q4'), ('q5_polares', 'q5'),
+          ('s3_estabilidade', 's3')]
 # pastas usadas por mais de uma secao (o estudo de washout entra nos itens 4 e 5)
 PASTAS_EXTRA = ['tex_washout', 'resultados_washout']
 

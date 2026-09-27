@@ -1,0 +1,263 @@
+% =====================================================================
+% Lab 04 --- Secao 3: derivadas de estabilidade
+% Incluido por main.tex. Tabelas em tex_s3/ e figuras em resultados_s3/.
+% =====================================================================
+\input{tex_s3/macros}
+\input{tex_washout/macros}
+
+\section{Derivadas de estabilidade}
+\label{sec:estabilidade}
+
+A Seção~3 do enunciado pede as derivadas de estabilidade e controle da NJ-0502
+no \textbf{CG traseiro}, no Mach do ponto de projeto, \textbf{sem} restrição de
+trimagem. O corpo desta seção usa a asa reta dos arquivos oficiais
+\code{aft.avl} --- o mesmo avião dos itens 3 e 5. A torção
+$\varepsilon_t = \esTwist^\circ$ recomendada no item~4 entra depois, como
+subseção de comparação, no mesmo espírito da Seção~\ref{sec:washout-polar}.
+Os arquivos extras \code{aft\_washout.avl} e \code{fwd\_washout.avl} guardam
+essa geometria e \textbf{não} substituem os \code{.avl} oficiais.
+
+Duas sessões do AVL por geometria, no roteiro das Tab.~5 e~8 do enunciado
+(\code{it} é a variável de projeto~1, não a~2 do \code{b737mod.avl}):
+
+\begin{enumerate}
+  \item $\alpha = 0^\circ$, $\delta_e = 0^\circ$, $i_t = 0^\circ$, para ler
+  $C_{L0}$ e $C_{M0}$ no menu \code{ft};
+  \item ponto de projeto ($M = \esMach$, $C_L = \esCL$, $i_t = \esItReta^\circ$
+  do item~3), profundor travado em zero, para coletar \code{ft}, \code{st} e
+  \code{sb}.
+\end{enumerate}
+
+As conversões pedidas pelo roteiro já estão aplicadas nos números: derivadas
+de $\delta_e$, $\delta_a$, $\delta_r$ e $i_t$ saem do AVL em $1/^\circ$ e foram
+multiplicadas por $180/\pi$; $C_{Y\beta}$, $C_{Yp}$, $C_{Yr}$,
+$C_{\ell\delta_a}$, $C_{\ell\delta_r}$, $C_{n\delta_a}$ e $C_{n\delta_r}$ têm o
+sinal invertido para a convenção do MVFO; os momentos látero-direcionais de
+$p$, $r$ e dos comandos vêm do \code{sb}. O AVL não imprime $C_{Dq}$,
+$C_{Di_t}$ nem $C_{D\delta_e}$: esses três saem de
+$C_D = -C_X\cos\alpha - C_Z\sin\alpha$ montado com as colunas do \code{sb}
+(em $\alpha = 0$ isso reduz a $C_D = -C_X$, que reproduz o \code{ft}).
+
+\subsection{Dados gerais da aeronave}
+\label{sec:estab-dados-gerais}
+
+A Tab.~\ref{tab:dados-gerais-estabilidade} reúne o que o MVFO pede como
+entrada inercial e propulsiva. $S_{\mathrm{ref}}$, $c_{\mathrm{ref}}$ e
+$b_{\mathrm{ref}}$ são os do \code{designTool} (e do cabeçalho do
+\code{aft.avl}). A massa é a do \textbf{meio do cruzeiro},
+$m = W/g = \esM$~kg, a mesma $W$ do ponto de projeto dos itens 3 e 5 --- não o
+MTOW. Os momentos de inércia saem de \code{moment\_of\_inertia} do
+\code{designTool} (a rotina \code{fftotal} do Classroom) com
+$f_{\mathrm{fuel}} = \esFuel$\%, a fração de combustível que resta nessa $W$, e
+carga paga cheia. $x_p$ é o $x_n$ do \code{designTool}; $z_p = -z_n =
+\esZp$~m, com o sinal invertido porque o MVFO toma $z$ positivo para baixo
+($z_n = \esZnDT$~m no referencial do \code{designTool}). Não há incidência de
+motor no modelo: $i_p = 0$. $T_{\max}$ é $n_{\mathrm{eng}}T_{\max,1}$, o teto
+do motor Howe do dicionário, não o $T_0$ de decolagem.
+
+\begin{table}[H]
+\centering
+\caption{Informações gerais para análise de estabilidade e controle.}
+\label{tab:dados-gerais-estabilidade}
+\input{tex_s3/tab_dados_gerais.tex}
+\end{table}
+
+\subsection{Condição de referência (\texorpdfstring{$\alpha=0$}{alpha=0},
+\texorpdfstring{$i_t=0$}{it=0})}
+\label{sec:estab-referencia}
+
+\begin{table}[H]
+\centering
+\caption{Resultados para $\alpha=0^\circ$, $i_t=0^\circ$, $\beta=0^\circ$,
+$pb/2V=0$, $rb/2V=0$, $\delta_a=0^\circ$, $\delta_r=0^\circ$.}
+\label{tab:cl0-cm0}
+\input{tex_s3/tab_cl0_cm0.tex}
+\end{table}
+
+$C_{L0} = \esCL0$ não é o $C_L$ de um perfil a ângulo nulo: a asa está a
+$i_w = \esIw^\circ$ em relação à fuselagem, então $\alpha = 0$ no AVL já é a
+asa a $\esIw^\circ$. Por isso $C_{L0}$ fica perto do $C_L$ de cruzeiro
+($\esCL$). $C_{M0} = \esCM0$ é o momento de picar da asa camberada com a
+empenagem a $i_t = 0$, e é exatamente o que o $i_t = \esItReta^\circ$ do item~3
+existe para matar.
+
+\subsection{Ajuste quadrático da polar de arrasto}
+\label{sec:estab-polar-quadratica}
+
+O enunciado manda reaproveitar o item 5.b: polar \textbf{não trimada} de CG
+traseiro da Seção~\ref{sec:polares},
+$C_D = C_{D0} + C_{D\alpha}\,\alpha + C_{D\alpha^2}\,\alpha^2$ com $\alpha$ em
+radianos. Os coeficientes são os já reportados lá
+($R^2 = \esRdois$). A Fig.~\ref{fig:ajuste-polar-quadratica} redesenha o
+ajuste e, só para a subseção seguinte, sobrepõe a parábola da asa torcida.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.78\textwidth]{resultados_s3/ajuste_polar_quadratica.png}
+\caption{Ajuste quadrático $C_D(\alpha)$ da polar não trimada de CG traseiro.
+Pontos do AVL e parábola da asa reta (item 5.b); em vermelho, o mesmo ajuste
+com $\varepsilon_t = \esTwist^\circ$.}
+\label{fig:ajuste-polar-quadratica}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Ajuste quadrático para a polar de arrasto (asa reta, item 5.b).}
+\label{tab:ajuste-quadratico}
+\input{tex_s3/tab_ajuste.tex}
+\end{table}
+
+Como no item~5: $C_{D0} = \esCD0Fit$ \textbf{não} é o arrasto parasita. Com
+$i_w = \esIw^\circ$, $\alpha = 0$ já é quase o ponto de projeto, e o termo
+constante carrega induzido e onda. Os três coeficientes só fazem sentido juntos.
+
+\subsection{Derivadas no ponto de projeto}
+\label{sec:estab-derivadas-projeto}
+
+A Tab.~\ref{tab:derivadas-projeto} é a tabela do enunciado preenchida para a
+\textbf{asa reta}, no $C_L = \esCL$ com $i_t = \esItReta^\circ$ e $\delta_e = 0$.
+O AVL linearizou em $\alpha = \esAlpha^\circ$ de fuselagem. Esse é o jogo de
+números que deve ir para o MVFO, coerente com os itens 3 e 5.
+
+\begin{table}[H]
+\centering
+\caption{Informações e derivadas de estabilidade e controle no ponto de
+projeto (asa reta, CG traseiro).}
+\label{tab:derivadas-projeto}
+\scriptsize
+\input{tex_s3/tab_derivadas.tex}
+\end{table}
+
+\subsection{Efeito da torção geométrica nas derivadas}
+\label{sec:estab-washout}
+
+A Seção~\ref{sec:washout} adotou $\varepsilon_t = -7^\circ$ e recalculou
+o $i_t$ do CG traseiro para $+0{,}330^\circ$. Esta subseção --- no mesmo
+espírito da Seção~\ref{sec:washout-polar} --- repete as duas sessões do AVL
+no \code{aft\_washout.avl}, com esse $i_t$, e confronta \textbf{todas} as
+grandezas aerodinâmicas da Tab.~\ref{tab:derivadas-projeto} com a asa reta.
+Massa, inércias, $x_p$, $z_p$, $i_p$ e $T_{\max}$ são os mesmos por
+construção e não entram na comparação. A Tab.~\ref{tab:estab-washout} lista
+o restante, com diferença absoluta e percentual; ``troca sinal'' marca os
+casos em que o percentual não tem sentido.
+
+Duas coisas mudam ao mesmo tempo e não se separam nesta comparação: a
+\textbf{geometria} da asa e o \textbf{ponto de linearização} ($\alpha$ de
+$0{,}036^\circ$ para $1{,}898^\circ$, $i_t$ de $-1{,}959^\circ$ para
+$+0{,}330^\circ$). Os dois efeitos estão em todas as colunas.
+
+\begin{table}[H]
+\centering
+\caption{Comparação completa das grandezas aerodinâmicas da Seção~3, CG
+traseiro: asa reta (\code{aft.avl}) versus $\varepsilon_t = -7^\circ$
+(\code{aft\_washout.avl}). A tabela oficial do MVFO continua sendo a da asa
+reta.}
+\label{tab:estab-washout}
+\scriptsize
+\input{tex_s3/tab_washout_derivadas.tex}
+\end{table}
+
+\paragraph{Equilíbrio e termos de $\alpha=0$.}
+$C_{L0}$ cai de $0{,}48779$ para $0{,}24275$ ($-50{,}2$\%): a ponta
+descarregada produz menos sustentação a um dado $\alpha$. $C_{M0}$ passa de
+$-0{,}10560$ para $+0{,}02450$ e \textbf{troca de sinal} --- o momento da
+asa fica cabrador, e é por isso que o $i_t$ de equilíbrio cruza zero. O
+$C_D$ em $\alpha=0$, $i_t=0$ cai de $0{,}02033$ para $0{,}01553$, porque
+esse ponto agora corresponde a um $C_L$ bem menor. No ponto de projeto o
+$C_D$ sobe de $0{,}02023$ para $0{,}02102$ ($+3{,}9$\%), o mesmo já visto
+na polar do item~5 no CG traseiro.
+
+\paragraph{Longitudinais de $C_L$ e $C_M$.}
+$C_{L\alpha}$ mal se mexeu ($6{,}759$ para $6{,}733$, $-0{,}4$\%): a área e
+o enflechamento são os mesmos. $C_{Lq}$ cai de $7{,}718$ para $7{,}552$
+($-2{,}2$\%), um pouco menos de sustentação por taxa de arfagem com a ponta
+mais leve. $C_{M\alpha}$ é a derivada longitudinal que mais muda,
+$-0{,}215$ para $-0{,}180$ ($-16{,}3$\%): o avião continua estável, mas a
+margem encolhe. $C_{Mq}$ passa de $-40{,}64$ para $-40{,}36$ (menos de
+$1$\%). O $X_{np}$ recua de $30{,}129$~m para $30{,}094$~m e a margem
+estática AVL de $3{,}2$\% para $2{,}7$\%.
+
+\paragraph{Comandos de empenagem.}
+A EH não foi torcida. $C_{Li_t}$ vai de $0{,}6415$ para $0{,}6401$ e
+$C_{Mi_t}$ de $-3{,}0934$ para $-3{,}0916$; $C_{L\delta_e}$ de $0{,}4027$
+para $0{,}4005$ e $C_{M\delta_e}$ de $-2{,}0074$ para $-1{,}9929$. Tudo
+abaixo de $1$\%. O que muda de verdade no canal de arfagem é o $i_t$ em que
+se lineariza, não a autoridade da cauda.
+
+\paragraph{Arrasto: derivadas e ajuste 5.b.}
+$C_{Dq}$ cai de $0{,}741$ para $0{,}637$ ($-14{,}0$\%). $C_{Di_t}$ sobe de
+$0{,}0169$ para $0{,}0351$ ($+108{,}6$\%): com a EH sustentando ($i_t>0$) o
+mesmo $\Delta i_t$ custa mais arrasto induzido. $C_{D\delta_e}$ troca de
+sinal, $-0{,}0034$ para $+0{,}0181$. O ajuste quadrático da polar 5.b ---
+refeito na asa torcida --- passa de
+$(C_{D0},C_{D\alpha},C_{D\alpha^2})=(0{,}02010,\,0{,}18763,\,1{,}48578)$
+para $(0{,}01569,\,0{,}11440,\,1{,}42705)$. A queda do termo constante não
+é ``menos arrasto'': $\alpha=0$ agora é um $C_L$ menor, e a origem da
+parábola anda com ele.
+
+\paragraph{Látero-direcionais estáticas.}
+$C_{Y\beta}$ vai de $0{,}563$ para $0{,}557$ ($-1{,}1$\%). $C_{n\beta}$ de
+$-0{,}133$ para $-0{,}128$ ($-3{,}6$\%): a deriva não mudou.
+$C_{\ell\beta}$ cai de $-0{,}199$ para $-0{,}159$ ($-20{,}2$\%):
+descarregar a ponta de uma asa enflechada reduz o diedro efetivo, e isso
+aparece no rolamento por derrapagem.
+
+\paragraph{Amortecimentos e acoplamentos laterais.}
+$C_{\ell p}$ quase não se mexe ($-0{,}553$ para $-0{,}557$). $C_{nr}$ idem
+($-0{,}156$ nos dois). O que muda é o acoplamento: $C_{\ell r}$ cai de
+$0{,}176$ para $0{,}102$ ($-42{,}0$\%); $C_{Yp}$ de $-0{,}022$ para
+$-0{,}040$ ($+84{,}1$\%); $C_{Yr}$ de $0{,}170$ para $0{,}184$
+($+8{,}3$\%); $C_{np}$ de $-0{,}035$ para $-0{,}045$ ($+28{,}7$\%). Parte
+disso é ponta mais leve, parte é o $\alpha$ de linearização $\sim 2^\circ$
+em vez de $\sim 0^\circ$. Não dá para atribuir o $\Delta$ só à torção.
+
+\paragraph{Aileron e leme.}
+$C_{\ell\delta_a}$ ($-0{,}1878$ para $-0{,}1882$), $C_{\ell\delta_r}$
+($0{,}0186$ para $0{,}0184$), $C_{Y\delta_r}$ ($-0{,}1591$ para
+$-0{,}1585$) e $C_{n\delta_r}$ ($-0{,}0879$ para $-0{,}0874$) ficam abaixo
+de $1$\%. A exceção é $C_{n\delta_a}$, que \textbf{troca de sinal}:
+$+0{,}0132$ para $-0{,}0056$. O yaw adverso do aileron inverte na asa
+torcida, de novo com a ressalva de que o AVL linearizou noutro $\alpha$.
+
+\subsection{Discussão}
+
+$C_{L\alpha} = \esCLa$~rad$^{-1}$ é o sinal e a ordem certos para um transporte
+de $\Lambda \approx 35^\circ$ e $AR \approx 10{,}6$. $C_{M\alpha} = \esCma$ é
+negativo: o avião é estaticamente estável em arfagem no CG traseiro. A margem
+que o AVL enxerga,
+$(X_{np}-X_{cg})/\bar{c} = \esSM$\%, é menor que os $10$\% do
+\code{designTool} --- o mesmo viés já visto no item~3, e o motivo de se
+trabalhar com o $X_{\mathrm{ref}}$ do CG e não com o NP empírico.
+
+$C_{\ell\beta} = \esClb$ negativo é o efeito diedro (incluindo o diedro
+efetivo da asa enflechada). $C_{\ell p} = \esClp$ e $C_{nr} = \esCnr$ são os
+amortecimentos de rolamento e de guinada, ambos com o sinal estabilizante
+esperado. $C_{n\beta} = \esCnb$ sai \emph{negativo} do AVL. Na convenção
+``$X$ para frente, $Z$ para baixo'' do próprio \code{st} isso deveria ser
+positivo (weathercock). O número foi transcrito sem inversão extra --- o
+roteiro não pede para virar $C_{n\beta}$ --- e deve ser lido com essa ressalva
+na hora de montar o MVFO: se o modo espiral ou o rolamento holandês
+aparecerem instáveis, o primeiro suspeito é o sinal de $C_{n\beta}$, não a
+planta da deriva.
+
+Os comandos têm o sinal que o MVFO espera depois das inversões: profundor
+$C_{L\delta_e} = \esCLd4 > 0$ e $C_{M\delta_e} = \esCmd4 < 0$ (cabra o nariz
+quando $\delta_e > 0$ no AVL); $i_t$ entra com
+$C_{Li_t} = \esCLg1$ e $C_{Mi_t} = \esCmg1$, o mesmo papel do profundor em
+escala maior. Aileron e leme já estão com o sinal do MVFO na
+Tab.~\ref{tab:derivadas-projeto}.
+
+O motor entra só como ponto de força ($x_p = \esXp$~m, $z_p = \esZp$~m,
+$i_p = 0$). O AVL não modela jato nem efeito de esteira na EH; as derivadas
+aerodinâmicas desta seção são de avião \emph{planador} no $C_L$ de cruzeiro.
+O $T_{\max}$ da Tab.~\ref{tab:dados-gerais-estabilidade} é para o MVFO
+montar o termo de empuxo, não para o AVL.
+
+A torção de $-7^\circ$ \textbf{não} foi adotada na tabela oficial do
+MVFO. A Tab.~\ref{tab:estab-washout} é o inventário completo do que mudaria
+se ela o fosse: equilíbrio ($C_{L0}$, $C_{M0}$, $i_t$, $\alpha$),
+$C_{M\alpha}$ e margem estática, o bloco de arrasto ($C_{Dq}$, $C_{Di_t}$,
+$C_{D\delta_e}$ e o ajuste 5.b), o diedro efetivo $C_{\ell\beta}$, os
+acoplamentos $C_{\ell r}$, $C_{Yp}$, $C_{Yr}$, $C_{np}$ e o sinal de
+$C_{n\delta_a}$. Até lá, o arquivo que o MVFO deve ler é a
+Tab.~\ref{tab:derivadas-projeto}.

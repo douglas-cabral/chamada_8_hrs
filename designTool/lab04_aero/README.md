@@ -165,7 +165,8 @@ só fazem sentido juntos.
 | `q4_secao_critica.py` | item 4 |
 | `q5_polares.py` | item 5 |
 | `q4_washout.py` | estudo de torção geométrica; alimenta as seções finais dos itens 4 e 5 |
-| `q4_secao_critica.tex`, `q5_polares.tex`, `main.tex`, `compila.py` | relatório (tabelas e figuras entram por `\input`; os números do texto vêm de `tex_q*/macros.tex`, gerado pelos scripts) |
+| `s3_estabilidade.py` | Seção 3: derivadas no CG traseiro (`aft.avl`); comparação com `aft_washout.avl` |
+| `q4_secao_critica.tex`, `q5_polares.tex`, `s3_estabilidade.tex`, `main.tex`, `compila.py` | relatório (tabelas e figuras entram por `\input`; os números do texto vêm de `tex_*/macros.tex`, gerado pelos scripts) |
 
 Ordem de execução:
 
@@ -175,11 +176,13 @@ python xfoil_perfil.py      # resultados_comum/clmax_perfil_Re*.json  (~10 min)
 python q4_secao_critica.py
 python q5_polares.py
 python q4_washout.py        # depende de resultados_q5/ (~25 min)
+python s3_estabilidade.py   # depende de resultados_q5/ e resultados_washout/
 python compila.py           # relatorio.pdf
 ```
 
-Os três últimos scripts de análise aceitam `--tex`, que refaz só CSV, tabelas e
-figuras a partir do JSON já gravado, sem chamar o AVL. A pasta de trabalho `_avl_tmp/` leva o PID no
+Os scripts de análise dos itens 4 e 5, do washout e da Seção 3 aceitam `--tex`,
+que refaz só CSV, tabelas e figuras a partir do JSON já gravado, sem chamar o
+AVL. A pasta de trabalho `_avl_tmp/` leva o PID no
 nome, então duas execuções simultâneas não se atrapalham.
 
 `AVL_package/estudo_quebra_asa/scripts/_write_avl_trap.py` (o gerador dos
@@ -189,7 +192,7 @@ regeração.
 
 ## O que ainda falta da Tarefa 04
 
-Itens 1 (texto de apresentação dos `.avl`), 2, 6, 7 e 8, e a Seção 3 (derivadas
-de estabilidade). Os dados dos itens 6 e 7 já saem em
-`resultados_q5/polar_*.csv` (colunas `alpha_deg` e `delta_e_deg`), e
-`avl_tools.read_derivs` já lê as saídas `st`/`sb` da Seção 3.
+Itens 1 (texto de apresentação dos `.avl`), 2, 6, 7 e 8. Os dados dos itens 6
+e 7 já saem em `resultados_q5/polar_*.csv` (colunas `alpha_deg` e
+`delta_e_deg`). A Seção 3 (derivadas de estabilidade, CG traseiro) está em
+`s3_estabilidade.py` / `s3_estabilidade.tex`.
