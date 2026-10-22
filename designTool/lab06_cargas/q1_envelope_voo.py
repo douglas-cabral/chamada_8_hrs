@@ -65,9 +65,7 @@ KT = 0.514444                    # m/s por no
 #                   (0,854). Com ele a linha de estol do inicio do cruzeiro
 #                   nao alcanca n_max antes de V_D e o ponto A nao existe.
 CLMAX_FONTE = 'designTool'
-# CL_min = -RAZAO_CLMIN * CL_max (nao ha polar do perfil em alpha negativo;
-# o perfil do Lab 03 tem alpha_zl ~ -0,08 deg, quase sem arqueamento efetivo)
-RAZAO_CLMIN = 0.8
+CLMIN = -0.8                     # CL_min fixo (definido pelo professor)
 MMO = 0.89                       # M_C = MMO (definido pelo professor)
 DELTA_MD = 0.07                  # M_D = MMO + 0,07 (idem)
 
@@ -210,7 +208,7 @@ def calcula():
         'rho': pp['rho'], 'a': pp['a'], 'sigma': pp['rho']/RHO0,
         'M_cruzeiro': pp['M'], 'MC': MMO, 'MD': MMO + DELTA_MD,
         'CLmax': CLmax, 'CLmax_fonte': fonte,
-        'CLmin': -RAZAO_CLMIN*CLmax,
+        'CLmin': CLMIN,
         'CLa': CLa, 'CLa_deg': CLa*np.pi/180, 'CL_avl_alpha_0_2': CL_avl,
         'CLa_cruzeiro': CLa_cruz, 'CL_avl_alpha_0_2_cruzeiro': CL_avl_cruz,
         'it_deg': it, 'iw_deg': pp['iw_deg'], 'washout_deg': eps,
@@ -461,7 +459,7 @@ def variante_clmax(res, arg):
 
     arg: numero (ex.: 1.3) ou 'avl' (secao critica do Lab 04 para a asa do
     fwd.avl). C_L_alpha, pesos e Machs vem do JSON oficial; C_L_min segue
-    a mesma razao RAZAO_CLMIN. Saidas em resultados_q1/clmax_<tag>/.
+    o mesmo CLMIN. Saidas em resultados_q1/clmax_<tag>/.
     '''
     base = dict(res['base'])
     if arg.lower() == 'avl':
@@ -472,7 +470,7 @@ def variante_clmax(res, arg):
         base['CLmax'] = float(arg)
         base['CLmax_fonte'] = 'fixado manualmente'
         tag = ('%.2f' % base['CLmax']).replace('.', 'p')
-    base['CLmin'] = -RAZAO_CLMIN*base['CLmax']
+    base['CLmin'] = CLMIN
     W = {k: c['W_N'] for k, c in res['condicoes'].items()}
     var = {'base': base,
            'condicoes': {k: envelope(W[k], base) for k in ('inicio', 'fim')}}

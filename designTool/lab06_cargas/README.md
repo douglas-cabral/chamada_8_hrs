@@ -26,7 +26,7 @@ Script: `q1_envelope_voo.py`. Saídas em `resultados_q1/` e `tex_q1/`.
 | Corda de referência | c_ref | **6,904 m** | corda média aerodinâmica (Cref do AVL) |
 | Altitude de cruzeiro | h | **35 000 ft** (10 668 m) | `altitude_cruise` |
 | Máximo coeficiente de sustentação | C_Lmax | **1,304** | designTool: 0,9·cl_max·cosΛ (ver ponto em aberto 1) |
-| Mínimo coeficiente de sustentação | C_Lmin | **−1,043** | hipótese −0,8·C_Lmax (ver ponto em aberto 2) |
+| Mínimo coeficiente de sustentação | C_Lmin | **−0,80** | definido pelo professor (valor fixo, não depende de C_Lmax) |
 | Inclinação da curva de sustentação | C_Lα | **7,059 rad⁻¹** (0,1232 /°) em M 0,89, usada na rajada | AVL, avião completo, `fwd.avl` −7°, i_t = −1,143° |
 | ″ (registro) | C_Lα | 6,754 rad⁻¹ (0,1179 /°) em M 0,85 | idem, no Mach de cruzeiro |
 | Mach de cruzeiro | M_cr | **0,85** | `Mach_cruise` (ponto de projeto) |
@@ -44,7 +44,7 @@ os valores a 35 000 ft.
 | Ponto | Início EAS [m/s] | Início TAS [m/s] | Início Mach | Fim EAS [m/s] | Fim TAS [m/s] | Fim Mach |
 |---|---|---|---|---|---|---|
 | V_S1 (estol, n = 1) | 91,5 | 164,2 | 0,554 | 76,5 | 137,3 | 0,463 |
-| V_S⁻ (estol negativo em n = −1) | 102,3 | 183,6 | 0,619 | 85,6 | 153,5 | 0,518 |
+| V_S⁻ (estol negativo em n = −1) | 116,9 | 209,7 | 0,707 | 97,7 | 175,3 | 0,591 |
 | **V_A (manobra)** | **144,7** | **259,7** | **0,876** | **121,0** | **217,1** | **0,732** |
 | V_B (rajada máxima) | 123,1 | 220,9 | 0,745 | 111,7 | 200,3 | 0,676 |
 | V_C (MMO) | 147,1 | 264,0 | 0,890 | 147,1 | 264,0 | 0,890 |
@@ -72,6 +72,9 @@ os valores a 35 000 ft.
   147,1 m/s EAS, M 0,876 contra 0,890. A linha de estol cruza V_C em 2,58 g,
   só 3% acima de n_max.
 - Com o M_C = 0,85 usado antes, V_A ficava acima de V_C.
+- No lado negativo, a linha de estol (C_Lmin = −0,80) chega a n = −1 em
+  V_S⁻ = 116,9 m/s EAS no início e 97,7 m/s no fim, as duas abaixo de V_C.
+  O trecho em n = −1 vai de V_S⁻ até V_C.
 
 Figuras: `resultados_q1/vn_inicio.png` e `resultados_q1/vn_fim.png`.
 
@@ -87,8 +90,8 @@ Os mesmos diagramas foram refeitos com dois outros C_Lmax:
   trimado.
 
 Os dois são a base para decidir o ponto em aberto 1. Pesos, Machs, C_Lα e
-U_ref são os mesmos da versão oficial. Em cada variante, C_Lmin continua
-−0,8·C_Lmax.
+U_ref são os mesmos da versão oficial, e C_Lmin continua −0,80 em todas,
+então o lado negativo do diagrama não muda entre elas.
 
 As variantes saem do JSON oficial sem rodar AVL nem designTool
 (`--clmax 1.3` e `--clmax avl`). As saídas ficam em
@@ -96,9 +99,9 @@ As variantes saem do JSON oficial sem rodar AVL nem designTool
 
 | Grandeza [m/s EAS] | C_Lmax 1,304 (oficial), início | C_Lmax 1,304, fim | **C_Lmax 1,30**, início | **C_Lmax 1,30**, fim | **C_Lmax AVL 1,074**, início | **C_Lmax AVL 1,074**, fim |
 |---|---|---|---|---|---|---|
-| C_Lmin | −1,043 | −1,043 | −1,040 | −1,040 | −0,859 | −0,859 |
+| C_Lmin | −0,80 | −0,80 | −0,80 | −0,80 | −0,80 | −0,80 |
 | V_S1 | 91,5 | 76,5 | 91,7 | 76,7 | 100,9 | 84,3 |
-| V_S⁻ (n = −1) | 102,3 | 85,6 | 102,5 | 85,7 | 112,8 | 94,3 |
+| V_S⁻ (n = −1) | 116,9 | 97,7 | 116,9 | 97,7 | 116,9 | 97,7 |
 | **V_A** | **144,7** (M 0,876) | **121,0** (M 0,732) | **144,9** (M 0,877) | **121,2** (M 0,733) | **159,5 (M 0,965) > V_D** | **133,4** (M 0,807) |
 | V_B | 123,1 | 111,7 | 123,3 | 111,8 | 135,7 | 123,0 |
 | V_C / V_D | 147,1 / 158,7 | idem | idem | idem | idem | idem |
@@ -168,7 +171,7 @@ portanto os três números saem da mesma fonte.
 **c) Linhas de estol.**
 
 - Estol positivo: n = ρ₀V_E²S·C_Lmax/(2W).
-- Estol negativo: mesma expressão com C_Lmin.
+- Estol negativo: mesma expressão com |C_Lmin| = 0,80.
 - V_S1 = √(2W/(ρ₀S·C_Lmax)).
 - V_A = V_S1·√n_max, que é o cruzamento da linha de estol com n_max.
 
@@ -246,29 +249,18 @@ i_t = −1,143° e todos os controles travados, em dois Mach:
 - **Pergunta para o professor:** qual C_Lmax ele quer no V-n, o do designTool
   ou o da seção crítica do Lab 04?
 
-**2. C_Lmin é hipótese, não cálculo.**
-
-- Adotamos C_Lmin = −0,8·C_Lmax = −1,043 (`RAZAO_CLMIN`).
-- Não há polar do perfil do Lab 03 em α negativo, e o `xfoil.exe` do
-  repositório só roda no Windows.
-- O perfil tem α_zl ≈ −0,08°, quase sem arqueamento efetivo, então a razão
-  real pode ser mais próxima de 1.
-- **Não afeta os itens 2 e 3:** a linha de estol negativo só define o
-  contorno abaixo de ~100 m/s EAS. Para fechar de verdade, rode o XFOIL em
-  α negativo no Windows e aplique o método da seção crítica com cl_min.
-
-**3. C_Lmax constante com o Mach.** O mesmo C_Lmax (de baixa velocidade) foi
+**2. C_Lmax constante com o Mach.** O mesmo C_Lmax (de baixa velocidade) foi
 usado até M 0,96. Em transônico o C_Lmax real cai (buffet), então a linha de
 estol perto de V_C/V_D é otimista. Isso reforça o ponto 1.
 
-**4. O cruzeiro de alta velocidade do designTool passa do MMO.**
+**3. O cruzeiro de alta velocidade do designTool passa do MMO.**
 
 - O `Mach_maxcruise` do designTool é 0,90 a 30 000 ft, acima do MMO = 0,89
   definido em sala.
 - Vale comentar no relatório, ou baixar o `Mach_maxcruise` para 0,89.
 - Isso não muda o V-n.
 
-**5. Rajada: fórmula estática de Pratt × rajada discreta "1-cosseno".**
+**4. Rajada: fórmula estática de Pratt × rajada discreta "1-cosseno".**
 
 - A FAR 25.341(a) vigente pede rajada discreta com análise dinâmica. A
   fórmula de Pratt é a aproximação clássica para o diagrama V-n.
@@ -277,7 +269,7 @@ estol perto de V_C/V_D é otimista. Isso reforça o ponto 1.
 - Como a rajada não é crítica (1,81 g e 2,13 g contra 2,5 g), a escolha não
   muda a condição de projeto.
 
-**6. Qual C_Lα na rajada.**
+**5. Qual C_Lα na rajada.**
 
 - Usamos o do avião completo (asa + EH + fuselagem, AVL) em M_C = 0,89, e
   esse mesmo valor em V_B e V_D.
@@ -287,11 +279,11 @@ estol perto de V_C/V_D é otimista. Isso reforça o ponto 1.
 - Usando o C_Lα de M 0,85, o Δn cairia ~4% (a rajada em V_C no fim do
   cruzeiro iria de 2,13 g para ~2,08 g). A conclusão não muda.
 
-**7. c̄ em μ_g.** Usamos a corda média geométrica S/b = 6,013 m, que é o
+**6. c̄ em μ_g.** Usamos a corda média geométrica S/b = 6,013 m, que é o
 que a 25.341 define. Com a CMA (6,904 m), μ_g cai ~13%, K_g cai junto e o
 Δn diminui ~1%. Ou seja, a escolha atual é a mais conservadora das duas.
 
-**8. Avisos para o item 2.**
+**7. Avisos para o item 2.**
 
 - No início do cruzeiro, V_A está em **M 0,876**, acima do Mach de cruzeiro
   e quase no MMO. O AVL aplica Prandtl-Glauert nesse Mach, mas sem onda de
@@ -307,7 +299,7 @@ que a 25.341 define. Com a CMA (6,904 m), μ_g cai ~13%, K_g cai junto e o
 - **V_A não mudou com o novo M_C/M_D:** ele só depende de W, S, C_Lmax e
   n_max. Por isso as condições do item 2 são as mesmas.
 
-**9. CG.**
+**8. CG.**
 
 - O C_Lα e o i_t usados são os do **CG dianteiro** (`fwd.avl`).
 - No `aft.avl`, i_t = +0,330° com a asa torcida: a EH passa a sustentar.
@@ -322,6 +314,7 @@ que a 25.341 define. Com a CMA (6,904 m), μ_g cai ~13%, K_g cai junto e o
 
 | Mudança | O que mudou | O que não mudou |
 |---|---|---|
+| **C_Lmin definido pelo professor** (C_Lmin = −0,80 fixo) | Antes era hipótese, −0,8·C_Lmax = −1,043. Muda só a linha de estol negativo: V_S⁻ vai de 102,3 para 116,9 m/s EAS (início) e de 85,6 para 97,7 (fim). | Pesos, V_S1, V_A, V_B, V_C, V_D, toda a rajada e o contorno positivo |
 | **M_C/M_D definidos em sala** (M_C = MMO = 0,89; M_D = 0,96) | Antes: M_C = M_cr = 0,85 e M_D = 0,90. Mudam V_C (140,5 → 147,1 m/s EAS), V_D (148,8 → 158,7), V_B, todo o envelope de rajada e o C_Lα da rajada (6,754 → 7,059 rad⁻¹). | Pesos, V_S1 e V_A |
 | **`b8f7de4` (22/10)**: `fwd.avl`/`aft.avl` viraram a asa com washout −7° e os `*_washout.avl` foram removidos | A primeira rodada foi com a asa reta (C_Lα = 6,735 rad⁻¹ em M 0,85, i_t = −3,429°). Diferença < 0,3% em C_Lα. | — |
 
@@ -357,5 +350,5 @@ pela plataforma: `AVL_package/avl337.exe` no Windows e `AVL_package/avl`
 | `tex_q1/tab_dados.tex` | tabela 1.1 em LaTeX (para o relatório) |
 | `tex_q1/tab_velocidades.tex` | tabela 1.2 em LaTeX |
 
-Parâmetros no topo do script: `CLMAX_FONTE`, `RAZAO_CLMIN`, `MMO`,
+Parâmetros no topo do script: `CLMAX_FONTE`, `CLMIN`, `MMO`,
 `DELTA_MD`.
