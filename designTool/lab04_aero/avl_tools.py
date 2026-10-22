@@ -23,7 +23,8 @@ import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 AVLDIR = os.path.abspath(os.path.join(HERE, '..', 'AVL_package'))
-AVL_EXE = os.path.join(AVLDIR, 'avl337.exe')
+# Windows usa o avl337.exe do professor; macOS/Linux, o binario nativo 'avl'
+AVL_EXE = os.path.join(AVLDIR, 'avl337.exe' if os.name == 'nt' else 'avl')
 
 # Colunas da tabela "Strip Forces referred to Strip Area, Chord" do comando fs
 FS_COLS = ['j', 'Yle', 'Chord', 'Area', 'c_cl', 'ai', 'cl_norm', 'cl',
@@ -63,7 +64,7 @@ def run_cases(avl_file, mach, cases, it=None, tag='run', workdir=None,
     os.makedirs(wd, exist_ok=True)
     # o AVL precisa achar o .avl, o .dat do perfil e o .dat da fuselagem
     for name in os.listdir(AVLDIR):
-        if name.endswith(('.avl', '.dat', '.exe')):
+        if name.endswith(('.avl', '.dat')) or name == os.path.basename(AVL_EXE):
             dst = os.path.join(wd, name)
             if not os.path.exists(dst) or os.path.getmtime(
                     os.path.join(AVLDIR, name)) > os.path.getmtime(dst):
@@ -74,7 +75,7 @@ def run_cases(avl_file, mach, cases, it=None, tag='run', workdir=None,
             if os.path.exists(f):
                 os.remove(f)
 
-    proc = subprocess.run([os.path.join(wd, 'avl337.exe')],
+    proc = subprocess.run([os.path.join(wd, os.path.basename(AVL_EXE))],
                           input=_script(avl_file, mach, it, cases, tag),
                           capture_output=True, text=True, cwd=wd,
                           timeout=timeout)
