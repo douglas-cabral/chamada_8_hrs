@@ -10,6 +10,7 @@ Convencao dos casos:
     {'alpha': 5.0}                 -> a a 5       (profundor travado em zero)
     {'CL': 0.4710}                 -> a c 0.4710  (profundor travado em zero)
     {..., 'trim': True}            -> d4 pm 0.0   (arfagem compensada, CM = 0)
+    {..., 'qc2V': qhat}            -> p p qhat    (taxa de arfagem, qc/2V)
 Sem 'trim' o profundor fica travado em zero (d4 d4 0), que e a condicao
 "sem deflexoes de superficie de controle" pedida no enunciado.
 '''
@@ -23,7 +24,8 @@ import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 AVLDIR = os.path.abspath(os.path.join(HERE, '..', 'AVL_package'))
-AVL_EXE = os.path.join(AVLDIR, 'avl337.exe')
+# Windows usa o avl337.exe do professor; macOS/Linux, o binario nativo 'avl'
+AVL_EXE = os.path.join(AVLDIR, 'avl337.exe' if os.name == 'nt' else 'avl')
 
 # Colunas da tabela "Strip Forces referred to Strip Area, Chord" do comando fs
 FS_COLS = ['j', 'Yle', 'Chord', 'Area', 'c_cl', 'ai', 'cl_norm', 'cl',
@@ -45,6 +47,8 @@ def _script(avl_file, mach, it, cases, tag):
         else:
             raise ValueError('caso sem alpha nem CL: %r' % case)
         c.append('d4 pm 0.0' if case.get('trim') else 'd4 d4 0.0')
+        if case.get('qc2V') is not None:
+            c.append('p p %.10f' % float(case['qc2V']))
         # 'ft'/'fs' seguidos de um nome de arquivo gravam em disco e voltam
         # sozinhos ao menu OPER (nao pode haver ENTER extra depois do nome)
         c += ['x',
@@ -63,7 +67,7 @@ def run_cases(avl_file, mach, cases, it=None, tag='run', workdir=None,
     os.makedirs(wd, exist_ok=True)
     # o AVL precisa achar o .avl, o .dat do perfil e o .dat da fuselagem
     for name in os.listdir(AVLDIR):
-        if name.endswith(('.avl', '.dat', '.exe')):
+        if name.endswith(('.avl', '.dat')) or name == os.path.basename(AVL_EXE):
             dst = os.path.join(wd, name)
             if not os.path.exists(dst) or os.path.getmtime(
                     os.path.join(AVLDIR, name)) > os.path.getmtime(dst):
@@ -74,7 +78,7 @@ def run_cases(avl_file, mach, cases, it=None, tag='run', workdir=None,
             if os.path.exists(f):
                 os.remove(f)
 
-    proc = subprocess.run([os.path.join(wd, 'avl337.exe')],
+    proc = subprocess.run([os.path.join(wd, os.path.basename(AVL_EXE))],
                           input=_script(avl_file, mach, it, cases, tag),
                           capture_output=True, text=True, cwd=wd,
                           timeout=timeout)
@@ -113,6 +117,7 @@ def read_ft(path_or_text):
          ('Alpha', 'Beta', 'Mach', 'CXtot', 'CYtot', 'CZtot', 'Cltot',
           'Cmtot', 'Cntot', 'CLtot', 'CDtot', 'CDvis', 'CDind',
           'CLff', 'CDff', 'e', 'Sref', 'Cref', 'Bref', 'Xref')}
+    r['qc2V'] = _grab(t, 'qc/2V')
     for name in ('flap', 'slat', 'aileron', 'elevator', 'rudder', 'it'):
         m = re.search(r'^\s*' + name + r'\s*=\s*' + _NUM, t, re.M)
         r[name] = float(m.group(1)) if m else float('nan')
