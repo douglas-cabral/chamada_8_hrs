@@ -164,14 +164,6 @@ def _csv_strips(caso, path):
             w.writerow(['%.6f' % v for v in row])
 
 
-def _br(x, nd):
-    return ('%.*f' % (nd, x)).replace('.', '{,}')
-
-
-def _brs(x, nd):
-    return ('%+.*f' % (nd, x)).replace('.', '{,}')
-
-
 def _milhar(x, nd=0):
     s = '%.*f' % (nd, x)
     inteiro, _, frac = s.partition('.')
@@ -187,8 +179,7 @@ def _kgf_N(kgf, N):
 
 
 def _escreve_relatorio(saida, path=TEX_Q2):
-    '''Arquivo unico do item 2, no formato das tabelas do relatorio.'''
-    b = saida['base']
+    '''Secao 2 do relatorio: so o que o roteiro pede.'''
     ci, cf = saida['condicoes']['inicio'], saida['condicoes']['fim']
     pi, pf = ci['pesos'], cf['pesos']
     ai, af = ci['avl'], cf['avl']
@@ -197,20 +188,18 @@ def _escreve_relatorio(saida, path=TEX_Q2):
     def par(rot, vi, vf):
         return '%s & %s & %s \\\\' % (rot, vi, vf)
 
-    def num(x, nd):
-        return '$%s$' % _br(x, nd)
-
     linhas = [
-        r'% NJ-0502 --- Atividade 06, item 2',
-        r'% Arquivo unico para o relatorio: \input{item2_resultados}',
-        r'% Copie tambem resultados_q2/cl_cm_asa.png para o Overleaf.',
-        r'\graphicspath{{../resultados_q2/}{./}}',
+        r'% NJ-0502 --- Atividade 06, secao 2 do relatorio',
+        r'% \input{item2_resultados}  (depois da secao 1)',
+        r'% Copie tambem cl_cm_asa.png para a mesma pasta no Overleaf.',
         r'',
-        r'Condição: $V_A$, $n_z = 2{,}5$, CG dianteiro (\texttt{fwd.avl}, '
-        r'washout $-7^\circ$), aeronave trimada ($C_M = 0$) e com taxa de '
-        r'arfagem $q = g(n_z-1)/V_{\mathrm{TAS}}$. O $C_L$ imposto no AVL é o '
-        r'$C_{L_{\max}}$ do designTool ($0{,}9\,c_{\ell,\max}\cos\Lambda = %s$).'
-        % _br(b['CLmax'], 3),
+        r'\section{Simulações Aerodinâmicas}',
+        r'\label{sec:simulacoes-aero}',
+        r'',
+        r'As simulações foram feitas no AVL para o início e o fim do '
+        r'cruzeiro, no ponto de manobra $V_A$ com fator de carga máximo '
+        r'($n_z = 2{,}5$). A aeronave está trimada e a taxa de arfagem '
+        r'$q = g(n_z-1)/V_{\mathrm{TAS}}$ foi prescrita.',
         r'',
         r'\begin{table}[htbp]',
         r'\centering',
@@ -241,38 +230,6 @@ def _escreve_relatorio(saida, path=TEX_Q2):
         r'',
         r'\begin{table}[htbp]',
         r'\centering',
-        r'\caption{Condição de voo e solução do AVL em $V_A$.}',
-        r'\label{tab:q2-voo}',
-        r'\begin{tabular}{lrr}',
-        r'\toprule',
-        r' & Início do cruzeiro & Fim do cruzeiro \\',
-        r'\midrule',
-        par(r'$V_A$ (EAS) [m/s]', num(ai['V_EAS'], 1), num(af['V_EAS'], 1)),
-        par(r'$V_A$ (TAS) [m/s]', num(ai['V_TAS'], 1), num(af['V_TAS'], 1)),
-        par(r'Mach', num(ai['Mach'], 3), num(af['Mach'], 3)),
-        par(r'$n_z$', num(ai['n_z'], 1), num(af['n_z'], 1)),
-        par(r'$C_L$ (alvo / AVL)',
-            r'$%s$ / $%s$' % (_br(ai['CL_alvo'], 3), _br(ai['CLtot'], 3)),
-            r'$%s$ / $%s$' % (_br(af['CL_alvo'], 3), _br(af['CLtot'], 3))),
-        par(r'$\alpha$ da fuselagem [$^\circ$]',
-            num(ai['Alpha_deg'], 2), num(af['Alpha_deg'], 2)),
-        par(r'$i_t$ [$^\circ$]',
-            r'$%s$' % _brs(b['it_deg'], 3),
-            r'$%s$' % _brs(b['it_deg'], 3)),
-        par(r'$\delta_e$ [$^\circ$]',
-            r'$%s$' % _brs(ai['elevator_deg'], 2),
-            r'$%s$' % _brs(af['elevator_deg'], 2)),
-        par(r'$C_M$', num(abs(ai['Cmtot']), 3), num(abs(af['Cmtot']), 3)),
-        par(r'$q$ [rad/s]', num(ai['q_rad_s'], 4), num(af['q_rad_s'], 4)),
-        par(r'$qc/2V$ (pedido / AVL)',
-            r'$%s$ / $%s$' % (_br(ai['qc2V'], 5), _br(ai['qc2V_avl'], 5)),
-            r'$%s$ / $%s$' % (_br(af['qc2V'], 5), _br(af['qc2V_avl'], 5))),
-        r'\bottomrule',
-        r'\end{tabular}',
-        r'\end{table}',
-        r'',
-        r'\begin{table}[htbp]',
-        r'\centering',
         r'\caption{Forças de sustentação em $V_A$, $n_z = 2{,}5$.}',
         r'\label{tab:q2-forcas}',
         r'\begin{tabular}{lrr}',
@@ -285,12 +242,6 @@ def _escreve_relatorio(saida, path=TEX_Q2):
         par(r'Sustentação da EH',
             _kgf_N(ai['L_eh_N']/gravity, ai['L_eh_N']),
             _kgf_N(af['L_eh_N']/gravity, af['L_eh_N'])),
-        par(r'$n_z W$',
-            _kgf_N(ai['L_nW']/gravity, ai['L_nW']),
-            _kgf_N(af['L_nW']/gravity, af['L_nW'])),
-        par(r'$C_L\,q_\infty S$',
-            _kgf_N(ai['L_CLtot_N']/gravity, ai['L_CLtot_N']),
-            _kgf_N(af['L_CLtot_N']/gravity, af['L_CLtot_N'])),
         r'\bottomrule',
         r'\end{tabular}',
         r'\end{table}',
@@ -299,28 +250,9 @@ def _escreve_relatorio(saida, path=TEX_Q2):
         r'\centering',
         r'\includegraphics[width=0.92\textwidth]{cl_cm_asa.png}',
         r'\caption{Distribuição de $c_\ell$ e de $c_m$ no $c/4$ ao longo da '
-        r'asa em $V_A$, $n_z = 2{,}5$ (CG dianteiro).}',
+        r'asa em $V_A$, $n_z = 2{,}5$.}',
         r'\label{fig:q2-cl-cm}',
         r'\end{figure}',
-        r'',
-        r'As duas condições impõem o mesmo $C_L = C_{L_{\max}}$, por isso as '
-        r'curvas de $c_\ell$ quase coincidem. O $\alpha$ maior no fim do '
-        r'cruzeiro ($%s^\circ$ contra $%s^\circ$) acompanha o Mach menor '
-        r'($%s$ contra $%s$). O profundor fica a $%s^\circ$ e $%s^\circ$, '
-        r'e $C_L q_\infty S$ fecha com $n_z W$. A EH sustenta pouco e para '
-        r'cima: com $\alpha \approx 9$--$11^\circ$, o $i_t = %s^\circ$ não '
-        r'chega a gerar download. O $c_\ell$ sobe da raiz ($\approx 0{,}96$) '
-        r'até um platô $\approx 1{,}47$ em $\eta \approx 0{,}75$--$0{,}85$ e '
-        r'cai na ponta; o $c_m$ no $c/4$ é picado na raiz. Pelo critério da '
-        r'seção crítica do Lab~04 ($c_{\ell,\mathrm{norm}}/c_{\ell,\max}$), '
-        r'várias seções externas já estariam além do teto 2D --- o AVL não '
-        r'estola e entrega a carga potencial pedida no enunciado. O pico de '
-        r'$c_m$ positivo em $\eta > 0{,}92$ é artefato de ponta da treliça '
-        r'de vórtices.'
-        % (_br(af['Alpha_deg'], 2), _br(ai['Alpha_deg'], 2),
-           _br(af['Mach'], 3), _br(ai['Mach'], 3),
-           _brs(ai['elevator_deg'], 1), _brs(af['elevator_deg'], 1),
-           _brs(b['it_deg'], 3)),
         r'',
     ]
     with open(path, 'w', encoding='utf-8') as f:
